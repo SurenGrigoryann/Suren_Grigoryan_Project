@@ -12,11 +12,80 @@ YELLOW = (255, 255, 0)
 PINK = (255, 192, 203)
 BROWN = (150,75,0)
 RED = (255,0,0)
+GREEN = (0,255,0)
+DARK_GREEN = (1, 50, 32)
 
 Ghost_colors = [PINK,BROWN,WHITE]
 # Screen dimensions
 SCREEN_WIDTH = 1300
 SCREEN_HEIGHT = 800
+
+class Player(pygame.sprite.Sprite):
+    
+    # Constructor function
+    def __init__(self, x, y,color):
+        
+        super().__init__()
+ 
+        # Set height, width
+        self.image = pygame.Surface([25,25])
+        self.image.fill(color)
+ 
+        # Make our top-left corner the passed-in location.
+        self.rect = self.image.get_rect()
+        self.rect.y = y
+        self.rect.x = x
+ 
+        # Set speed vector
+        self.change_x = 0
+        self.change_y = 0
+        self.walls = None
+        self.ghosts = None
+        self.live = 3
+    # end procedure
+
+    def changespeed(self, x, y):
+        # changing the speed of the player
+        self.change_x += x
+        self.change_y += y
+    # end procedure
+
+
+    def update(self):
+        # updating player's position
+        # Move left/right
+        self.rect.x += self.change_x
+ 
+        # Checking if we hit anything horizontally
+        block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
+        for block in block_hit_list:
+            # If we are moving right, set our right side to the left side of
+            # the item we hit
+            if self.change_x > 0:
+                self.rect.right = block.rect.left
+            else:
+                # Otherwise if we are moving left, do the opposite.
+                self.rect.left = block.rect.right
+            # end if
+        # next block
+ 
+        # Move up/down
+        self.rect.y += self.change_y
+ 
+        # Checking if we hit anything vertically
+        block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
+        for block in block_hit_list:
+ 
+            # Reset our position based on the top/bottom of the object.
+            if self.change_y > 0:
+                self.rect.bottom = block.rect.top
+            else:
+                self.rect.top = block.rect.bottom
+            # end if
+        # next block
+
+# end class Player
+ 
 
 class Block(pygame.sprite.Sprite):
     # Creating a class block in which player cannot collide to
@@ -27,7 +96,7 @@ class Block(pygame.sprite.Sprite):
  
         # Make a blue block with 40 heigth and 40 width
         self.image = pygame.Surface([18,18])
-        self.image.fill(BLUE)
+        self.image.fill(DARK_GREEN)
  
         # Make our top-left corner the passed-in location.
         self.rect = self.image.get_rect()
@@ -50,8 +119,8 @@ wall_list = pygame.sprite.Group()
 
 
 
-
-map = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+# the map
+map = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
@@ -90,10 +159,14 @@ map = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
+       [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],  
        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
-       [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
+       [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
+       [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+       [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+       ]
 
-
+# creating the map
 x = 0
 y = 0
 for i in map:
@@ -107,25 +180,74 @@ for i in map:
     x = 0
     y += 18
 
+# we will need to players so
+# creates player 1 or the Fboy
+player1 = Player(100, 100, RED)
+player1.walls = wall_list
+all_sprite_list.add(player1)
+
+# creates player 2 or the Wgirl
+player2 = Player(800, 100, BLUE)
+player2.walls = wall_list
+all_sprite_list.add(player2)
+
 
 clock = pygame.time.Clock()
 
 done = False
 
+# the main loop
 while not done:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
-    
+        # the quit method
+            
+        # Creating the keys for player 1 and player 2     
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
+                player1.changespeed(-3, 0)
+            elif event.key == pygame.K_RIGHT:
+                player1.changespeed(3, 0)
+            elif event.key == pygame.K_UP:
+                player1.changespeed(0, -3)
+            elif event.key == pygame.K_DOWN:
+                player1.changespeed(0, 3)
 
+            if event.key == pygame.K_a:
+                player2.changespeed(-3, 0)
+            elif event.key == pygame.K_d:
+                player2.changespeed(3, 0)
+            elif event.key == pygame.K_w:
+                player2.changespeed(0, -3)
+            elif event.key == pygame.K_s:
+                player2.changespeed(0, 3)
 
+        elif event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT:
+                player1.changespeed(3, 0)
+            elif event.key == pygame.K_RIGHT:
+                player1.changespeed(-3, 0)
+            elif event.key == pygame.K_UP:
+                player1.changespeed(0, 3)
+            elif event.key == pygame.K_DOWN:
+                player1.changespeed(0, -3)
+
+            if event.key == pygame.K_a:
+                player2.changespeed(3, 0)
+            elif event.key == pygame.K_d:
+                player2.changespeed(-3, 0)
+            elif event.key == pygame.K_w:
+                player2.changespeed(0, 3)
+            elif event.key == pygame.K_s:
+                player2.changespeed(0, -3)            
 
     # updating all of the objects
     all_sprite_list.update()
     
-    screen.fill(BLACK)
- 
+    screen.fill(GREEN)
+
     all_sprite_list.draw(screen)
     
     # drawing everything
@@ -134,3 +256,6 @@ while not done:
     clock.tick(60)
  
 pygame.quit()
+# quiting the pygame
+
+# add gravity
