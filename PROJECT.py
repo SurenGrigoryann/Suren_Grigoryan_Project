@@ -200,18 +200,21 @@ def initial_map(first_m):
 
 def live_map(current_map):
     global sm
-    if current_map != sm:
+    if current_map == [0]:
+        pause()
+    elif current_map != sm:
         delete_map()
         create_map(current_map)
         sm = current_map
 
 def pause():
-
+    delete_map()
+    screen.fill(WHITE)
     font = pygame.font.Font('freesansbold.ttf',32)
     text = font.render('Menu',True,GREEN,BLUE)
     textRect = text.get_rect()
     textRect.center = ( 1280//2, 720//2)
- 
+    screen.blit(text, textRect)
     
 
 # we will need to players so
@@ -267,6 +270,8 @@ while not done:
                 player2.stop()
             if event.key == pygame.K_l:
                 sc_map = maps.map1
+            if event.key == pygame.K_m:
+                sc_map = [0]
     live_map(sc_map)
     
 
