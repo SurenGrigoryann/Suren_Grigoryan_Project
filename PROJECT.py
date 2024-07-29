@@ -204,9 +204,14 @@ def live_map(current_map):
         delete_map()
         create_map(current_map)
         sm = current_map
- 
+
 def pause():
-    pass
+
+    font = pygame.font.Font('freesansbold.ttf',32)
+    text = font.render('Menu',True,GREEN,BLUE)
+    textRect = text.get_rect()
+    textRect.center = ( 1280//2, 720//2)
+ 
     
 
 # we will need to players so
