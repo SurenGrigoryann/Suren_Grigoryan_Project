@@ -167,6 +167,8 @@ ft = 0
 
 
 def create_map(map):
+        global all_sprite_list
+        global wall_list
         x = 0
         y = 0
         for i in map:
@@ -190,6 +192,7 @@ def create_map(map):
 def delete_map():
     global all_sprite_list 
     all_sprite_list.empty()
+    wall_list.empty()
 
 
     
@@ -201,16 +204,17 @@ def initial_map(first_m):
 def live_map(current_map):
     global sm
     if current_map == [0]:
+        delete_map()
         pause()
+        
     elif current_map != sm:
         delete_map()
         create_map(current_map)
-        sm = current_map
+    sm = current_map
 
 def pause():
-    delete_map()
     screen.fill(WHITE)
-    font = pygame.font.Font('freesansbold.ttf',32)
+    font = pygame.font.Font('freesansbold.ttf',82)
     text = font.render('Menu',True,GREEN,BLUE)
     textRect = text.get_rect()
     textRect.center = ( 1280//2, 720//2)
@@ -258,6 +262,13 @@ while not done:
             elif event.key == pygame.K_w:
                 player2.jump()
 
+            if event.key == pygame.K_l:
+                sc_map = maps.map1
+            if event.key == pygame.K_b:
+                sc_map = maps.l
+            if event.key == pygame.K_m:
+                sc_map = [0]
+
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT and player1.change_x < 0:
                 player1.stop()
@@ -268,18 +279,19 @@ while not done:
                 player2.stop()
             if event.key == pygame.K_d and player2.change_x > 0:
                 player2.stop()
-            if event.key == pygame.K_l:
-                sc_map = maps.map1
-            if event.key == pygame.K_m:
-                sc_map = [0]
+
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                print(pos)
+    
+
+    screen.fill(GREEN)
     live_map(sc_map)
     
-
     # updating all of the objects
-
     all_sprite_list.update()
-    
-    screen.fill(GREEN)
+
 
     all_sprite_list.draw(screen)
     
