@@ -2,7 +2,7 @@
 import pygame
 import random
 import maps
- 
+import time
 
  
 # Colors
@@ -166,6 +166,7 @@ sm = maps.l
 ft = 0
 
 
+
 def create_map(map):
         global all_sprite_list
         global wall_list
@@ -189,6 +190,7 @@ def create_map(map):
             x = 0
             y += 10
 
+
 def delete_map():
     global all_sprite_list 
     all_sprite_list.empty()
@@ -203,16 +205,18 @@ def initial_map(first_m):
 
 def live_map(current_map):
     global sm
+    
     if current_map == [0]:
         delete_map()
-        pause()
+        menu()
         
     elif current_map != sm:
         delete_map()
         create_map(current_map)
+
     sm = current_map
 
-def pause():
+def menu():
     screen.fill(WHITE)
     font = pygame.font.Font('freesansbold.ttf',82)
     text = font.render('Menu',True,GREEN,BLUE)
@@ -283,11 +287,26 @@ while not done:
 
         if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                print(pos)
+                x,y = pos[0],pos[1]
+  
+                if (x > 5 or x < 55) and (y > 5 or y < 45):
+                    if sc_map == [0]:
+                        sc_map = maps.l
+                    else:
+                        sc_map = [0]
     
 
     screen.fill(GREEN)
     live_map(sc_map)
+    if sc_map == [0]:
+        play = pygame.image.load('play_button.jpg')
+        play_image = pygame.transform.scale(play, (50,50))
+        screen.blit(play_image, (30,20))
+    else:
+
+        pause = pygame.image.load('pause_button.jpg')
+        pause_image = pygame.transform.scale(pause, (50,50))
+        screen.blit(pause_image,(30,20))
     
     # updating all of the objects
     all_sprite_list.update()
