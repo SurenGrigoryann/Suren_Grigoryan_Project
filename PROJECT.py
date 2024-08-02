@@ -222,7 +222,12 @@ def menu():
     text = font.render('Menu',True,GREEN,BLUE)
     textRect = text.get_rect()
     textRect.center = ( 1280//2, 720//2)
+    font2 = pygame.font.Font('freesansbold.ttf',32)
+    text2 = font2.render('To return to the game press R or the button on the top right', True, GREEN,BLUE)
+    text2Rect = text2.get_rect()
+    text2Rect.center = (1280//2, 720//2 + 100)
     screen.blit(text, textRect)
+    screen.blit(text2,text2Rect)
     
 
 # we will need to players so
@@ -272,6 +277,8 @@ while not done:
                 sc_map = maps.l
             if event.key == pygame.K_m:
                 sc_map = [0]
+            if event.key == pygame.K_r:
+                sc_map = maps.l
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT and player1.change_x < 0:
