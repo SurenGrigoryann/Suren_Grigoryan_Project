@@ -32,18 +32,32 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.y = y
         self.rect.x = x
+        self.color = color
  
         # speed vector
         self.change_x = 0
         self.change_y = 0
         self.walls = None
+        self.lakes = None
         self.ghosts = None
-        self.live = 3
+        self.life = 1
         self.level = None
     # end procedure
 
 
     def update(self):
+
+        if self.color == RED:
+            blue_lake_list = pygame.sprite.spritecollide(self, self.lakes, False)
+            for lake in blue_lake_list:
+                if(self.rect.x < lake.rect.x + 10 and self.rect.x > lake.rect.x) and (self.rect.y < lake.rect.y - 10 and self.rect.y > lake.rect.y + 10):
+                    self.life = self.life - 1
+
+        elif self.color == BLUE:
+            red_lake_hit_list = pygame.sprite.spritecollide(self, self.lakes, False)
+            for lake in red_lake_hit_list:
+                if( self.rect.x < lake.rect.x + 10 and self.rect.x > lake.rect.x) and (self.rect.y < lake.rect.y - 10 and self.rect.y > lake.rect.y + 10):
+                    self.life = self.life - 1
 
         self.calc_grav()
         # updating player's position
@@ -108,6 +122,13 @@ class Player(pygame.sprite.Sprite):
  
     def stop(self):
         self.change_x = 0
+    
+    def set_life(self,life):
+        self.life = life
+
+    def get_life(self):
+        return self.life
+
     # end class Player
  
 
@@ -213,6 +234,10 @@ def live_map(current_map):
     elif current_map != sm:
         delete_map()
         create_map(current_map)
+    
+    elif player1.life == 0 or player2.life == 0:
+        delete_map()
+        lose()
 
     sm = current_map
 
@@ -228,7 +253,14 @@ def menu():
     text2Rect.center = (1280//2, 720//2 + 100)
     screen.blit(text, textRect)
     screen.blit(text2,text2Rect)
-    
+
+def lose():
+    screen.fill(BLACK)
+    font = pygame.font.Font('freesansbold.ttf',82)
+    lose = font.render('You Lost!', True, WHITE,RED)
+    loseRect = lose.get_rect()
+    loseRect.center = (1280//2, 720//2)
+    screen.blit(lose, loseRect)
 
 # we will need to players so
 # creates player 1 or the Fboy
