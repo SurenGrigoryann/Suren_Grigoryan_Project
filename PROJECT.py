@@ -47,17 +47,7 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
 
-        if self.color == RED:
-            blue_lake_list = pygame.sprite.spritecollide(self, self.lakes, False)
-            for lake in blue_lake_list:
-                if(self.rect.x < lake.rect.x + 10 and self.rect.x > lake.rect.x) and (self.rect.y < lake.rect.y - 10 and self.rect.y > lake.rect.y + 10):
-                    self.life = self.life - 1
 
-        elif self.color == BLUE:
-            red_lake_hit_list = pygame.sprite.spritecollide(self, self.lakes, False)
-            for lake in red_lake_hit_list:
-                if( self.rect.x < lake.rect.x + 10 and self.rect.x > lake.rect.x) and (self.rect.y < lake.rect.y - 10 and self.rect.y > lake.rect.y + 10):
-                    self.life = self.life - 1
 
         self.calc_grav()
         # updating player's position
@@ -176,12 +166,20 @@ red_lake_list = pygame.sprite.Group()
 
 blue_lake_list = pygame.sprite.Group()
 
+
+
+# we will need to players so
+# creates player 1 or the Fboy
+player1 = Player(100, 100, RED)
+player1.walls = wall_list
+all_sprite_list.add(player1)
+
+# creates player 2 or the Wgirl
+player2 = Player(900, 100, BLUE)
+player2.walls = wall_list
+all_sprite_list.add(player2)
+
 # the map
-
-
-
-
-
 sc_map = maps.l
 sm = maps.l
 ft = 0
@@ -203,10 +201,12 @@ def create_map(map):
                     red_lake = Lakes(x, y,RED)
                     red_lake_list.add(red_lake)    
                     all_sprite_list.add(red_lake)
+
                 elif j == 3:
                     blue_lake = Lakes(x, y,BLUE)
                     blue_lake_list.add(blue_lake)    
                     all_sprite_list.add(blue_lake)
+
                 x += 10
             x = 0
             y += 10
@@ -217,6 +217,14 @@ def delete_map():
     all_sprite_list.empty()
     wall_list.empty()
 
+def check_die(player,lake_list):
+    for lake in lake_list:
+        if(player.rect.x+25 >= lake.rect.x and player.rect.x - 10 <= lake.rect.x) and (player.rect.y +25 >= lake.rect.y  and player.rect.y -10 <= lake.rect.y ):
+            player.life = player.life - 1
+
+        
+
+
 
     
 
@@ -226,18 +234,21 @@ def initial_map(first_m):
 
 def live_map(current_map):
     global sm
-    
-    if current_map == [0]:
+
+    if player1.life == 0 or player2.life == 0 or current_map == [1] :
         delete_map()
-        menu()
-        
+        lose()
+        current_map = 1
+
     elif current_map != sm:
         delete_map()
         create_map(current_map)
     
-    elif player1.life == 0 or player2.life == 0:
+    elif current_map == [0]:
         delete_map()
-        lose()
+        menu()
+        
+        
 
     sm = current_map
 
@@ -255,23 +266,15 @@ def menu():
     screen.blit(text2,text2Rect)
 
 def lose():
+    global sc_map
     screen.fill(BLACK)
     font = pygame.font.Font('freesansbold.ttf',82)
     lose = font.render('You Lost!', True, WHITE,RED)
     loseRect = lose.get_rect()
     loseRect.center = (1280//2, 720//2)
     screen.blit(lose, loseRect)
+    sc_map =[1]
 
-# we will need to players so
-# creates player 1 or the Fboy
-player1 = Player(100, 100, RED)
-player1.walls = wall_list
-all_sprite_list.add(player1)
-
-# creates player 2 or the Wgirl
-player2 = Player(900, 100, BLUE)
-player2.walls = wall_list
-all_sprite_list.add(player2)
 
 
 clock = pygame.time.Clock()
@@ -337,6 +340,8 @@ while not done:
 
     screen.fill(GREEN)
     live_map(sc_map)
+    check_die(player1,blue_lake_list)
+    check_die(player2,red_lake_list)
     if sc_map == [0]:
         play = pygame.image.load('play_button.jpg')
         play_image = pygame.transform.scale(play, (50,50))
