@@ -10,6 +10,7 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 BLUE = (50, 50, 255)
 RED = (255,0,0)
+LIGHT_RED = (255,144,144)
 GREEN = (0,255,0)
 DARK_GREEN = (1, 50, 32)
 
@@ -102,13 +103,13 @@ class Player(pygame.sprite.Sprite):
  
         # If it is ok to jump, set our speed upwards
         if len(platform_hit_list) > 0 or self.rect.bottom >= SCREEN_HEIGHT:
-            self.change_y = -10
+            self.change_y = -6
 
     def go_left(self):
-        self.change_x = -6
+        self.change_x = -3
  
     def go_right(self):
-        self.change_x = 6
+        self.change_x = 3
  
     def stop(self):
         self.change_x = 0
@@ -168,16 +169,7 @@ blue_lake_list = pygame.sprite.Group()
 
 
 
-# we will need to players so
-# creates player 1 or the Fboy
-player1 = Player(100, 100, RED)
-player1.walls = wall_list
-all_sprite_list.add(player1)
 
-# creates player 2 or the Wgirl
-player2 = Player(900, 100, BLUE)
-player2.walls = wall_list
-all_sprite_list.add(player2)
 
 # the map
 sc_map = maps.l
@@ -198,7 +190,7 @@ def create_map(map):
                     wall_list.add(wall)
                     all_sprite_list.add(wall)
                 elif j == 2:
-                    red_lake = Lakes(x, y,RED)
+                    red_lake = Lakes(x, y,LIGHT_RED)
                     red_lake_list.add(red_lake)    
                     all_sprite_list.add(red_lake)
 
@@ -211,6 +203,15 @@ def create_map(map):
             x = 0
             y += 10
 
+# creates player 1 or the Fboy
+player1 = Player(100, 100, RED)
+player1.walls = wall_list
+all_sprite_list.add(player1)
+
+# creates player 2 or the Wgirl
+player2 = Player(900, 100, BLUE)
+player2.walls = wall_list
+all_sprite_list.add(player2)
 
 def delete_map():
     global all_sprite_list 
@@ -219,7 +220,7 @@ def delete_map():
 
 def check_die(player,lake_list):
     for lake in lake_list:
-        if(player.rect.x+25 >= lake.rect.x and player.rect.x - 10 <= lake.rect.x) and (player.rect.y +25 >= lake.rect.y  and player.rect.y -10 <= lake.rect.y ):
+        if(player.rect.x+24 >= lake.rect.x and player.rect.x - 9 <= lake.rect.x) and (player.rect.y +24 >= lake.rect.y  and player.rect.y -9 <= lake.rect.y ):
             player.life = player.life - 1
 
         
@@ -235,7 +236,7 @@ def initial_map(first_m):
 def live_map(current_map):
     global sm
 
-    if player1.life == 0 or player2.life == 0 or current_map == [1] :
+    if player1.life <= 0 or player2.life <= 0 or current_map == [1] :
         delete_map()
         lose()
         current_map = 1
@@ -346,7 +347,8 @@ while not done:
         play = pygame.image.load('play_button.jpg')
         play_image = pygame.transform.scale(play, (50,50))
         screen.blit(play_image, (30,20))
-    else:
+    
+    elif sc_map != [1]:
 
         pause = pygame.image.load('pause_button.jpg')
         pause_image = pygame.transform.scale(pause, (50,50))
