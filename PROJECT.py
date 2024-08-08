@@ -11,12 +11,15 @@ WHITE = (255, 255, 255)
 BLUE = (50, 50, 255)
 RED = (255,0,0)
 LIGHT_RED = (255,144,144)
+LIGHT_BLUE = (135,206,235)
 GREEN = (0,255,0)
 DARK_GREEN = (1, 50, 32)
 
 # Screen dimensions
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
+
+# Classes
 
 class Player(pygame.sprite.Sprite):
     
@@ -38,17 +41,18 @@ class Player(pygame.sprite.Sprite):
         # speed vector
         self.change_x = 0
         self.change_y = 0
+        # walls and lakes collisions
         self.walls = None
         self.lakes = None
         self.ghosts = None
+        # lives
         self.life = 1
+        # power level
         self.level = None
     # end procedure
 
-
+    # updating the players cordinations and other features
     def update(self):
-
-
 
         self.calc_grav()
         # updating player's position
@@ -84,16 +88,22 @@ class Player(pygame.sprite.Sprite):
             self.change_y = 0
             # end if
         # next block
+    # end procedure
+
     def calc_grav(self):
+        # checking if it is in the air or not
         if self.change_y == 0:
             self.change_y = 1
         else:
             self.change_y += .25
+        # end if
     
         # See if we are on the ground.
         if self.rect.y >= SCREEN_HEIGHT - self.rect.height and self.change_y >= 0:
             self.change_y = 0
             self.rect.y = SCREEN_HEIGHT - self.rect.height
+        # end if
+    # end procedure
 
     def jump(self):
 
@@ -104,23 +114,33 @@ class Player(pygame.sprite.Sprite):
         # If it is ok to jump, set our speed upwards
         if len(platform_hit_list) > 0 or self.rect.bottom >= SCREEN_HEIGHT:
             self.change_y = -6
+        # end if
+    # end procedure
 
+    # movements procedures
     def go_left(self):
         self.change_x = -3
- 
+    # end procedure
+
     def go_right(self):
         self.change_x = 3
- 
+    # end procedure
+
     def stop(self):
         self.change_x = 0
-    
+    # end procedure
+
+    # setting the life
     def set_life(self,life):
         self.life = life
+    # end procedure
 
+    # getting the life
     def get_life(self):
         return self.life
+    # end procedure
 
-    # end class Player
+# end class Player
  
 
 class Block(pygame.sprite.Sprite):
@@ -139,6 +159,8 @@ class Block(pygame.sprite.Sprite):
         self.rect.y = y
         self.rect.x = x
     # end procedure
+# end class Block
+
 class Lakes(pygame.sprite.Sprite):
     # creating a class lakes. Red player can go through the red lake but not the blue lake. The opposite for the Blue player.
     # Cosntructor function
@@ -150,6 +172,9 @@ class Lakes(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.y = y
         self.rect.x = x
+    # end procedure
+# end class Lakes
+
 # Initializing pygame
 pygame.init()
  
@@ -159,6 +184,7 @@ screen = pygame.display.set_mode([SCREEN_WIDTH, SCREEN_HEIGHT])
 # Seting the title of the window
 pygame.display.set_caption('Fboy and Wgirl')
 
+# Setting all of our groums that we are going to use
 all_sprite_list = pygame.sprite.Group()
  
 wall_list = pygame.sprite.Group()
@@ -171,13 +197,16 @@ blue_lake_list = pygame.sprite.Group()
 
 
 
-# the map
+# sc_map is the current map
+
 sc_map = maps.l
+
+# sm is the starting map
 sm = maps.l
-ft = 0
 
 
 
+# creating the map from a 2D list of numbers
 def create_map(map):
         global all_sprite_list
         global wall_list
@@ -195,13 +224,18 @@ def create_map(map):
                     all_sprite_list.add(red_lake)
 
                 elif j == 3:
-                    blue_lake = Lakes(x, y,BLUE)
+                    blue_lake = Lakes(x, y,LIGHT_BLUE)
                     blue_lake_list.add(blue_lake)    
                     all_sprite_list.add(blue_lake)
+                # end if
 
                 x += 10
+            # next i
             x = 0
             y += 10
+        # next j 
+
+# end procedure
 
 # creates player 1 or the Fboy
 
@@ -210,6 +244,7 @@ def delete_map():
     global all_sprite_list 
     all_sprite_list.empty()
     wall_list.empty()
+# end procedure
 
     
 
@@ -217,21 +252,25 @@ def check_die(player,lake_list):
     for lake in lake_list:
         if(player.rect.x+24 >= lake.rect.x and player.rect.x - 9 <= lake.rect.x) and (player.rect.y +24 >= lake.rect.y  and player.rect.y -9 <= lake.rect.y ):
             player.life = player.life - 1
-
+        # end if
+    # next lake
+# end procedure
         
 def create_players(x,y,color):
-    
     player = Player(x, y, color)
     player.walls = wall_list
     all_sprite_list.add(player)
     return player
+# end function
 
 player1 = create_players(100,100,RED)
 player2 = create_players(900,200,BLUE)    
 
 # creating the map
+
 def initial_map(first_m):
     create_map(first_m)
+# end procedure
 
 def live_map(current_map,player_one,player_two):
     global sm
@@ -240,6 +279,7 @@ def live_map(current_map,player_one,player_two):
     if player1.life <= 0 or player2.life <= 0 or current_map == [1] :
         delete_map()
         lose()
+        return_to_menu()
         current_map = 1
 
     elif current_map == [0]:
@@ -254,10 +294,10 @@ def live_map(current_map,player_one,player_two):
         player_two.walls = wall_list
         all_sprite_list.add(player1)
         all_sprite_list.add(player2)
-
-        
+    # end if
 
     sm = current_map
+# end procedure
 
 def menu():
     screen.fill(WHITE)
@@ -271,6 +311,7 @@ def menu():
     text2Rect.center = (1280//2, 720//2 + 100)
     screen.blit(text, textRect)
     screen.blit(text2,text2Rect)
+# end procedure
 
 def lose():
     global sc_map
@@ -281,13 +322,24 @@ def lose():
     loseRect.center = (1280//2, 720//2)
     screen.blit(lose, loseRect)
     sc_map =[1]
+# end procedure
+    
+def return_to_menu():
+    return_font = pygame.font.Font('freesansbold.ttf',32)
+    menu= return_font.render('Press the button R to restart the game!', True, WHITE,RED)
+    menuRect = menu.get_rect()
+    menuRect.center = (1280//2, 720//2 + 300)
+    screen.blit(menu, menuRect)
+# end procedure
 
-
-
+#setting up the clock
 clock = pygame.time.Clock()
 
-done = False
+
+# drawinf the initial map
 initial_map(sc_map)
+
+done = False
 # the main loop
 while not done:
     
@@ -365,11 +417,11 @@ while not done:
         pause = pygame.image.load('pause_button.jpg')
         pause_image = pygame.transform.scale(pause, (50,50))
         screen.blit(pause_image,(30,20))
+    # end if
     
     # updating all of the objects
     all_sprite_list.update()
-
-
+    
     all_sprite_list.draw(screen)
     
     # drawing everything
@@ -380,5 +432,5 @@ while not done:
 pygame.quit()
 # quiting the pygame
 
-# add special lakes
+
 
