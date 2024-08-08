@@ -204,19 +204,14 @@ def create_map(map):
             y += 10
 
 # creates player 1 or the Fboy
-player1 = Player(100, 100, RED)
-player1.walls = wall_list
-all_sprite_list.add(player1)
 
-# creates player 2 or the Wgirl
-player2 = Player(900, 100, BLUE)
-player2.walls = wall_list
-all_sprite_list.add(player2)
 
 def delete_map():
     global all_sprite_list 
     all_sprite_list.empty()
     wall_list.empty()
+
+    
 
 def check_die(player,lake_list):
     for lake in lake_list:
@@ -224,31 +219,42 @@ def check_die(player,lake_list):
             player.life = player.life - 1
 
         
-
-
-
+def create_players(x,y,color):
     
+    player = Player(x, y, color)
+    player.walls = wall_list
+    all_sprite_list.add(player)
+    return player
+
+player1 = create_players(100,100,RED)
+player2 = create_players(900,200,BLUE)    
 
 # creating the map
 def initial_map(first_m):
     create_map(first_m)
 
-def live_map(current_map):
+def live_map(current_map,player_one,player_two):
     global sm
-
+    
+   
     if player1.life <= 0 or player2.life <= 0 or current_map == [1] :
         delete_map()
         lose()
         current_map = 1
 
-    elif current_map != sm:
-        delete_map()
-        create_map(current_map)
-    
     elif current_map == [0]:
         delete_map()
         menu()
         
+
+    elif current_map != sm:
+        delete_map()
+        create_map(current_map)
+        player_one.walls = wall_list
+        player_two.walls = wall_list
+        all_sprite_list.add(player1)
+        all_sprite_list.add(player2)
+
         
 
     sm = current_map
@@ -260,7 +266,7 @@ def menu():
     textRect = text.get_rect()
     textRect.center = ( 1280//2, 720//2)
     font2 = pygame.font.Font('freesansbold.ttf',32)
-    text2 = font2.render('To return to the game press R or the button on the top right', True, GREEN,BLUE)
+    text2 = font2.render('To return to the game press B or the button on the top right', True, GREEN,BLUE)
     text2Rect = text2.get_rect()
     text2Rect.center = (1280//2, 720//2 + 100)
     screen.blit(text, textRect)
@@ -314,7 +320,13 @@ while not done:
             if event.key == pygame.K_m:
                 sc_map = [0]
             if event.key == pygame.K_r:
-                sc_map = maps.l
+                if sc_map == [1]:
+                    player1.life =1
+                    player2.life = 1
+                    player1.rect.x,player1.rect.y = 100,100
+                    player2.rect.x,player2.rect.y = 900,100
+                    sc_map = [0]
+
 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT and player1.change_x < 0:
@@ -332,15 +344,15 @@ while not done:
                 pos = pygame.mouse.get_pos()
                 x,y = pos[0],pos[1]
   
-                if (x > 5 or x < 55) and (y > 5 or y < 45):
+                if (x > 30 and x < 80) and (y > 20 and y < 70):
                     if sc_map == [0]:
                         sc_map = maps.l
                     else:
                         sc_map = [0]
-    
+        
 
     screen.fill(GREEN)
-    live_map(sc_map)
+    live_map(sc_map,player1,player2)
     check_die(player1,blue_lake_list)
     check_die(player2,red_lake_list)
     if sc_map == [0]:
