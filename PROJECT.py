@@ -14,6 +14,7 @@ LIGHT_RED = (255,144,144)
 LIGHT_BLUE = (135,206,235)
 GREEN = (0,255,0)
 DARK_GREEN = (1, 50, 32)
+YELLOW = (255,255,0)
 
 # Screen dimensions
 SCREEN_WIDTH = 1280
@@ -175,6 +176,17 @@ class Lakes(pygame.sprite.Sprite):
     # end procedure
 # end class Lakes
 
+class Fan(pygame.sprite.Sprite):
+    def __init__(self,x,y):
+
+        super().__init__()
+        self.image = pygame.Surface([10,10])
+        self.image.fill(YELLOW)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+
 # Initializing pygame
 pygame.init()
  
@@ -192,6 +204,8 @@ wall_list = pygame.sprite.Group()
 red_lake_list = pygame.sprite.Group()
 
 blue_lake_list = pygame.sprite.Group()
+
+fan_list = pygame.sprite.Group()
 
 
 
@@ -227,6 +241,12 @@ def create_map(map):
                     blue_lake = Lakes(x, y,LIGHT_BLUE)
                     blue_lake_list.add(blue_lake)    
                     all_sprite_list.add(blue_lake)
+                
+                elif j == 4:
+                    fan = Fan(x,y)
+                    fan_list.add(fan)
+                    all_sprite_list.add(fan)
+
                 # end if
 
                 x += 10
@@ -255,6 +275,13 @@ def check_die(player,lake_list):
         # end if
     # next lake
 # end procedure
+def high(player,list_of_fan):
+    for fan in list_of_fan:
+        if(player.rect.x+24 >= fan.rect.x and player.rect.x - 9 <= fan.rect.x) and (player.rect.y +24 >= fan.rect.y - 200  and player.rect.y -9 <= fan.rect.y ):
+
+            for i in range(200):
+                player.rect.y = player.rect.y - 1
+                 
         
 def create_players(x,y,color):
     player = Player(x, y, color)
@@ -407,6 +434,8 @@ while not done:
     live_map(sc_map,player1,player2)
     check_die(player1,blue_lake_list)
     check_die(player2,red_lake_list)
+    high(player1,fan_list)
+    high(player2, fan_list)
     if sc_map == [0]:
         play = pygame.image.load('play_button.jpg')
         play_image = pygame.transform.scale(play, (50,50))
@@ -421,7 +450,7 @@ while not done:
     
     # updating all of the objects
     all_sprite_list.update()
-    
+
     all_sprite_list.draw(screen)
     
     # drawing everything
