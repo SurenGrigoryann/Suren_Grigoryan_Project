@@ -278,9 +278,9 @@ def check_die(player,lake_list):
 def high(player,list_of_fan):
     for fan in list_of_fan:
         if(player.rect.x+24 >= fan.rect.x and player.rect.x - 9 <= fan.rect.x) and (player.rect.y +24 >= fan.rect.y - 200  and player.rect.y -9 <= fan.rect.y ):
+                return True
 
-            for i in range(200):
-                player.rect.y = player.rect.y - 1
+                
                  
         
 def create_players(x,y,color):
@@ -431,10 +431,13 @@ while not done:
         
 
     screen.fill(GREEN)
+
     live_map(sc_map,player1,player2)
     check_die(player1,blue_lake_list)
     check_die(player2,red_lake_list)
-    high(player1,fan_list)
+    while high(player1,fan_list):
+        player1.rect.y = player1.rect.y - 10
+
     high(player2, fan_list)
     if sc_map == [0]:
         play = pygame.image.load('play_button.jpg')
