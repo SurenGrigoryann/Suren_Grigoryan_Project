@@ -277,7 +277,7 @@ def check_die(player,lake_list):
 # end procedure
 def high(player,list_of_fan):
     for fan in list_of_fan:
-        if(player.rect.x+12 >= fan.rect.x and player.rect.x - 9 <= fan.rect.x) and (player.rect.y +12 >= fan.rect.y - 150  and player.rect.y -9 <= fan.rect.y ):
+        if(player.rect.x+12 >= fan.rect.x and player.rect.x - 9 <= fan.rect.x) and (player.rect.y +12 >= fan.rect.y - 170  and player.rect.y -9 <= fan.rect.y ):
                 return True
 
                 
