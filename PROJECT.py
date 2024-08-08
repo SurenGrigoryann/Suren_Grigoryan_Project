@@ -232,12 +232,12 @@ def create_map(map):
                     wall = Block(x, y)
                     wall_list.add(wall)
                     all_sprite_list.add(wall)
-                elif j == 2:
+                elif j == 3:
                     red_lake = Lakes(x, y,LIGHT_RED)
                     red_lake_list.add(red_lake)    
                     all_sprite_list.add(red_lake)
 
-                elif j == 3:
+                elif j == 2:
                     blue_lake = Lakes(x, y,LIGHT_BLUE)
                     blue_lake_list.add(blue_lake)    
                     all_sprite_list.add(blue_lake)
@@ -277,7 +277,7 @@ def check_die(player,lake_list):
 # end procedure
 def high(player,list_of_fan):
     for fan in list_of_fan:
-        if(player.rect.x+24 >= fan.rect.x and player.rect.x - 9 <= fan.rect.x) and (player.rect.y +24 >= fan.rect.y - 200  and player.rect.y -9 <= fan.rect.y ):
+        if(player.rect.x+12 >= fan.rect.x and player.rect.x - 9 <= fan.rect.x) and (player.rect.y +12 >= fan.rect.y - 150  and player.rect.y -9 <= fan.rect.y ):
                 return True
 
                 
@@ -290,8 +290,8 @@ def create_players(x,y,color):
     return player
 # end function
 
-player1 = create_players(100,100,RED)
-player2 = create_players(900,200,BLUE)    
+player1 = create_players(25,575,RED)
+player2 = create_players(1225,575,BLUE)    
 
 # creating the map
 
@@ -402,8 +402,8 @@ while not done:
                 if sc_map == [1]:
                     player1.life =1
                     player2.life = 1
-                    player1.rect.x,player1.rect.y = 100,100
-                    player2.rect.x,player2.rect.y = 900,100
+                    player1.rect.x,player1.rect.y = 25,575
+                    player2.rect.x,player2.rect.y = 1225,575
                     sc_map = [0]
 
 
