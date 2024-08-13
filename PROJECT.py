@@ -186,6 +186,28 @@ class Fan(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 
+class Coins(pygame.sprite.Sprite):
+    def __init__ (self,x,y,color):
+
+
+        super().__init__()
+        self.x = x
+        self.y = y
+        self.color = color
+
+
+    def draw(self,screen_to_draw):
+        if self.color == RED:
+             red_coin = pygame.image.load('red_coin.jpg')
+             red_coin_image = pygame.transform.scale(red_coin, (20,20))
+             screen_to_draw.blit(red_coin_image, (self.x,self.y))
+        if self.color == BLUE:
+             blue_coin = pygame.image.load('blue_coin.jpg')
+             blue_coin_image = pygame.transform.scale(blue_coin, (100,100))
+             screen_to_draw.blit(blue_coin_image, (self.x,self.y))
+    
+
+
 
 # Initializing pygame
 pygame.init()
@@ -206,6 +228,12 @@ red_lake_list = pygame.sprite.Group()
 blue_lake_list = pygame.sprite.Group()
 
 fan_list = pygame.sprite.Group()
+
+coins_list = pygame.sprite.Group()
+
+red_coin_list = pygame.sprite.Group()
+
+blue_coin_list = pygame.sprite.Group()
 
 
 
@@ -247,6 +275,16 @@ def create_map(map):
                     fan_list.add(fan)
                     all_sprite_list.add(fan)
 
+                elif j == 8:
+                    red_coin = Coins(x,y,RED)
+                    red_coin_list.add(red_coin)
+                    coins_list.add(red_coin)
+
+                elif j == 9:
+                    blue_coin = Coins(x,y,RED)
+                    blue_coin_list.add(blue_coin)
+                    coins_list.add(blue_coin)
+
                 # end if
 
                 x += 10
@@ -264,6 +302,7 @@ def delete_map():
     global all_sprite_list 
     all_sprite_list.empty()
     wall_list.empty()
+    coins_list.empty()
 # end procedure
 
     
@@ -322,7 +361,8 @@ def live_map(current_map,player_one,player_two):
         all_sprite_list.add(player1)
         all_sprite_list.add(player2)
     # end if
-
+    for coin in coins_list:
+        coin.draw(screen)
     sm = current_map
 # end procedure
 
@@ -449,6 +489,9 @@ while not done:
         pause = pygame.image.load('pause_button.jpg')
         pause_image = pygame.transform.scale(pause, (50,50))
         screen.blit(pause_image,(30,20))
+    
+
+
     # end if
     
     # updating all of the objects
