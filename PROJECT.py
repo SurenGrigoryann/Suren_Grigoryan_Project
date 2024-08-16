@@ -397,6 +397,15 @@ def return_to_menu():
     menuRect = menu.get_rect()
     menuRect.center = (1280//2, 720//2 + 300)
     screen.blit(menu, menuRect)
+
+
+
+
+
+def scores(p1,p2,c_list, rc_list, bc_list):
+    textfont = pygame.font.SysFont('monospace',50)
+    textTBD = textfont.render('score',1,(RED))
+    screen.blit(textTBD)
 # end procedure
 
 #setting up the clock
