@@ -44,6 +44,7 @@ class Player(pygame.sprite.Sprite):
         self.change_y = 0
         # walls and lakes collisions
         self.walls = None
+        self.coins = None
         self.lakes = None
         self.ghosts = None
         # lives
@@ -87,6 +88,8 @@ class Player(pygame.sprite.Sprite):
                 self.rect.top = block.rect.bottom
 
             self.change_y = 0
+
+
             # end if
         # next block
     # end procedure
@@ -194,6 +197,7 @@ class Coins(pygame.sprite.Sprite):
         self.x = x
         self.y = y
         self.color = color
+        
 
 
     def draw(self,screen_to_draw):
@@ -203,7 +207,7 @@ class Coins(pygame.sprite.Sprite):
              screen_to_draw.blit(red_coin_image, (self.x,self.y))
         if self.color == BLUE:
              blue_coin = pygame.image.load('blue_coin.jpg')
-             blue_coin_image = pygame.transform.scale(blue_coin, (100,100))
+             blue_coin_image = pygame.transform.scale(blue_coin, (20,20))
              screen_to_draw.blit(blue_coin_image, (self.x,self.y))
     
 
@@ -281,7 +285,7 @@ def create_map(map):
                     coins_list.add(red_coin)
 
                 elif j == 9:
-                    blue_coin = Coins(x,y,RED)
+                    blue_coin = Coins(x,y,BLUE)
                     blue_coin_list.add(blue_coin)
                     coins_list.add(blue_coin)
 
@@ -318,6 +322,12 @@ def high(player,list_of_fan):
     for fan in list_of_fan:
         if(player.rect.x+12 >= fan.rect.x and player.rect.x - 9 <= fan.rect.x) and (player.rect.y +12 >= fan.rect.y - 170  and player.rect.y -9 <= fan.rect.y ):
                 return True
+
+def red_score(player):
+    global coins_list
+    for coin in coins_list:
+        if(player.rect.x+24 >= coin.x and player.rect.x - 9 <= coin.x) and (player.rect.y +24 >= coin.y  and player.rect.y -9 <= coin.y ):
+            coins_list.remove(coin)
 
                 
                  
@@ -402,9 +412,9 @@ def return_to_menu():
 
 
 
-def scores(p1,p2,c_list, rc_list, bc_list):
+def scores(p1,p2,c_list, rc_list, bc_list,score):
     textfont = pygame.font.SysFont('monospace',50)
-    textTBD = textfont.render('score',1,(RED))
+    textTBD = textfont.render(f'score {score}',1,(RED))
     screen.blit(textTBD)
 # end procedure
 
