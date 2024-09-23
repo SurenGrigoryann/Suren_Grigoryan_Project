@@ -420,7 +420,7 @@ def scores(p1,p2,c_list, rc_list, bc_list,score):
 
 #setting up the clock
 clock = pygame.time.Clock()
-
+ 
 
 # drawinf the initial map
 initial_map(sc_map)
