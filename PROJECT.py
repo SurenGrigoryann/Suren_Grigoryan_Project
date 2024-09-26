@@ -176,10 +176,11 @@ class Lakes(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.y = y
         self.rect.x = x
+        self.color = COLOR
     # end procedure
 # end class Lakes
 
-class Fan(pygame.sprite.Sprite):
+class Trapeze(pygame.sprite.Sprite):
     def __init__(self,x,y):
 
         super().__init__()
@@ -231,7 +232,7 @@ red_lake_list = pygame.sprite.Group()
 
 blue_lake_list = pygame.sprite.Group()
 
-fan_list = pygame.sprite.Group()
+trapeze_list = pygame.sprite.Group()
 
 coins_list = pygame.sprite.Group()
 
@@ -275,9 +276,9 @@ def create_map(map):
                     all_sprite_list.add(blue_lake)
                 
                 elif j == 4:
-                    fan = Fan(x,y)
-                    fan_list.add(fan)
-                    all_sprite_list.add(fan)
+                    trapeze = Trapeze(x,y)
+                    trapeze_list.add(trapeze)
+                    all_sprite_list.add(trapeze)
 
                 elif j == 8:
                     red_coin = Coins(x,y,RED)
@@ -318,9 +319,9 @@ def check_die(player,lake_list):
         # end if
     # next lake
 # end procedure
-def high(player,list_of_fan):
-    for fan in list_of_fan:
-        if(player.rect.x+12 >= fan.rect.x and player.rect.x - 9 <= fan.rect.x) and (player.rect.y +12 >= fan.rect.y - 170  and player.rect.y -9 <= fan.rect.y ):
+def high(player,list_of_trapeze):
+    for trapeze in list_of_trapeze:
+        if(player.rect.x+12 >= trapeze.rect.x and player.rect.x - 9 <= trapeze.rect.x) and (player.rect.y +12 >= trapeze.rect.y - 170  and player.rect.y -9 <= trapeze.rect.y ):
                 return True
 
 def red_score(player):
@@ -494,10 +495,10 @@ while not done:
     live_map(sc_map,player1,player2)
     check_die(player1,blue_lake_list)
     check_die(player2,red_lake_list)
-    while high(player1,fan_list):
+    while high(player1,trapeze_list):
         player1.rect.y = player1.rect.y - 10
 
-    high(player2, fan_list)
+    high(player2, trapeze_list)
     if sc_map == [0]:
         play = pygame.image.load('play_button.jpg')
         play_image = pygame.transform.scale(play, (50,50))
