@@ -33,8 +33,8 @@ class Door(pygame.sprite.Sprite):
         self.rect.y
         self.color = color
 
-    def update(self, player):
-        if (player.x <= self.x + 20 and player.x >= self.x - 20) and (player.y <= self.y +20 and player.y >= self.y - 20):
+    def update_door(self, player):
+        if (player.rect.x <= self.rect.x + 20 and player.rect.x >= self.rect.x - 20) and (player.rect.y <= self.rect.y +20 and player.rect.y >= self.rect.y - 20):
             return True
         
 
@@ -407,7 +407,7 @@ def live_map(current_map,player_one,player_two):
         all_sprite_list.add(player2)
         print(door_list)
     elif len(door_list) != 0:
-        if door_list[0].update(player1) and door_list[1].update(player2):
+        if door_list[0].update_door(player1) and door_list[1].update_door(player2):
             delete_map()
             lose()
     # end if
