@@ -21,6 +21,22 @@ SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 
 # Classes
+class Door(pygame.sprite.Sprite):
+    def __init__(self,x,y,color):
+        super().__init__()
+
+        self.image = pygame.Surface([40,40])
+        self.image.fill(color)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y
+        self.color = color
+
+    def update(self, player):
+        if (player.x <= self.x + 20 and player.x >= self.x - 20) and (player.y <= self.y +20 and player.y >= self.y - 20):
+            return True
+        
 
 class Player(pygame.sprite.Sprite):
     
@@ -240,6 +256,8 @@ red_coin_list = pygame.sprite.Group()
 
 blue_coin_list = pygame.sprite.Group()
 
+door_list_spr = pygame.sprite.Group()
+door_list = []
 
 
 
@@ -279,6 +297,16 @@ def create_map(map):
                     trapeze = Trapeze(x,y)
                     trapeze_list.add(trapeze)
                     all_sprite_list.add(trapeze)
+                elif j == 5:
+                    blue_door = Door(x,y,LIGHT_BLUE)
+                    door_list_spr.add(blue_door)  
+                    door_list.append(blue_door)    
+                    all_sprite_list.add(blue_door)
+                elif j == 6:
+                    red_door = Door(x,y,LIGHT_RED)
+                    door_list_spr.add(red_door)  
+                    door_list.append(red_door)    
+                    all_sprite_list.add(red_door)
 
                 elif j == 8:
                     red_coin = Coins(x,y,RED)
@@ -289,6 +317,10 @@ def create_map(map):
                     blue_coin = Coins(x,y,BLUE)
                     blue_coin_list.add(blue_coin)
                     coins_list.add(blue_coin)
+                
+
+                
+                                
 
                 # end if
 
@@ -299,7 +331,7 @@ def create_map(map):
         # next j 
 
 # end procedure
-
+print(door_list)
 # creates player 1 or the Fboy
 
 
@@ -351,6 +383,7 @@ def initial_map(first_m):
 
 def live_map(current_map,player_one,player_two):
     global sm
+ 
     
    
     if player1.life <= 0 or player2.life <= 0 or current_map == [1] :
@@ -358,6 +391,7 @@ def live_map(current_map,player_one,player_two):
         lose()
         return_to_menu()
         current_map = 1
+
 
     elif current_map == [0]:
         delete_map()
@@ -371,6 +405,11 @@ def live_map(current_map,player_one,player_two):
         player_two.walls = wall_list
         all_sprite_list.add(player1)
         all_sprite_list.add(player2)
+        print(door_list)
+    elif len(door_list) != 0:
+        if door_list[0].update(player1) and door_list[1].update(player2):
+            delete_map()
+            lose()
     # end if
     for coin in coins_list:
         coin.draw(screen)
