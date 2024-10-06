@@ -15,6 +15,7 @@ LIGHT_BLUE = (135,206,235)
 GREEN = (0,255,0)
 DARK_GREEN = (1, 50, 32)
 YELLOW = (255,255,0)
+PURPLE = (160,32,240)
 
 # Screen dimensions
 SCREEN_WIDTH = 1280
@@ -30,13 +31,64 @@ class Door(pygame.sprite.Sprite):
 
         self.rect = self.image.get_rect()
         self.rect.x = x
-        self.rect.y
+        self.rect.y = y
         self.color = color
 
     def update_door(self, player):
         if (player.rect.x <= self.rect.x + 20 and player.rect.x >= self.rect.x - 20) and (player.rect.y <= self.rect.y +20 and player.rect.y >= self.rect.y - 20):
             return True
         
+class Portal(pygame.sprite.Sprite):
+    def __init__(self,x,y,color):
+        super().__init__()
+
+        self.image = pygame.Surface([10,10])
+        self.image.fill(color)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.color = color
+    
+    def open_portal(self,open_or_not):
+        if open_or_not == 'open':         
+            self.rect.y += 1.25
+        elif open_or_not == 'close':
+            self.rect.y -= 1.25
+        
+            
+
+class Portal_opener(pygame.sprite.Sprite):
+    def __init__(self,x,y,color):
+        super().__init__()
+        self.image = pygame.Surface([10,10])
+        self.image.fill(color)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.color = color
+
+    def check(self,player,count):
+        
+            if ((player.rect.x <= self.rect.x + 20 and player.rect.x >= self.rect.x - 20) and (player.rect.y <= self.rect.y + 20 and player.rect.y >= self.rect.y - 20)):
+                if count <= 10 or count == 11:
+                    print('YEEEEEEEEEEEES')
+                    return 'open'
+            elif (not(player.rect.x <= self.rect.x + 20 and player.rect.x >= self.rect.x - 20)) and (not(player.rect.y <= self.rect.y +20 and player.rect.y >= self.rect.y - 20)):
+                if count <= 10:
+                    print("nooooooooooooo")
+                    return 'close'
+            else:
+                print('GUUUD')
+                return 'stop'
+                
+                
+
+        
+
+
+
 
 class Player(pygame.sprite.Sprite):
     
@@ -256,6 +308,12 @@ red_coin_list = pygame.sprite.Group()
 
 blue_coin_list = pygame.sprite.Group()
 
+portal_list_spr = pygame.sprite.Group()
+portal_list = {'purple': [], 'yellow ': [], 'orange':[], 'black':[]}
+
+portal_opener_list_spr = pygame.sprite.Group()
+portal_opener_list = {'purple': [], 'yellow ': [], 'orange':[], 'black':[]}
+
 door_list_spr = pygame.sprite.Group()
 door_list = []
 
@@ -317,6 +375,18 @@ def create_map(map):
                     blue_coin = Coins(x,y,BLUE)
                     blue_coin_list.add(blue_coin)
                     coins_list.add(blue_coin)
+
+                elif j == 110:
+                    purple_portal = Portal(x,y,PURPLE)
+                    portal_list_spr.add(purple_portal)
+                    portal_list['purple'].append(purple_portal) 
+                    all_sprite_list.add(purple_portal)
+                elif j == 111:
+                    purple_portal_opener = Portal_opener(x,y,PURPLE)
+                    portal_opener_list_spr.add(purple_portal_opener)
+                    portal_opener_list['purple'].append(purple_portal_opener) 
+                    all_sprite_list.add(purple_portal_opener)                    
+
                 
 
                 
@@ -411,6 +481,15 @@ def live_map(current_map,player_one,player_two):
             delete_map()
             lose()
     # end if
+    c = 11
+    open = portal_opener_list['purple'][0].check(player2, c)
+    
+    if open == 'open' or open == 'close':
+        c = 0
+    elif open == 'stop':
+        c = 11
+    for i in portal_list['purple']:
+        i.open_portal(open)
     for coin in coins_list:
         coin.draw(screen)
     sm = current_map
