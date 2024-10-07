@@ -482,8 +482,8 @@ def live_map(current_map,player_one,player_two):
             lose()
     # end if
     c = 11
-    open = portal_opener_list['purple'][0].check(player2, c)
-    
+    x = portal_opener_list['purple'][0].check(player2, c)
+    open = x[0]
     if open == 'open' or open == 'close':
         c = 0
     elif open == 'stop':
