@@ -71,17 +71,21 @@ class Portal_opener(pygame.sprite.Sprite):
 
     def check(self,player,count):
         
-            if ((player.rect.x <= self.rect.x + 20 and player.rect.x >= self.rect.x - 20) and (player.rect.y <= self.rect.y + 20 and player.rect.y >= self.rect.y - 20)):
-                if count <= 10 or count == 11:
-                    print('YEEEEEEEEEEEES')
-                    return 'open'
-            elif (not(player.rect.x <= self.rect.x + 20 and player.rect.x >= self.rect.x - 20)) and (not(player.rect.y <= self.rect.y +20 and player.rect.y >= self.rect.y - 20)):
-                if count <= 10:
-                    print("nooooooooooooo")
-                    return 'close'
+        if ((player.rect.x <= self.rect.x + 20 and player.rect.x >= self.rect.x - 20) and (player.rect.y <= self.rect.y + 20 and player.rect.y >= self.rect.y - 20)):
+            if count <= 10 or count == 11:
+                print('YEEEEEEEEEEEES')
+                return 'open',1
             else:
-                print('GUUUD')
-                return 'stop'
+                return 'stop', 0
+        elif (not(player.rect.x <= self.rect.x + 20 and player.rect.x >= self.rect.x - 20)) and (not(player.rect.y <= self.rect.y +20 and player.rect.y >= self.rect.y - 20)):
+            if count <= 10:
+                print("nooooooooooooo")
+                return 'close',2
+            else:
+                return 'stop', 0
+        else:
+            print('GUUUD')
+            return 'stop',0
                 
                 
 
@@ -483,6 +487,9 @@ def live_map(current_map,player_one,player_two):
     # end if
     c = 11
     x = portal_opener_list['purple'][0].check(player2, c)
+    
+   
+   # print(x)
     open = x[0]
     if open == 'open' or open == 'close':
         c = 0
