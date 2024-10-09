@@ -32,6 +32,7 @@ class Door(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
         self.color = color
 
     def update_door(self, player):
@@ -48,12 +49,16 @@ class Portal(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.x1 = x
+        self.y1 = y
+        self.x2 = x 
+        self.y2 = y + 100
         self.color = color
     
-    def open_portal(self,open_or_not):
-        if open_or_not == 'open':         
+    def open_portal(self,portal_opener,player):
+        if (self.y2 != self.rect.y) and (player.rect.x <= portal_opener.rect.x + 15 and player.rect.x >= portal_opener.rect.x - 15) and (player.rect.y <= portal_opener.rect.y + 15 and player.rect.y >= portal_opener.rect.y - 15):
             self.rect.y += 1.25
-        elif open_or_not == 'close':
+        elif (self.y1 != self.rect.y) and (not(player.rect.x <= portal_opener.rect.x + 15 and player.rect.x >= portal_opener.rect.x - 15) and (player.rect.y <= portal_opener.rect.y + 15 and player.rect.y >= portal_opener.rect.y - 15)):
             self.rect.y -= 1.25
         
             
@@ -69,24 +74,7 @@ class Portal_opener(pygame.sprite.Sprite):
         self.rect.y = y
         self.color = color
 
-    def check(self,player,count):
-        
-        if ((player.rect.x <= self.rect.x + 20 and player.rect.x >= self.rect.x - 20) and (player.rect.y <= self.rect.y + 20 and player.rect.y >= self.rect.y - 20)):
-            if count <= 10 or count == 11:
-                print('YEEEEEEEEEEEES')
-                return 'open',1
-            else:
-                return 'stop', 0
-        elif (not(player.rect.x <= self.rect.x + 20 and player.rect.x >= self.rect.x - 20)) and (not(player.rect.y <= self.rect.y +20 and player.rect.y >= self.rect.y - 20)):
-            if count <= 10:
-                print("nooooooooooooo")
-                return 'close',2
-            else:
-                return 'stop', 0
-        else:
-            print('GUUUD')
-            return 'stop',0
-                
+
                 
 
         
@@ -486,17 +474,17 @@ def live_map(current_map,player_one,player_two):
             lose()
     # end if
     c = 11
-    x = portal_opener_list['purple'][0].check(player2, c)
+    p_opener = portal_opener_list['purple'][0]
+    
+    #p.open_portal(p_opener,player1)
+    
+    for i in portal_list['purple']:
+        i.open_portal(p_opener,player2)
     
    
    # print(x)
-    open = x[0]
-    if open == 'open' or open == 'close':
-        c = 0
-    elif open == 'stop':
-        c = 11
-    for i in portal_list['purple']:
-        i.open_portal(open)
+
+
     for coin in coins_list:
         coin.draw(screen)
     sm = current_map
