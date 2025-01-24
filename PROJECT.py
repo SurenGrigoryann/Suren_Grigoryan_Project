@@ -56,7 +56,8 @@ class Portal(pygame.sprite.Sprite):
         self.color = color
     
     def open_portal(self,portal_opener,player):
-        if (self.y2 != self.rect.y) and (player.rect.x <= portal_opener.rect.x + 15 and player.rect.x >= portal_opener.rect.x - 15) and (player.rect.y <= portal_opener.rect.y + 15 and player.rect.y >= portal_opener.rect.y - 15):
+        if ((self.y2 != self.rect.y) and 
+            (player.rect.x <= portal_opener.rect.x + 15 and player.rect.x >= portal_opener.rect.x - 15) and (player.rect.y <= portal_opener.rect.y + 15 and player.rect.y >= portal_opener.rect.y - 15)):
             self.rect.y += 1.25
         elif (self.y1 != self.rect.y) and (not(player.rect.x <= portal_opener.rect.x + 15 and player.rect.x >= portal_opener.rect.x - 15) and (player.rect.y <= portal_opener.rect.y + 15 and player.rect.y >= portal_opener.rect.y - 15)):
             self.rect.y -= 1.25
@@ -285,6 +286,8 @@ pygame.display.set_caption('Fboy and Wgirl')
 
 # Setting all of our groums that we are going to use
 all_sprite_list = pygame.sprite.Group()
+
+all_players_list = pygame.sprite.Group()
  
 wall_list = pygame.sprite.Group()
 
@@ -415,8 +418,11 @@ def check_die(player,lake_list):
 # end procedure
 def high(player,list_of_trapeze):
     for trapeze in list_of_trapeze:
-        if(player.rect.x+12 >= trapeze.rect.x and player.rect.x - 9 <= trapeze.rect.x) and (player.rect.y +12 >= trapeze.rect.y - 170  and player.rect.y -9 <= trapeze.rect.y ):
+        if(player.rect.x >= trapeze.rect.x and player.rect.x <= trapeze.rect.x + 30) and (player.rect.y <= trapeze.rect.y + 1):
                 return True
+            #and (player.rect.y >= trapeze.rect.y - 20 and player.rect.y <= trapeze.rect.y + 200):
+   
+
 
 def red_score(player):
     global coins_list
@@ -608,8 +614,15 @@ while not done:
     live_map(sc_map,player1,player2)
     check_die(player1,blue_lake_list)
     check_die(player2,red_lake_list)
-    while high(player1,trapeze_list):
-        player1.rect.y = player1.rect.y - 10
+    k = player1.change_y
+    if high(player1,trapeze_list):
+        for i in range(3):
+            player1.rect.y -= 6
+            all_sprite_list.update()
+            player1.change_y = 0
+        player1.change_y = k
+ 
+           # time.sleep(0.001)
 
     high(player2, trapeze_list)
     if sc_map == [0]:
@@ -642,3 +655,4 @@ pygame.quit()
 
 
 
+print(player1.rect.x, player1.rect.y)
