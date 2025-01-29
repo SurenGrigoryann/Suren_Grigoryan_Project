@@ -13,9 +13,11 @@ RED = (255,0,0)
 LIGHT_RED = (255,144,144)
 LIGHT_BLUE = (135,206,235)
 GREEN = (0,255,0)
-DARK_GREEN = (1, 50, 32)
+DARK_GREEN = (1, 50, 22)
+LIGHT_GREEN = (0,130,0)
 YELLOW = (255,255,0)
 PURPLE = (160,32,240)
+BROWN = (139,69,19)
 
 # Screen dimensions
 SCREEN_WIDTH = 1280
@@ -50,7 +52,7 @@ class Portal(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.x1 = x
-        self.y1 = y
+        self.y1 = y 
         self.x2 = x 
         self.y2 = y + 100
         self.color = color
@@ -59,7 +61,8 @@ class Portal(pygame.sprite.Sprite):
         if ((self.y2 != self.rect.y) and 
             (player.rect.x <= portal_opener.rect.x + 15 and player.rect.x >= portal_opener.rect.x - 15) and (player.rect.y <= portal_opener.rect.y + 15 and player.rect.y >= portal_opener.rect.y - 15)):
             self.rect.y += 1.25
-        elif (self.y1 != self.rect.y) and (not(player.rect.x <= portal_opener.rect.x + 15 and player.rect.x >= portal_opener.rect.x - 15) and (player.rect.y <= portal_opener.rect.y + 15 and player.rect.y >= portal_opener.rect.y - 15)):
+        elif ((self.y1 != self.rect.y) and 
+        ((not(player.rect.x <= portal_opener.rect.x + 15 and player.rect.x >= portal_opener.rect.x - 15)) or (not(player.rect.y <= portal_opener.rect.y + 15 and player.rect.y >= portal_opener.rect.y - 15)))):
             self.rect.y -= 1.25
         
             
@@ -295,6 +298,8 @@ red_lake_list = pygame.sprite.Group()
 
 blue_lake_list = pygame.sprite.Group()
 
+green_lake_list = pygame.sprite.Group()
+
 trapeze_list = pygame.sprite.Group()
 
 coins_list = pygame.sprite.Group()
@@ -304,10 +309,10 @@ red_coin_list = pygame.sprite.Group()
 blue_coin_list = pygame.sprite.Group()
 
 portal_list_spr = pygame.sprite.Group()
-portal_list = {'purple': [], 'yellow ': [], 'orange':[], 'black':[]}
+portal_list = {'purple': [], 'yellow ': [], 'orange':[], 'black':[], 'brown': []}
 
 portal_opener_list_spr = pygame.sprite.Group()
-portal_opener_list = {'purple': [], 'yellow ': [], 'orange':[], 'black':[]}
+portal_opener_list = {'purple': [], 'yellow ': [], 'orange':[], 'black':[], 'brown':[]}
 
 door_list_spr = pygame.sprite.Group()
 door_list = []
@@ -360,6 +365,11 @@ def create_map(map):
                     door_list_spr.add(red_door)  
                     door_list.append(red_door)    
                     all_sprite_list.add(red_door)
+                elif j == 7:
+                    green_lake = Lakes(x, y,LIGHT_GREEN)
+                    green_lake_list.add(green_lake)    
+                    all_sprite_list.add(green_lake)
+                
 
                 elif j == 8:
                     red_coin = Coins(x,y,RED)
@@ -381,7 +391,16 @@ def create_map(map):
                     portal_opener_list_spr.add(purple_portal_opener)
                     portal_opener_list['purple'].append(purple_portal_opener) 
                     all_sprite_list.add(purple_portal_opener)                    
-
+                elif j == 210:
+                    brown_portal = Portal(x,y, BROWN)
+                    portal_list_spr.add(brown_portal)
+                    portal_list['brown'].append(brown_portal) 
+                    all_sprite_list.add(brown_portal)
+                elif j == 211:
+                    brown_portal_opener = Portal_opener(x,y,BROWN)
+                    portal_opener_list_spr.add(brown_portal_opener)
+                    portal_opener_list['brown'].append(brown_portal_opener) 
+                    all_sprite_list.add(brown_portal_opener)      
                 
 
                 
@@ -480,12 +499,14 @@ def live_map(current_map,player_one,player_two):
             lose()
     # end if
     c = 11
-    p_opener = portal_opener_list['purple'][0]
-    
+    p_opener_purple = portal_opener_list['purple'][0]
+    p_opener_brown = portal_opener_list['brown'][0]
     #p.open_portal(p_opener,player1)
     
     for i in portal_list['purple']:
-        i.open_portal(p_opener,player2)
+        i.open_portal(p_opener_purple,player2)
+    for i in portal_list['brown']:
+        i.open_portal(p_opener_brown,player1)
     
    
    # print(x)
@@ -614,7 +635,10 @@ while not done:
     live_map(sc_map,player1,player2)
     check_die(player1,blue_lake_list)
     check_die(player2,red_lake_list)
+    check_die(player1, green_lake_list)
+    check_die(player2, green_lake_list)
     k = player1.change_y
+
     if high(player1,trapeze_list):
         for i in range(3):
             player1.rect.y -= 6
