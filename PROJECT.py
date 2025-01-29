@@ -54,15 +54,17 @@ class Portal(pygame.sprite.Sprite):
         self.x1 = x
         self.y1 = y 
         self.x2 = x 
-        self.y2 = y + 100
+        self.y2 = y + 50
         self.color = color
     
-    def open_portal(self,portal_opener,player):
+    def open_portal(self,portal_opener,player1,player2):
         if ((self.y2 != self.rect.y) and 
-            (player.rect.x <= portal_opener.rect.x + 15 and player.rect.x >= portal_opener.rect.x - 15) and (player.rect.y <= portal_opener.rect.y + 15 and player.rect.y >= portal_opener.rect.y - 15)):
+            ((player1.rect.x <= portal_opener.rect.x + 15 and player1.rect.x >= portal_opener.rect.x - 15) and (player1.rect.y <= portal_opener.rect.y + 15 and player1.rect.y >= portal_opener.rect.y - 15)) or
+            (player2.rect.x <= portal_opener.rect.x + 15 and player2.rect.x >= portal_opener.rect.x - 15) and (player2.rect.y <= portal_opener.rect.y + 15 and player2.rect.y >= portal_opener.rect.y - 15)):
             self.rect.y += 1.25
         elif ((self.y1 != self.rect.y) and 
-        ((not(player.rect.x <= portal_opener.rect.x + 15 and player.rect.x >= portal_opener.rect.x - 15)) or (not(player.rect.y <= portal_opener.rect.y + 15 and player.rect.y >= portal_opener.rect.y - 15)))):
+        (((not(player1.rect.x <= portal_opener.rect.x + 15 and player1.rect.x >= portal_opener.rect.x - 15)) or (not(player1.rect.y <= portal_opener.rect.y + 15 and player1.rect.y >= portal_opener.rect.y - 15)))) and
+        ((not(player2.rect.x <= portal_opener.rect.x + 15 and player2.rect.x >= portal_opener.rect.x - 15)) or (not(player2.rect.y <= portal_opener.rect.y + 15 and player2.rect.y >= portal_opener.rect.y - 15)))):
             self.rect.y -= 1.25
         
             
@@ -108,6 +110,7 @@ class Player(pygame.sprite.Sprite):
         self.change_y = 0
         # walls and lakes collisions
         self.walls = None
+        self.portals = None
         self.coins = None
         self.lakes = None
         self.ghosts = None
@@ -126,6 +129,7 @@ class Player(pygame.sprite.Sprite):
  
         # Checking if we hit anything horizontally
         block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
+
         for block in block_hit_list:
             # If we are moving right, set our right side to the left side of
             # the wall
@@ -134,12 +138,15 @@ class Player(pygame.sprite.Sprite):
             else:
                 # do the same for left
                 self.rect.left = block.rect.right
+
+
             # end if
         # next block
+
  
         # moving up or down
+
         self.rect.y += self.change_y
- 
         # Checking if we hit anything 
         block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
         for block in block_hit_list:
@@ -153,6 +160,18 @@ class Player(pygame.sprite.Sprite):
 
             self.change_y = 0
 
+       
+        portal_hit_list = pygame.sprite.spritecollide(self, self.portals, False)
+        for portal in portal_hit_list:
+ 
+            # If we are moving up, set our up side to the bottom side of
+            # the wall and the same if we are moving down
+            if self.change_y > 0:
+                self.rect.bottom = portal.rect.top
+            elif self.change_y < 0:
+                self.rect.top = portal.rect.bottom
+
+            self.change_y = 0
 
             # end if
         # next block
@@ -176,7 +195,7 @@ class Player(pygame.sprite.Sprite):
     def jump(self):
 
         self.rect.y += 2
-        platform_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
+        platform_hit_list = pygame.sprite.spritecollide(self, self.walls, False) + pygame.sprite.spritecollide(self,self.portals,False)
         self.rect.y -= 2
  
         # If it is ok to jump, set our speed upwards
@@ -455,6 +474,7 @@ def red_score(player):
 def create_players(x,y,color):
     player = Player(x, y, color)
     player.walls = wall_list
+    player.portals = portal_list_spr
     all_sprite_list.add(player)
     return player
 # end function
@@ -504,9 +524,11 @@ def live_map(current_map,player_one,player_two):
     #p.open_portal(p_opener,player1)
     
     for i in portal_list['purple']:
-        i.open_portal(p_opener_purple,player2)
+        i.open_portal(p_opener_purple,player1, player2)
+
     for i in portal_list['brown']:
-        i.open_portal(p_opener_brown,player1)
+        i.open_portal(p_opener_brown,player1, player2)
+
     
    
    # print(x)
