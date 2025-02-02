@@ -3,7 +3,7 @@ import pygame
 import random
 import maps
 import time
-
+import sys
  
 # Colors
 BLACK = (0, 0, 0)
@@ -54,19 +54,21 @@ class Portal(pygame.sprite.Sprite):
         self.x1 = x
         self.y1 = y 
         self.x2 = x 
-        self.y2 = y + 50
+        self.y2 = y + 110
         self.color = color
     
-    def open_portal(self,portal_opener,player1,player2):
-        if ((self.y2 != self.rect.y) and 
-            ((player1.rect.x <= portal_opener.rect.x + 15 and player1.rect.x >= portal_opener.rect.x - 15) and (player1.rect.y <= portal_opener.rect.y + 15 and player1.rect.y >= portal_opener.rect.y - 15)) or
-            (player2.rect.x <= portal_opener.rect.x + 15 and player2.rect.x >= portal_opener.rect.x - 15) and (player2.rect.y <= portal_opener.rect.y + 15 and player2.rect.y >= portal_opener.rect.y - 15)):
-            self.rect.y += 1.25
-        elif ((self.y1 != self.rect.y) and 
-        (((not(player1.rect.x <= portal_opener.rect.x + 15 and player1.rect.x >= portal_opener.rect.x - 15)) or (not(player1.rect.y <= portal_opener.rect.y + 15 and player1.rect.y >= portal_opener.rect.y - 15)))) and
-        ((not(player2.rect.x <= portal_opener.rect.x + 15 and player2.rect.x >= portal_opener.rect.x - 15)) or (not(player2.rect.y <= portal_opener.rect.y + 15 and player2.rect.y >= portal_opener.rect.y - 15)))):
-            self.rect.y -= 1.25
-        
+    def open_portal(self,portal_opener,p1,p2):
+            if ((self.y2 != self.rect.y) and 
+            (((p1.rect.x <= portal_opener.rect.x + 15 and p1.rect.x >= portal_opener.rect.x - 15) and (p1.rect.y <= portal_opener.rect.y + 15 and p1.rect.y >= portal_opener.rect.y - 15))
+            or
+            ((p2.rect.x <= portal_opener.rect.x + 15 and p2.rect.x >= portal_opener.rect.x - 15) and (p2.rect.y <= portal_opener.rect.y + 15 and p2.rect.y >= portal_opener.rect.y - 15)))):
+                
+                self.rect.y += 1.25
+
+            elif  (self.y1 != self.rect.y):
+                
+                self.rect.y -= 1.25
+            
             
 
 class Portal_opener(pygame.sprite.Sprite):
@@ -345,7 +347,7 @@ sc_map = maps.l
 
 # sm is the starting map
 sm = maps.l
-
+start_time = pygame.time.get_ticks() 
 
 
 # creating the map from a 2D list of numbers
@@ -395,27 +397,29 @@ def create_map(map):
                     red_coin_list.add(red_coin)
                     coins_list.add(red_coin)
 
+
                 elif j == 9:
                     blue_coin = Coins(x,y,BLUE)
                     blue_coin_list.add(blue_coin)
                     coins_list.add(blue_coin)
 
-                elif j == 110:
+
+                elif j == 'p':
                     purple_portal = Portal(x,y,PURPLE)
                     portal_list_spr.add(purple_portal)
                     portal_list['purple'].append(purple_portal) 
                     all_sprite_list.add(purple_portal)
-                elif j == 111:
+                elif j == 'P':
                     purple_portal_opener = Portal_opener(x,y,PURPLE)
                     portal_opener_list_spr.add(purple_portal_opener)
                     portal_opener_list['purple'].append(purple_portal_opener) 
                     all_sprite_list.add(purple_portal_opener)                    
-                elif j == 210:
+                elif j == 'b':
                     brown_portal = Portal(x,y, BROWN)
                     portal_list_spr.add(brown_portal)
                     portal_list['brown'].append(brown_portal) 
                     all_sprite_list.add(brown_portal)
-                elif j == 211:
+                elif j == 'B':
                     brown_portal_opener = Portal_opener(x,y,BROWN)
                     portal_opener_list_spr.add(brown_portal_opener)
                     portal_opener_list['brown'].append(brown_portal_opener) 
@@ -456,17 +460,33 @@ def check_die(player,lake_list):
 # end procedure
 def high(player,list_of_trapeze):
     for trapeze in list_of_trapeze:
-        if(player.rect.x >= trapeze.rect.x and player.rect.x <= trapeze.rect.x + 30) and (player.rect.y <= trapeze.rect.y + 1):
+        if(player.rect.x >= trapeze.rect.x and player.rect.x <= trapeze.rect.x + 30) and (player.rect.y <= trapeze.rect.y + 30):
                 return True
             #and (player.rect.y >= trapeze.rect.y - 20 and player.rect.y <= trapeze.rect.y + 200):
    
 
 
-def red_score(player):
-    global coins_list
-    for coin in coins_list:
-        if(player.rect.x+24 >= coin.x and player.rect.x - 9 <= coin.x) and (player.rect.y +24 >= coin.y  and player.rect.y -9 <= coin.y ):
-            coins_list.remove(coin)
+def score_total(player):
+    if player.color == BLUE: 
+        for coin in blue_coin_list:
+            if(player.rect.x+24 >= coin.x and player.rect.x - 9 <= coin.x) and (player.rect.y +24 >= coin.y  and player.rect.y -9 <= coin.y ):
+                blue_coin_list.remove(coin)
+                coins_list.remove(coin)
+                
+                return 1
+        
+    elif player.color == RED:
+        for coin in red_coin_list:
+            if(player.rect.x+24 >= coin.x and player.rect.x - 9 <= coin.x) and (player.rect.y +24 >= coin.y  and player.rect.y -9 <= coin.y ):
+                red_coin_list.remove(coin)
+                coins_list.remove(coin)
+                return 1
+    return 0
+    
+
+                
+                
+                
 
                 
                  
@@ -490,16 +510,20 @@ def initial_map(first_m):
 
 def live_map(current_map,player_one,player_two):
     global sm
- 
+
     
    
     if player1.life <= 0 or player2.life <= 0 or current_map == [1] :
         delete_map()
         lose()
         return_to_menu()
-        current_map = 1
+        current_map = [1]
 
-
+    elif current_map == [2]:
+        delete_map()
+        win()
+        return_to_menu()
+        current_map = [1]
     elif current_map == [0]:
         delete_map()
         menu()
@@ -516,18 +540,25 @@ def live_map(current_map,player_one,player_two):
     elif len(door_list) != 0:
         if door_list[0].update_door(player1) and door_list[1].update_door(player2):
             delete_map()
-            lose()
+            win()
+    
     # end if
     c = 11
-    p_opener_purple = portal_opener_list['purple'][0]
-    p_opener_brown = portal_opener_list['brown'][0]
+
+    p_opener_purple_1 = portal_opener_list['purple'][0]
+
+   # p_opener_brown = portal_opener_list['brown'][0]
+    
     #p.open_portal(p_opener,player1)
     
     for i in portal_list['purple']:
-        i.open_portal(p_opener_purple,player1, player2)
+    
+        i.open_portal(p_opener_purple_1, player1, player2)
+  
+        
 
-    for i in portal_list['brown']:
-        i.open_portal(p_opener_brown,player1, player2)
+    #for i in portal_list['brown']:
+       #rb i.open_portal(p_opener_brown,player1, player2)
 
     
    
@@ -553,6 +584,14 @@ def menu():
     screen.blit(text2,text2Rect)
 # end procedure
 
+def score(current_score):
+    font = pygame.font.Font('freesansbold.ttf',25)
+    text = font.render(f'Total score {current_score}',True,GREEN,BLUE)
+    textRect = text.get_rect()
+    textRect.center = (800, 50)
+    screen.blit(text, textRect)
+
+
 def lose():
     global sc_map
     screen.fill(BLACK)
@@ -562,6 +601,16 @@ def lose():
     loseRect.center = (1280//2, 720//2)
     screen.blit(lose, loseRect)
     sc_map =[1]
+def win():
+    global sc_map
+    screen.fill(WHITE)
+    font = pygame.font.Font('freesansbold.ttf',82)
+    win = font.render('You WIIIIN!', True, LIGHT_BLUE,BLUE)
+    winRect = win.get_rect()
+    winRect.center = (1280//2, 720//2)
+    screen.blit(win, winRect)
+    sc_map =[2]
+
 # end procedure
     
 def return_to_menu():
@@ -579,6 +628,7 @@ def scores(p1,p2,c_list, rc_list, bc_list,score):
     textfont = pygame.font.SysFont('monospace',50)
     textTBD = textfont.render(f'score {score}',1,(RED))
     screen.blit(textTBD)
+
 # end procedure
 
 #setting up the clock
@@ -589,6 +639,8 @@ clock = pygame.time.Clock()
 initial_map(sc_map)
 
 done = False
+SCORE = 0
+final_score = 0
 # the main loop
 while not done:
     
@@ -622,11 +674,18 @@ while not done:
                 sc_map = [0]
             if event.key == pygame.K_r:
                 if sc_map == [1]:
-                    player1.life =1
+                    player1.life = 1
                     player2.life = 1
                     player1.rect.x,player1.rect.y = 25,575
                     player2.rect.x,player2.rect.y = 1225,575
                     sc_map = [0]
+                elif sc_map == [2]:
+                    player1.life = 1
+                    player2.life = 1
+                    player1.rect.x,player1.rect.y = 25,575
+                    player2.rect.x,player2.rect.y = 1225,575
+
+
 
 
         if event.type == pygame.KEYUP:
@@ -650,7 +709,6 @@ while not done:
                         sc_map = maps.l
                     else:
                         sc_map = [0]
-        
 
     screen.fill(GREEN)
 
@@ -659,6 +717,8 @@ while not done:
     check_die(player2,red_lake_list)
     check_die(player1, green_lake_list)
     check_die(player2, green_lake_list)
+    final_score = final_score + score_total(player2) + score_total(player1)
+
     k = player1.change_y
 
     if high(player1,trapeze_list):
@@ -675,12 +735,17 @@ while not done:
         play = pygame.image.load('play_button.jpg')
         play_image = pygame.transform.scale(play, (50,50))
         screen.blit(play_image, (30,20))
+        
+        
     
     elif sc_map != [1]:
 
         pause = pygame.image.load('pause_button.jpg')
         pause_image = pygame.transform.scale(pause, (50,50))
         screen.blit(pause_image,(30,20))
+        score(final_score)    
+    elif sc_map == [1]:
+        final_score = 0
     
 
 
@@ -692,13 +757,36 @@ while not done:
     all_sprite_list.draw(screen)
     
     # drawing everything
+
+
+
+
+    # TIME
+    current_time = pygame.time.get_ticks()
+    elapsed_time = current_time - start_time
+    seconds = elapsed_time // 1000
+    minutes = seconds // 60
+    seconds %= 60    
+    time_string = f"{minutes:02}:{seconds:02}"
+
+    # Render the timer text
+    font = pygame.font.Font(None, 50)
+    text = font.render(time_string, True, WHITE)
+    text_rect = text.get_rect(center=(620, 50))
+    screen.blit(text, text_rect)
+
+
+
+
+
     pygame.display.flip()
     # fliping the display
     clock.tick(60)
+    
  
 pygame.quit()
 # quiting the pygame
 
 
 
-print(player1.rect.x, player1.rect.y)
+print(portal_list['purple'])
