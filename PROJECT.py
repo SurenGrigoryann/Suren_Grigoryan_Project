@@ -41,7 +41,8 @@ class Door(pygame.sprite.Sprite):
     def update_door(self, player):
         if (player.rect.x <= self.rect.x + 20 and player.rect.x >= self.rect.x - 20) and (player.rect.y <= self.rect.y +20 and player.rect.y >= self.rect.y - 20):
             return True
-        
+        else:
+            return False
 class Portal(pygame.sprite.Sprite):
     def __init__(self,x,y,color):
         super().__init__()
@@ -558,8 +559,7 @@ def live_map(current_map,player_one,player_two):
         player_two.walls = wall_list
         all_sprite_list.add(player1)
         all_sprite_list.add(player2)
-        print(door_list)
-    elif len(door_list) != 0:
+    if len(door_list) != 0:
         if door_list[0].update_door(player1) and door_list[1].update_door(player2):
             delete_map()
             win()
@@ -615,7 +615,7 @@ def menu():
 
 def score(current_score):
     font = pygame.font.Font('freesansbold.ttf',25)
-    text = font.render(f'Total score {current_score}',True,GREEN,BLUE)
+    text = font.render(f'Score {current_score}',True,GREEN,BLUE)
     textRect = text.get_rect()
     textRect.center = (800, 50)
     screen.blit(text, textRect)
@@ -818,4 +818,3 @@ pygame.quit()
 
 
 
-print(portal_list['purple'])
