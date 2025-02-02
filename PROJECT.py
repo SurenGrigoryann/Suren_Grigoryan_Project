@@ -18,6 +18,7 @@ LIGHT_GREEN = (0,130,0)
 YELLOW = (255,255,0)
 PURPLE = (160,32,240)
 BROWN = (139,69,19)
+ORANGE = (255, 99, 7)
 
 # Screen dimensions
 SCREEN_WIDTH = 1280
@@ -55,19 +56,31 @@ class Portal(pygame.sprite.Sprite):
         self.y1 = y 
         self.x2 = x 
         self.y2 = y + 110
+        self.y3 = y - 110
         self.color = color
     
-    def open_portal(self,portal_opener,p1,p2):
+    def open_portal(self,portal_opener,p1,p2, direction):
+        if direction == "down":
             if ((self.y2 != self.rect.y) and 
             (((p1.rect.x <= portal_opener.rect.x + 15 and p1.rect.x >= portal_opener.rect.x - 15) and (p1.rect.y <= portal_opener.rect.y + 15 and p1.rect.y >= portal_opener.rect.y - 15))
             or
             ((p2.rect.x <= portal_opener.rect.x + 15 and p2.rect.x >= portal_opener.rect.x - 15) and (p2.rect.y <= portal_opener.rect.y + 15 and p2.rect.y >= portal_opener.rect.y - 15)))):
-                
                 self.rect.y += 1.25
 
-            elif  (self.y1 != self.rect.y):
+            elif (self.y1 != self.rect.y):
                 
                 self.rect.y -= 1.25
+
+        elif direction == "up":
+            if ((self.y3 != self.rect.y) and 
+            (((p1.rect.x <= portal_opener.rect.x + 15 and p1.rect.x >= portal_opener.rect.x - 15) and (p1.rect.y <= portal_opener.rect.y + 15 and p1.rect.y >= portal_opener.rect.y - 15))
+            or
+            ((p2.rect.x <= portal_opener.rect.x + 15 and p2.rect.x >= portal_opener.rect.x - 15) and (p2.rect.y <= portal_opener.rect.y + 15 and p2.rect.y >= portal_opener.rect.y - 15)))):
+                self.rect.y -= 1.25
+
+            elif (self.y1 != self.rect.y):
+                
+                self.rect.y += 1.25
             
             
 
@@ -423,8 +436,17 @@ def create_map(map):
                     brown_portal_opener = Portal_opener(x,y,BROWN)
                     portal_opener_list_spr.add(brown_portal_opener)
                     portal_opener_list['brown'].append(brown_portal_opener) 
-                    all_sprite_list.add(brown_portal_opener)      
-                
+                    all_sprite_list.add(brown_portal_opener)    
+                elif j == 'o':
+                    orange_portal = Portal(x,y,ORANGE)
+                    portal_list_spr.add(orange_portal)
+                    portal_list['orange'].append(orange_portal) 
+                    all_sprite_list.add(orange_portal)
+                elif j == 'O':
+                    orange_portal_opener = Portal_opener(x,y,ORANGE)
+                    portal_opener_list_spr.add(orange_portal_opener)
+                    portal_opener_list['orange'].append(orange_portal_opener) 
+                    all_sprite_list.add(orange_portal_opener)    
 
                 
                                 
@@ -545,16 +567,23 @@ def live_map(current_map,player_one,player_two):
     # end if
     c = 11
 
-    p_opener_purple_1 = portal_opener_list['purple'][0]
+    p_opener_purple = portal_opener_list['purple'][0]
 
-   # p_opener_brown = portal_opener_list['brown'][0]
+    p_opener_brown = portal_opener_list['brown'][0]
+
+    p_opener_orange = portal_opener_list['orange'][0]
     
     #p.open_portal(p_opener,player1)
     
     for i in portal_list['purple']:
-    
-        i.open_portal(p_opener_purple_1, player1, player2)
-  
+
+        i.open_portal(p_opener_purple, player1, player2,"down")
+    for i in portal_list['brown']:
+
+        i.open_portal(p_opener_brown, player1, player2, "down")
+    for i in portal_list['orange']:
+
+        i.open_portal(p_opener_orange, player1, player2, "up")
         
 
     #for i in portal_list['brown']:
