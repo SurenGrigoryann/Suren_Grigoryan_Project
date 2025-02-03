@@ -69,7 +69,6 @@ class Portal(pygame.sprite.Sprite):
                 self.rect.y += 1.25
 
             elif (self.y1 != self.rect.y):
-                
                 self.rect.y -= 1.25
 
         elif direction == "up":
@@ -78,9 +77,7 @@ class Portal(pygame.sprite.Sprite):
             or
             ((p2.rect.x <= portal_opener.rect.x + 15 and p2.rect.x >= portal_opener.rect.x - 15) and (p2.rect.y <= portal_opener.rect.y + 15 and p2.rect.y >= portal_opener.rect.y - 15)))):
                 self.rect.y -= 1.25
-
             elif (self.y1 != self.rect.y):
-                
                 self.rect.y += 1.25
             
             
@@ -288,6 +285,7 @@ class Trapeze(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+    
 
 class Coins(pygame.sprite.Sprite):
     def __init__ (self,x,y,color):
@@ -357,10 +355,10 @@ door_list = []
 
 # sc_map is the current map
 
-sc_map = maps.l
+sc_map = maps.level_one
 
 # sm is the starting map
-sm = maps.l
+sm = maps.level_one
 start_time = pygame.time.get_ticks() 
 
 
@@ -483,8 +481,11 @@ def check_die(player,lake_list):
 # end procedure
 def high(player,list_of_trapeze):
     for trapeze in list_of_trapeze:
-        if(player.rect.x >= trapeze.rect.x and player.rect.x <= trapeze.rect.x + 30) and (player.rect.y <= trapeze.rect.y + 30):
-                return True
+        if(player.rect.x >= trapeze.rect.x-10 and player.rect.x <= trapeze.rect.x + 10) and (player.rect.y <= trapeze.rect.y and player.rect.y > trapeze.rect.y - 200):
+            return 1
+
+        elif (player.rect.x >= trapeze.rect.x-10 and player.rect.x <= trapeze.rect.x + 10) and player.rect.y == trapeze.rect.y - 250:
+            return 2
             #and (player.rect.y >= trapeze.rect.y - 20 and player.rect.y <= trapeze.rect.y + 200):
    
 
@@ -500,7 +501,7 @@ def score_total(player):
         
     elif player.color == RED:
         for coin in red_coin_list:
-            if(player.rect.x+24 >= coin.x and player.rect.x - 9 <= coin.x) and (player.rect.y +24 >= coin.y  and player.rect.y -9 <= coin.y ):
+            if(player.rect.x+24 >= coin.x and player.rect.x - 9 <= coin.x) and (player.rect.y +24 >= coin.y and player.rect.y -9 <= coin.y ):
                 red_coin_list.remove(coin)
                 coins_list.remove(coin)
                 return 1
@@ -698,7 +699,7 @@ while not done:
             if event.key == pygame.K_l:
                 sc_map = maps.map1
             if event.key == pygame.K_b:
-                sc_map = maps.l
+                sc_map = maps.level_one
             if event.key == pygame.K_m:
                 sc_map = [0]
             if event.key == pygame.K_r:
@@ -735,7 +736,7 @@ while not done:
   
                 if (x > 30 and x < 80) and (y > 20 and y < 70):
                     if sc_map == [0]:
-                        sc_map = maps.l
+                        sc_map = maps.level_one
                     else:
                         sc_map = [0]
 
@@ -748,15 +749,18 @@ while not done:
     check_die(player2, green_lake_list)
     final_score = final_score + score_total(player2) + score_total(player1)
 
-    k = player1.change_y
 
-    if high(player1,trapeze_list):
-        for i in range(3):
-            player1.rect.y -= 6
-            all_sprite_list.update()
-            player1.change_y = 0
-        player1.change_y = k
- 
+    k = high(player1,trapeze_list)
+
+    if k == 1:
+        player1.rect.y -= 10
+        player1.change_y = 0
+        player1.rect.y += 8
+    elif k == 2:
+        player1.rect.y += 10
+        player1.change_y = 0
+        player1.rect.y -= 8
+            
            # time.sleep(0.001)
 
     high(player2, trapeze_list)
