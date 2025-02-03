@@ -560,7 +560,7 @@ def live_map(current_map,player_one,player_two):
         player_two.walls = wall_list
         all_sprite_list.add(player1)
         all_sprite_list.add(player2)
-    if len(door_list) != 0:
+    if current_map == sm:
         if door_list[0].update_door(player1) and door_list[1].update_door(player2):
             delete_map()
             win()
@@ -764,21 +764,27 @@ while not done:
            # time.sleep(0.001)
 
     high(player2, trapeze_list)
-    if sc_map == [0]:
-        play = pygame.image.load('play_button.jpg')
-        play_image = pygame.transform.scale(play, (50,50))
-        screen.blit(play_image, (30,20))
-        
-        
-    
-    elif sc_map != [1]:
-
+    if sc_map == maps.level_one:
+        red_gun = pygame.image.load('red_gun.jpg')
+        red_image = pygame.transform.scale(red_gun, (50,50))
+        screen.blit(red_image,(200,20))
+        blue_gun = pygame.image.load('blue_gun.jpg')
+        blue_image = pygame.transform.scale(blue_gun, (50,50))
+        screen.blit(blue_image,(1200,20))
         pause = pygame.image.load('pause_button.jpg')
         pause_image = pygame.transform.scale(pause, (50,50))
         screen.blit(pause_image,(30,20))
-        score(final_score)    
+        score(final_score)
+
+    
+    elif sc_map == [0]:
+        play = pygame.image.load('play_button.jpg')
+        play_image = pygame.transform.scale(play, (50,50))
+        screen.blit(play_image, (30,20))
+
     elif sc_map == [1]:
         final_score = 0
+    
     
 
 
@@ -805,7 +811,7 @@ while not done:
     # Render the timer text
     font = pygame.font.Font(None, 50)
     text = font.render(time_string, True, WHITE)
-    text_rect = text.get_rect(center=(620, 50))
+    text_rect = text.get_rect(center=(SCREEN_WIDTH//2, 50))
     screen.blit(text, text_rect)
 
 
