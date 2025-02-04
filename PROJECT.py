@@ -94,7 +94,34 @@ class Portal_opener(pygame.sprite.Sprite):
         self.color = color
 
 
+
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self,x,y,type):
+        super().__init__()
+        self.x = x
+        self.y = y
+        self.type = type
+        self.life = 0
+    
+    def draw(self,ScreenToDraw, player):
+        if self.type == "Shooter":
+            self.life = 1
+            if (player.rect.x <= self.x + 20 or player.rect.x >= self.x-20) and (player.rect.y <= self.y + 20 or player.rect.x >= self.y-20):
+                shooter = pygame.image.load('enemy.jpg')
+                shooter_image = pygame.transform.scale(shooter, (50,50))
+                ScreenToDraw.blit(shooter_image, (self.x,self.y))
+            else:
+                shooter = pygame.image.load('enemy.jpg')
+                shooter_image = pygame.transform.scale(shooter, (50,50))
+                ScreenToDraw.blit(shooter_image, (self.x,self.y))
+
+
+
                 
+
+    
+    
+
 
         
 
@@ -341,6 +368,9 @@ red_coin_list = pygame.sprite.Group()
 
 blue_coin_list = pygame.sprite.Group()
 
+enemy_list = pygame.sprite.Group()
+
+
 portal_list_spr = pygame.sprite.Group()
 portal_list = {'purple': [], 'yellow ': [], 'orange':[], 'black':[], 'brown': []}
 
@@ -446,6 +476,10 @@ def create_map(map):
                     portal_opener_list_spr.add(orange_portal_opener)
                     portal_opener_list['orange'].append(orange_portal_opener) 
                     all_sprite_list.add(orange_portal_opener)    
+                elif j == 'S':
+                    shooter_enemy = Enemy(x,y, 'Shooter')
+                    enemy_list.add(shooter_enemy)
+
 
                 
                                 
@@ -597,6 +631,8 @@ def live_map(current_map,player_one,player_two):
 
     for coin in coins_list:
         coin.draw(screen)
+    for enemy in enemy_list:
+        enemy.draw(screen, player1)
     sm = current_map
 # end procedure
 
