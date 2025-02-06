@@ -28,9 +28,10 @@ SCREEN_HEIGHT = 720
 class Door(pygame.sprite.Sprite):
     def __init__(self,x,y,color):
         super().__init__()
+        self.img= pygame.image.load('no_gun.jpg')
+        self.image = pygame.transform.scale(self.img, (40, 40))
 
-        self.image = pygame.Surface([40,40])
-        self.image.fill(color)
+
 
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -98,23 +99,59 @@ class Portal_opener(pygame.sprite.Sprite):
 class Enemy(pygame.sprite.Sprite):
     def __init__(self,x,y,type):
         super().__init__()
-        self.x = x
-        self.y = y
+            
         self.type = type
         self.life = 0
-    
-    def draw(self,ScreenToDraw, player):
+        self.gun = None
         if self.type == "Shooter":
             self.life = 1
-            if (player.rect.x <= self.x + 20 or player.rect.x >= self.x-20) and (player.rect.y <= self.y + 20 or player.rect.x >= self.y-20):
-                shooter = pygame.image.load('enemy.jpg')
-                shooter_image = pygame.transform.scale(shooter, (50,50))
-                ScreenToDraw.blit(shooter_image, (self.x,self.y))
-            else:
-                shooter = pygame.image.load('enemy.jpg')
-                shooter_image = pygame.transform.scale(shooter, (50,50))
-                ScreenToDraw.blit(shooter_image, (self.x,self.y))
+            self.gun == "Far"
+            self.image = pygame.Surface([20,20])
+            self.image.fill(BLACK)
 
+        elif self.type == "Tank":
+            self.life = 3
+            self.gun == "Short"
+            self.image = pygame.Surface([40,40])
+            self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+        self.rect.y = y
+        self.rect.x = x
+        self.x = x
+        self.y = y
+    def attack(self,player):
+        if (player.rect.y <= self.rect.y + 15 and player.rect.y > self.rect.y -40) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 120)):
+            self.rect.x += 2
+        
+        elif (player.rect.y <= self.rect.y + 15 and player.rect.y > self.rect.y -40) and ((player.rect.x <= self.rect.x + 50) and (player.rect.x >= self.x -160)):
+            self.rect.x -= 2
+
+class Gun(pygame.sprite.Sprite):
+    def __init__(self,x,y):
+        super().__init__()
+        
+        self.image = pygame.Surface([25,25])
+        self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def shooting(self):
+        bullet = Bullet(self.rect.x, self.rect.y)
+        bullet.run()
+
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self,x,y):
+        super().__init__()
+        
+        self.image = pygame.Surface([10,10])
+        self.image.fill(BROWN)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def run(self):
+        self.rect.y += 100
 
 
                 
@@ -148,12 +185,14 @@ class Player(pygame.sprite.Sprite):
         # speed vector
         self.change_x = 0
         self.change_y = 0
+        self.enemies = None
         # walls and lakes collisions
         self.walls = None
         self.portals = None
         self.coins = None
         self.lakes = None
         self.ghosts = None
+        self.guns = None
         # lives
         self.life = 1
         # power level
@@ -213,6 +252,9 @@ class Player(pygame.sprite.Sprite):
 
             self.change_y = 0
 
+       # gun_hit_list = pygame.sprite.spritecollide(self, self.guns, False)
+        #for gun in gun_hit_list:
+
             # end if
         # next block
     # end procedure
@@ -265,6 +307,10 @@ class Player(pygame.sprite.Sprite):
     # getting the life
     def get_life(self):
         return self.life
+    def shoot(self):
+        if self.guns != None:
+            self.guns.shooting()
+
     # end procedure
 
 # end class Player
@@ -368,8 +414,9 @@ red_coin_list = pygame.sprite.Group()
 
 blue_coin_list = pygame.sprite.Group()
 
-enemy_list = pygame.sprite.Group()
+all_enemy_list = pygame.sprite.Group()
 
+all_gun_list = pygame.sprite.Group()
 
 portal_list_spr = pygame.sprite.Group()
 portal_list = {'purple': [], 'yellow ': [], 'orange':[], 'black':[], 'brown': []}
@@ -478,10 +525,17 @@ def create_map(map):
                     all_sprite_list.add(orange_portal_opener)    
                 elif j == 'S':
                     shooter_enemy = Enemy(x,y, 'Shooter')
-                    enemy_list.add(shooter_enemy)
+                    all_enemy_list.add(shooter_enemy)
+                    all_sprite_list.add(shooter_enemy)
+                elif j == 'T':
+                    Tank_enemy = Enemy(x,y, 'Tank')
+                    all_enemy_list.add(Tank_enemy)
+                    all_sprite_list.add(Tank_enemy)
 
-
-                
+                elif j == 'G':
+                    gun = Gun(x,y)
+                    all_gun_list.add(gun)
+                    all_sprite_list.add(gun)
                                 
 
                 # end if
@@ -506,10 +560,15 @@ def delete_map():
 
     
 
-def check_die(player,lake_list):
+def check_die(player,lake_list, enemies):
     for lake in lake_list:
         if(player.rect.x+24 >= lake.rect.x and player.rect.x - 9 <= lake.rect.x) and (player.rect.y +24 >= lake.rect.y  and player.rect.y -9 <= lake.rect.y ):
             player.life = player.life - 1
+    for enemy in enemies:
+        if(player.rect.x + 25 >= enemy.rect.x and player.rect.x <= enemy.rect.x) and (player.rect.y +25 >= enemy.rect.y  and player.rect.y -15 <= enemy.rect.y ):
+            player.life = player.life - 1
+            print(enemy.rect.x, enemy.rect.y)
+            print(player.rect.x, player.rect.y)
         # end if
     # next lake
 # end procedure
@@ -552,8 +611,10 @@ def score_total(player):
 def create_players(x,y,color):
     player = Player(x, y, color)
     player.walls = wall_list
+    player.enemies = all_enemy_list
     player.portals = portal_list_spr
     all_sprite_list.add(player)
+    player.guns = all_gun_list
     return player
 # end function
 
@@ -620,6 +681,8 @@ def live_map(current_map,player_one,player_two):
 
         i.open_portal(p_opener_orange, player1, player2, "up")
         
+    for enemy in all_enemy_list:
+        enemy.attack(player1)
 
     #for i in portal_list['brown']:
        #rb i.open_portal(p_opener_brown,player1, player2)
@@ -631,8 +694,7 @@ def live_map(current_map,player_one,player_two):
 
     for coin in coins_list:
         coin.draw(screen)
-    for enemy in enemy_list:
-        enemy.draw(screen, player1)
+
     sm = current_map
 # end procedure
 
@@ -724,6 +786,8 @@ while not done:
             elif event.key == pygame.K_UP:
                 player1.jump()
 
+            if event.key == pygame.K_q:
+                player1.shoot()
 
             if event.key == pygame.K_a:
                 player2.go_left()
@@ -776,13 +840,14 @@ while not done:
                     else:
                         sc_map = [0]
 
+
     screen.fill(GREEN)
 
     live_map(sc_map,player1,player2)
-    check_die(player1,blue_lake_list)
-    check_die(player2,red_lake_list)
-    check_die(player1, green_lake_list)
-    check_die(player2, green_lake_list)
+    check_die(player1,blue_lake_list, all_enemy_list)
+    check_die(player2,red_lake_list, all_enemy_list)
+    check_die(player1, green_lake_list, all_enemy_list)
+    check_die(player2, green_lake_list, all_enemy_list)
     final_score = final_score + score_total(player2) + score_total(player1)
 
 
