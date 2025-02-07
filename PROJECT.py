@@ -112,7 +112,7 @@ class Enemy(pygame.sprite.Sprite):
         elif self.type == "Tank":
             self.life = 3
             self.gun == "Short"
-            self.image = pygame.Surface([40,40])
+            self.image = pygame.Surface([30,40])
             self.image.fill(WHITE)
         self.rect = self.image.get_rect()
         self.rect.y = y
@@ -282,7 +282,7 @@ class Player(pygame.sprite.Sprite):
  
         # If it is ok to jump, set our speed upwards
         if len(platform_hit_list) > 0 or self.rect.bottom >= SCREEN_HEIGHT:
-            self.change_y = -6
+            self.change_y = -6.5
         # end if
     # end procedure
 
@@ -441,8 +441,8 @@ start_time = pygame.time.get_ticks()
 
 # creating the map from a 2D list of numbers
 def create_map(map):
-        global all_sprite_list
-        global wall_list
+        #global all_sprite_list
+        #global wall_list
         x = 0
         y = 0
         for i in map:
@@ -567,8 +567,8 @@ def check_die(player,lake_list, enemies):
     for enemy in enemies:
         if(player.rect.x + 25 >= enemy.rect.x and player.rect.x <= enemy.rect.x) and (player.rect.y +25 >= enemy.rect.y  and player.rect.y -15 <= enemy.rect.y ):
             player.life = player.life - 1
-            print(enemy.rect.x, enemy.rect.y)
-            print(player.rect.x, player.rect.y)
+            print(enemies)
+
         # end if
     # next lake
 # end procedure
@@ -683,6 +683,8 @@ def live_map(current_map,player_one,player_two):
         
     for enemy in all_enemy_list:
         enemy.attack(player1)
+        enemy.attack(player2)
+
 
     #for i in portal_list['brown']:
        #rb i.open_portal(p_opener_brown,player1, player2)
@@ -729,6 +731,12 @@ def lose():
     loseRect.center = (1280//2, 720//2)
     screen.blit(lose, loseRect)
     sc_map =[1]
+    for i in all_enemy_list:
+        all_enemy_list.remove(i)
+    for coin in blue_coin_list:
+        blue_coin_list.remove(coin)
+    for coin in red_coin_list:
+        red_coin_list.remove(coin)
 def win():
     global sc_map
     screen.fill(WHITE)
