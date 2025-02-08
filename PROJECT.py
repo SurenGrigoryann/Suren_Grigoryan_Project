@@ -110,7 +110,7 @@ class Enemy(pygame.sprite.Sprite):
             self.image.fill(BLACK)
 
         elif self.type == "Tank":
-            self.life = 3
+            self.life = 4
             self.gun == "Short"
             self.image = pygame.Surface([30,40])
             self.image.fill(WHITE)
@@ -135,13 +135,10 @@ class Gun(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-
-    def shooting(self):
-        bullet = Bullet(self.rect.x, self.rect.y)
-        bullet.run()
+        
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self,x,y):
+    def __init__(self,x,y, direction):
         super().__init__()
         
         self.image = pygame.Surface([10,10])
@@ -149,9 +146,21 @@ class Bullet(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.direction = direction
+        if self.direction == "right":
+            self.speed_x = 10
+        elif direction == "left":
+            self.speed_x = -10
+        else:
+            self.speed_x = 0
+        self.speed_y = 0
 
-    def run(self):
-        self.rect.y += 100
+    def update(self):
+        self.rect.x += self.speed_x
+        self.rect.y += self.speed_y
+        if self.rect.x < 0 or self.rect.x > SCREEN_WIDTH:
+            self.kill()
+
 
 
                 
@@ -192,11 +201,12 @@ class Player(pygame.sprite.Sprite):
         self.coins = None
         self.lakes = None
         self.ghosts = None
-        self.guns = None
+        self.guns = False
         # lives
         self.life = 1
         # power level
         self.level = None
+        self.previous_direction = 0
     # end procedure
 
     # updating the players cordinations and other features
@@ -288,14 +298,20 @@ class Player(pygame.sprite.Sprite):
 
     # movements procedures
     def go_left(self):
+        self.previous_direction = -1
         self.change_x = -3
     # end procedure
 
     def go_right(self):
+        self.previous_direction = 1
         self.change_x = 3
     # end procedure
 
     def stop(self):
+        if self.change_x == 3:
+            self.previous_direction = 1
+        elif self.change_x == -3:
+            self.previous_direction = -1
         self.change_x = 0
     # end procedure
 
@@ -308,9 +324,18 @@ class Player(pygame.sprite.Sprite):
     def get_life(self):
         return self.life
     def shoot(self):
-        if self.guns != None:
-            self.guns.shooting()
-
+        print(self.guns)
+        if self.guns:
+            if self.previous_direction == 1:
+                bullet = Bullet(self.rect.x,self.rect.y,"right")
+                bullet_list.add(bullet)
+                all_sprite_list.add(bullet)
+            elif self.previous_direction == -1:
+                bullet = Bullet(self.rect.x,self.rect.y,"left")
+                bullet_list.add(bullet)
+                all_sprite_list.add(bullet)
+        else:
+            print('no gun')
     # end procedure
 
 # end class Player
@@ -425,6 +450,8 @@ blue_coin_list = pygame.sprite.Group()
 all_enemy_list = pygame.sprite.Group()
 
 all_gun_list = pygame.sprite.Group()
+
+bullet_list = pygame.sprite.Group()
 
 portal_list_spr = pygame.sprite.Group()
 portal_list = {'purple': [], 'yellow ': [], 'orange':[], 'black':[], 'brown': []}
@@ -622,7 +649,7 @@ def create_players(x,y,color):
     player.enemies = all_enemy_list
     player.portals = portal_list_spr
     all_sprite_list.add(player)
-    player.guns = all_gun_list
+
     return player
 # end function
 
@@ -834,6 +861,8 @@ while not done:
                     player2.life = 1
                     player1.rect.x,player1.rect.y = 25,575
                     player2.rect.x,player2.rect.y = 1225,575
+            if event.key == pygame.K_q:
+                player1.shoot()
 
 
 
@@ -874,6 +903,12 @@ while not done:
 
     k = high(player1,trapeze_list)
 
+    if not player1.guns:
+        gun_hits = pygame.sprite.spritecollide(player1, all_gun_list, True)
+        if gun_hits:
+            player1.guns = True
+            print("Player1 picked up a gun!")
+
     if k == 1:
         player1.rect.y -= 10
         player1.change_y = 0
@@ -909,7 +944,21 @@ while not done:
     
     # updating all of the objects
     all_sprite_list.update()
+    for bullet in bullet_list:
+        enemy_hits = pygame.sprite.spritecollide(bullet, all_enemy_list, False)
+        if enemy_hits:
+            bullet.kill()
+            for enemy in enemy_hits:
 
+                if enemy.life > 1:
+                    enemy.life -= 1
+                    print(enemy.life)
+                else:
+                    enemy.kill()
+            
+        block_hits = pygame.sprite.spritecollide(bullet, wall_list, False)
+        if block_hits:
+            bullet.kill()
     all_sprite_list.draw(screen)
     
     # drawing everything
