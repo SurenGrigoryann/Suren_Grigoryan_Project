@@ -121,17 +121,17 @@ class Enemy(pygame.sprite.Sprite):
         self.x = x
         self.y = y
     def attack(self,player):
-        if (player.rect.y <= self.rect.y + 15 and player.rect.y > self.rect.y -40) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 120)):
+        if (player.rect.y <= self.rect.y + 60 and player.rect.y > self.rect.y -35) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 160)):
             self.img= pygame.image.load('Tank.jpg')
             self.image = pygame.transform.scale(self.img, (50, 70))
 
-            self.rect.x += 2
+            self.rect.x += 1
         
-        elif (player.rect.y <= self.rect.y + 15 and player.rect.y > self.rect.y -40) and ((player.rect.x <= self.rect.x + 50) and (player.rect.x >= self.x -160)):
+        elif (player.rect.y <= self.rect.y + 60 and player.rect.y > self.rect.y -35) and ((player.rect.x <= self.rect.x) and (player.rect.x >= self.x -160)):
             self.flipped_image = pygame.transform.flip(self.img, True, False)
             self.image = pygame.transform.scale(self.flipped_image, (50, 70))
 
-            self.rect.x -= 2
+            self.rect.x -= 1
 
 class Gun(pygame.sprite.Sprite):
     def __init__(self,x,y):
@@ -211,7 +211,7 @@ class Player(pygame.sprite.Sprite):
         self.lakes = None
         self.guns = False
         self.timer = False
-        self.duration = 10000
+        self.duration = 5000
         # lives
         self.life = 1
         # power level
