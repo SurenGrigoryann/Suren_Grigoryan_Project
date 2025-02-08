@@ -202,8 +202,9 @@ class Player(pygame.sprite.Sprite):
         self.portals = None
         self.coins = None
         self.lakes = None
-        self.ghosts = None
         self.guns = False
+        self.timer = False
+        self.duration = 10000
         # lives
         self.life = 1
         # power level
@@ -947,6 +948,7 @@ while not done:
         gun_hits = pygame.sprite.spritecollide(player1, all_gun_list, True)
         if gun_hits:
             player1.guns = True
+            player1.timer = pygame.time.get_ticks()
     if not player2.guns:
         gun_hits = pygame.sprite.spritecollide(player2, all_gun_list, True)
         if gun_hits:
@@ -960,6 +962,9 @@ while not done:
         screen.blit(pause_img, (30, 20))
         score(final_score)
         if player1.guns:
+            if current_time - player1.timer > player1.duration:
+                player1.guns = False
+                player1.timer = None
             screen.blit(red_gun_img, (200, 20))
         else:
             screen.blit(no_gun_img, (200, 20))
