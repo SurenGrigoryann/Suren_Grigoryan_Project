@@ -129,9 +129,8 @@ class Enemy(pygame.sprite.Sprite):
 class Gun(pygame.sprite.Sprite):
     def __init__(self,x,y):
         super().__init__()
-        
-        self.image = pygame.Surface([25,25])
-        self.image.fill(WHITE)
+        self.img= pygame.image.load('no_gun.jpg')
+        self.image = pygame.transform.scale(self.img, (40,30))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -590,6 +589,8 @@ def delete_map():
     all_sprite_list.empty()
     wall_list.empty()
     coins_list.empty()
+    player1.guns = False
+    player2.guns = False
 # end procedure
 
     
@@ -842,7 +843,7 @@ while not done:
                 player2.jump()
 
             if event.key == pygame.K_l:
-                sc_map = maps.map1
+                sc_map = maps.level_one
             if event.key == pygame.K_b:
                 sc_map = maps.level_one
             if event.key == pygame.K_m:
@@ -862,6 +863,8 @@ while not done:
                     player2.rect.x,player2.rect.y = 1225,575
             if event.key == pygame.K_q:
                 player1.shoot()
+            if event.key == pygame.K_l:
+                player2.shoot()
 
 
 
@@ -900,26 +903,40 @@ while not done:
     final_score = final_score + score_total(player2) + score_total(player1)
 
 
-    k = high(player1,trapeze_list)
+    k1 = high(player1,trapeze_list)
+    
+    if k1 == 1:
+        player1.rect.y -= 10
+        player1.change_y = 0
+        player1.rect.y += 8
+    elif k1 == 2:
+        player1.rect.y += 10
+        player1.change_y = 0
+        player1.rect.y -= 8
+
+    k2 = high(player2, trapeze_list)          
+    if k2 == 1:
+        player2.rect.y -= 10
+        player2.change_y = 0
+        player2.rect.y += 8
+    elif k2 == 2:
+        player2.rect.y += 10
+        player2.change_y = 0
+        player2.rect.y -= 8
 
     if not player1.guns:
         gun_hits = pygame.sprite.spritecollide(player1, all_gun_list, True)
         if gun_hits:
             player1.guns = True
+    if not player2.guns:
+        gun_hits = pygame.sprite.spritecollide(player2, all_gun_list, True)
+        if gun_hits:
+            player2.guns = True
             
 
-    if k == 1:
-        player1.rect.y -= 10
-        player1.change_y = 0
-        player1.rect.y += 8
-    elif k == 2:
-        player1.rect.y += 10
-        player1.change_y = 0
-        player1.rect.y -= 8
-            
            # time.sleep(0.001)
 
-    high(player2, trapeze_list)
+  
     if sc_map == maps.level_one:
 
         pause = pygame.image.load('pause_button.jpg')
@@ -954,6 +971,7 @@ while not done:
                     print(enemy.life)
                 else:
                     enemy.kill()
+                    final_score += 10
             
         block_hits = pygame.sprite.spritecollide(bullet, wall_list, False)
         if block_hits:
