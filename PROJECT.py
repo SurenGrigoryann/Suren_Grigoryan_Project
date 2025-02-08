@@ -148,9 +148,9 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.y = y
         self.direction = direction
         if self.direction == "right":
-            self.speed_x = 10
+            self.speed_x = 5
         elif direction == "left":
-            self.speed_x = -10
+            self.speed_x = -5
         else:
             self.speed_x = 0
         self.speed_y = 0
@@ -324,7 +324,7 @@ class Player(pygame.sprite.Sprite):
     def get_life(self):
         return self.life
     def shoot(self):
-        print(self.guns)
+
         if self.guns:
             if self.previous_direction == 1:
                 bullet = Bullet(self.rect.x,self.rect.y,"right")
@@ -334,8 +334,7 @@ class Player(pygame.sprite.Sprite):
                 bullet = Bullet(self.rect.x,self.rect.y,"left")
                 bullet_list.add(bullet)
                 all_sprite_list.add(bullet)
-        else:
-            print('no gun')
+
     # end procedure
 
 # end class Player
@@ -582,7 +581,7 @@ def create_map(map):
         # next j 
 
 # end procedure
-print(door_list)
+
 # creates player 1 or the Fboy
 
 
@@ -602,7 +601,7 @@ def check_die(player,lake_list, enemies):
     for enemy in enemies:
         if(player.rect.x + 25 >= enemy.rect.x and player.rect.x <= enemy.rect.x) and (player.rect.y +25 >= enemy.rect.y  and player.rect.y -15 <= enemy.rect.y ):
             player.life = player.life - 1
-            print(enemies)
+            
 
         # end if
     # next lake
@@ -907,7 +906,7 @@ while not done:
         gun_hits = pygame.sprite.spritecollide(player1, all_gun_list, True)
         if gun_hits:
             player1.guns = True
-            print("Player1 picked up a gun!")
+            
 
     if k == 1:
         player1.rect.y -= 10
