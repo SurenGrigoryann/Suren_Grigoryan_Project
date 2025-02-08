@@ -134,6 +134,9 @@ class Gun(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+    
+
+
         
 
 class Bullet(pygame.sprite.Sprite):
@@ -938,13 +941,28 @@ while not done:
 
   
     if sc_map == maps.level_one:
-
         pause = pygame.image.load('pause_button.jpg')
         pause_image = pygame.transform.scale(pause, (50,50))
         screen.blit(pause_image,(30,20))
         score(final_score)
+        if player1.guns == True:
+            red_player_gun = pygame.image.load('red_gun.jpg')
+            red_player_gun_image = pygame.transform.scale(red_player_gun, (50,50))
+            screen.blit(red_player_gun_image, (200,20))
+        else:
+            red_player_gun = pygame.image.load('no_gun.jpg')
+            red_player_gun_image = pygame.transform.scale(red_player_gun, (50,50))
+            screen.blit(red_player_gun_image, (200,20))
+        if player2.guns == True:
+            blue_player_gun = pygame.image.load('blue_gun.jpg')
+            blue_player_gun_image = pygame.transform.scale(blue_player_gun, (50,50))
+            screen.blit(blue_player_gun_image, (1080,20))
+        else:
+            blue_player_gun = pygame.image.load('no_gun.jpg')
+            blue_player_gun_image = pygame.transform.scale(blue_player_gun, (50,50))
+            screen.blit(blue_player_gun_image, (1080,20))
 
-    
+
     elif sc_map == [0]:
         play = pygame.image.load('play_button.jpg')
         play_image = pygame.transform.scale(play, (50,50))
