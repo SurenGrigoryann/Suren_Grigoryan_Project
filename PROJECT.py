@@ -816,6 +816,22 @@ done = False
 SCORE = 0
 final_score = 0
 
+pause_img = pygame.image.load('pause_button.jpg')
+pause_img = pygame.transform.scale(pause_img, (50, 50))
+
+red_gun_img = pygame.image.load('red_gun.jpg')
+red_gun_img = pygame.transform.scale(red_gun_img, (50, 50))
+
+blue_gun_img = pygame.image.load('blue_gun.jpg')
+blue_gun_img = pygame.transform.scale(blue_gun_img, (50, 50))
+
+no_gun_img = pygame.image.load('no_gun.jpg')
+no_gun_img = pygame.transform.scale(no_gun_img, (50, 50))
+
+play_img = pygame.image.load('play_button.jpg')
+play_img = pygame.transform.scale(play_img, (50, 50))
+
+
 #background_image = pygame.image.load("background.jpg").convert()
 #background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
 # the main loop
@@ -835,7 +851,7 @@ while not done:
             elif event.key == pygame.K_UP:
                 player1.jump()
 
-            if event.key == pygame.K_q:
+            if event.key == pygame.K_DOWN:
                 player1.shoot()
 
             if event.key == pygame.K_a:
@@ -845,8 +861,9 @@ while not done:
             elif event.key == pygame.K_w:
                 player2.jump()
 
-            if event.key == pygame.K_l:
-                sc_map = maps.level_one
+            if event.key == pygame.K_s:
+                player2.shoot()
+
             if event.key == pygame.K_b:
                 sc_map = maps.level_one
             if event.key == pygame.K_m:
@@ -864,9 +881,8 @@ while not done:
                     player2.life = 1
                     player1.rect.x,player1.rect.y = 25,575
                     player2.rect.x,player2.rect.y = 1225,575
-            if event.key == pygame.K_q:
-                player1.shoot()
-            if event.key == pygame.K_l:
+
+            if event.key == pygame.K_s:
                 player2.shoot()
 
 
@@ -941,33 +957,18 @@ while not done:
 
   
     if sc_map == maps.level_one:
-        pause = pygame.image.load('pause_button.jpg')
-        pause_image = pygame.transform.scale(pause, (50,50))
-        screen.blit(pause_image,(30,20))
+        screen.blit(pause_img, (30, 20))
         score(final_score)
-        if player1.guns == True:
-            red_player_gun = pygame.image.load('red_gun.jpg')
-            red_player_gun_image = pygame.transform.scale(red_player_gun, (50,50))
-            screen.blit(red_player_gun_image, (200,20))
+        if player1.guns:
+            screen.blit(red_gun_img, (200, 20))
         else:
-            red_player_gun = pygame.image.load('no_gun.jpg')
-            red_player_gun_image = pygame.transform.scale(red_player_gun, (50,50))
-            screen.blit(red_player_gun_image, (200,20))
-        if player2.guns == True:
-            blue_player_gun = pygame.image.load('blue_gun.jpg')
-            blue_player_gun_image = pygame.transform.scale(blue_player_gun, (50,50))
-            screen.blit(blue_player_gun_image, (1080,20))
+            screen.blit(no_gun_img, (200, 20))
+        if player2.guns:
+            screen.blit(blue_gun_img, (1080, 20))
         else:
-            blue_player_gun = pygame.image.load('no_gun.jpg')
-            blue_player_gun_image = pygame.transform.scale(blue_player_gun, (50,50))
-            screen.blit(blue_player_gun_image, (1080,20))
-
-
+            screen.blit(no_gun_img, (1080, 20))
     elif sc_map == [0]:
-        play = pygame.image.load('play_button.jpg')
-        play_image = pygame.transform.scale(play, (50,50))
-        screen.blit(play_image, (30,20))
-
+        screen.blit(play_img, (30, 20))
     elif sc_map == [1]:
         final_score = 0
     
