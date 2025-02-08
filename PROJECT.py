@@ -112,8 +112,9 @@ class Enemy(pygame.sprite.Sprite):
         elif self.type == "Tank":
             self.life = 4
             self.gun == "Short"
-            self.image = pygame.Surface([30,40])
-            self.image.fill(WHITE)
+            self.img= pygame.image.load('Tank.jpg')
+            self.image = pygame.transform.scale(self.img, (40, 60))
+
         self.rect = self.image.get_rect()
         self.rect.y = y
         self.rect.x = x
@@ -121,9 +122,15 @@ class Enemy(pygame.sprite.Sprite):
         self.y = y
     def attack(self,player):
         if (player.rect.y <= self.rect.y + 15 and player.rect.y > self.rect.y -40) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 120)):
+            self.img= pygame.image.load('Tank.jpg')
+            self.image = pygame.transform.scale(self.img, (50, 70))
+
             self.rect.x += 2
         
         elif (player.rect.y <= self.rect.y + 15 and player.rect.y > self.rect.y -40) and ((player.rect.x <= self.rect.x + 50) and (player.rect.x >= self.x -160)):
+            self.flipped_image = pygame.transform.flip(self.img, True, False)
+            self.image = pygame.transform.scale(self.flipped_image, (50, 70))
+
             self.rect.x -= 2
 
 class Gun(pygame.sprite.Sprite):
@@ -953,7 +960,7 @@ while not done:
         gun_hits = pygame.sprite.spritecollide(player2, all_gun_list, True)
         if gun_hits:
             player2.guns = True
-            
+            player2.timer = pygame.time.get_ticks()
 
            # time.sleep(0.001)
 
@@ -962,16 +969,27 @@ while not done:
         screen.blit(pause_img, (30, 20))
         score(final_score)
         if player1.guns:
+            screen.blit(red_gun_img, (200, 20))
+            remaining_time = (player1.duration - (current_time - player1.timer)) / 1000
+            timer_text = font.render(str(int(remaining_time)), True, RED)
+            screen.blit(timer_text, (250, 20))
             if current_time - player1.timer > player1.duration:
                 player1.guns = False
                 player1.timer = None
-            screen.blit(red_gun_img, (200, 20))
+            
+        # Blit the timer text next to the gun icon:
+            screen.blit(timer_text, (250, 20))
         else:
             screen.blit(no_gun_img, (200, 20))
         if player2.guns:
+            if current_time - player2.timer > player2.duration:
+                player2.guns = False
+                player2.timer = None
             screen.blit(blue_gun_img, (1080, 20))
         else:
             screen.blit(no_gun_img, (1080, 20))
+
+
     elif sc_map == [0]:
         screen.blit(play_img, (30, 20))
     elif sc_map == [1]:
