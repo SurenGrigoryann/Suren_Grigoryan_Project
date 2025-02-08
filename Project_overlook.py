@@ -17,6 +17,26 @@ DARK_GREEN = (1, 50, 32)
 YELLOW = (255,255,0)
 PURPLE = (160,32,240)
 
+
+class Block(pygame.sprite.Sprite):
+    # Creating a class block in which players cannot collide to
+    # Constructor function
+    def __init__(self, x, y):
+
+        super().__init__()
+ 
+        # Making a dark green block with 18 heigth and 18 width from which we will build our walls
+        self.image = pygame.Surface([19,17])
+        self.image.fill(DARK_GREEN)
+ 
+        # set positions
+        self.rect = self.image.get_rect()
+        self.rect.y = y
+        self.rect.x = x
+    # end procedure
+# end class Block
+
+
 # Screen dimensions
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
