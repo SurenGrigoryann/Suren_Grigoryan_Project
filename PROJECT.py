@@ -123,13 +123,13 @@ class Enemy(pygame.sprite.Sprite):
     def attack(self,player):
         if (player.rect.y <= self.rect.y + 60 and player.rect.y > self.rect.y -35) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 160)):
             self.img= pygame.image.load('Tank.jpg')
-            self.image = pygame.transform.scale(self.img, (50, 70))
+            self.image = pygame.transform.scale(self.img, (40, 60))
 
             self.rect.x += 1
         
         elif (player.rect.y <= self.rect.y + 60 and player.rect.y > self.rect.y -35) and ((player.rect.x <= self.rect.x) and (player.rect.x >= self.x -160)):
             self.flipped_image = pygame.transform.flip(self.img, True, False)
-            self.image = pygame.transform.scale(self.flipped_image, (50, 70))
+            self.image = pygame.transform.scale(self.flipped_image, (40, 60))
 
             self.rect.x -= 1
 
