@@ -103,17 +103,21 @@ class Enemy(pygame.sprite.Sprite):
         self.type = type
         self.life = 0
         self.gun = None
-        if self.type == "Shooter":
-            self.life = 1
-            self.gun == "Far"
-            self.image = pygame.Surface([20,20])
-            self.image.fill(BLACK)
+        if self.type == "Fast":
+            self.length = 45
+            self.width = 40
+            self.life = 3
+            self.gun == "Short"
+            self.img= pygame.image.load('enemy.jpg')
+            self.image = pygame.transform.scale(self.img, (self.width, self.length))
 
         elif self.type == "Tank":
-            self.life = 4
+            self.length = 60
+            self.width = 50
+            self.life = 10
             self.gun == "Short"
             self.img= pygame.image.load('Tank.jpg')
-            self.image = pygame.transform.scale(self.img, (40, 60))
+            self.image = pygame.transform.scale(self.img, (self.width, self.length))
 
         self.rect = self.image.get_rect()
         self.rect.y = y
@@ -121,17 +125,31 @@ class Enemy(pygame.sprite.Sprite):
         self.x = x
         self.y = y
     def attack(self,player):
-        if (player.rect.y <= self.rect.y + 60 and player.rect.y > self.rect.y -35) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 160)):
-            self.img= pygame.image.load('Tank.jpg')
-            self.image = pygame.transform.scale(self.img, (40, 60))
+        if self.type == "Tank":
+            if (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y -player.rect.y) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 160)):
+                self.img= pygame.image.load('Tank.jpg')
+                self.image = pygame.transform.scale(self.img, (50, 60))
 
-            self.rect.x += 1
-        
-        elif (player.rect.y <= self.rect.y + 60 and player.rect.y > self.rect.y -35) and ((player.rect.x <= self.rect.x) and (player.rect.x >= self.x -160)):
-            self.flipped_image = pygame.transform.flip(self.img, True, False)
-            self.image = pygame.transform.scale(self.flipped_image, (40, 60))
+                self.rect.x += 0.75
+            
+            elif (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y - player.rect.y) and ((player.rect.x <= self.rect.x) and (player.rect.x >= self.x -160)):
+                self.flipped_image = pygame.transform.flip(self.img, True, False)
+                self.image = pygame.transform.scale(self.flipped_image, (50, 60))
 
-            self.rect.x -= 1
+                self.rect.x -= 0.75
+        elif self.type == "Fast":
+            if (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y -player.rect.y) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 160)):
+                self.flipped_image = pygame.transform.flip(self.img, True, False)
+                self.image = pygame.transform.scale(self.flipped_image, (40, 45))
+
+                self.rect.x += 2   
+
+            elif (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y - player.rect.y) and ((player.rect.x <= self.rect.x) and (player.rect.x >= self.x -160)):
+                self.img= pygame.image.load('enemy.jpg')
+                self.image = pygame.transform.scale(self.img, (40, 45))
+
+                self.rect.x -= 2
+                
 
 class Gun(pygame.sprite.Sprite):
     def __init__(self,x,y):
@@ -211,7 +229,7 @@ class Player(pygame.sprite.Sprite):
         self.lakes = None
         self.guns = False
         self.timer = False
-        self.duration = 5000
+        self.duration = 10000
         # lives
         self.life = 1
         # power level
@@ -567,10 +585,10 @@ def create_map(map):
                     portal_opener_list_spr.add(orange_portal_opener)
                     portal_opener_list['orange'].append(orange_portal_opener) 
                     all_sprite_list.add(orange_portal_opener)    
-                elif j == 'S':
-                    shooter_enemy = Enemy(x,y, 'Shooter')
-                    all_enemy_list.add(shooter_enemy)
-                    all_sprite_list.add(shooter_enemy)
+                elif j == 'F':
+                    fast_enemy = Enemy(x,y, 'Fast')
+                    all_enemy_list.add(fast_enemy)
+                    all_sprite_list.add(fast_enemy)
                 elif j == 'T':
                     Tank_enemy = Enemy(x,y, 'Tank')
                     all_enemy_list.add(Tank_enemy)
@@ -982,10 +1000,13 @@ while not done:
         else:
             screen.blit(no_gun_img, (200, 20))
         if player2.guns:
+            screen.blit(blue_gun_img, (1080, 20))
+            remaining_time = (player2.duration - (current_time - player2.timer)) / 1000
+            timer_text = font.render(str(int(remaining_time)), True, BLUE)
+            screen.blit(timer_text, (1130, 20))
             if current_time - player2.timer > player2.duration:
                 player2.guns = False
                 player2.timer = None
-            screen.blit(blue_gun_img, (1080, 20))
         else:
             screen.blit(no_gun_img, (1080, 20))
 
