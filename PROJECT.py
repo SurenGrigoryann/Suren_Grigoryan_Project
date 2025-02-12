@@ -126,25 +126,25 @@ class Enemy(pygame.sprite.Sprite):
         self.y = y
     def attack(self,player):
         if self.type == "Tank":
-            if (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y -player.rect.y) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 160)):
+            if (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y -25) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 160)):
                 self.img= pygame.image.load('Tank.jpg')
                 self.image = pygame.transform.scale(self.img, (50, 60))
 
                 self.rect.x += 0.75
             
-            elif (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y - player.rect.y) and ((player.rect.x <= self.rect.x) and (player.rect.x >= self.x -160)):
+            elif (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y - 25) and ((player.rect.x <= self.rect.x) and (player.rect.x >= self.x -160)):
                 self.flipped_image = pygame.transform.flip(self.img, True, False)
                 self.image = pygame.transform.scale(self.flipped_image, (50, 60))
 
                 self.rect.x -= 0.75
         elif self.type == "Fast":
-            if (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y -player.rect.y) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 160)):
+            if (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y -25) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 200)):
                 self.flipped_image = pygame.transform.flip(self.img, True, False)
                 self.image = pygame.transform.scale(self.flipped_image, (40, 45))
 
                 self.rect.x += 2   
 
-            elif (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y - player.rect.y) and ((player.rect.x <= self.rect.x) and (player.rect.x >= self.x -160)):
+            elif (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y - 25) and ((player.rect.x <= self.rect.x) and (player.rect.x >= self.x -200)):
                 self.img= pygame.image.load('enemy.jpg')
                 self.image = pygame.transform.scale(self.img, (40, 45))
 
@@ -204,7 +204,7 @@ class Bullet(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     
     # Constructor function
-    def __init__(self, x, y,color):
+    def __init__(self, x, y, color):
         
         super().__init__()
  
@@ -622,6 +622,21 @@ def delete_map():
     player2.guns = False
 # end procedure
 
+def question_map():
+    global sc_map
+    screen.fill(BROWN)
+    font = pygame.font.Font('freesansbold.ttf',82)
+    play = font.render('How to control players?', True, WHITE)
+    playRect = play.get_rect()
+    playRect.center = (1280//2, 720//2)
+    screen.blit(play, playRect)
+    font = pygame.font.Font('freesansbold.ttf',82)
+    play = font.render('Enemies', True, WHITE)
+    playRect = play.get_rect()
+    playRect.center = (1280//2, 50)
+    screen.blit(play, playRect)
+    sc_map =['question']
+
     
 
 def check_die(player,lake_list, enemies):
@@ -710,6 +725,10 @@ def live_map(current_map,player_one,player_two):
     elif current_map == [0]:
         delete_map()
         menu()
+
+    elif current_map == ['question']:
+        delete_map()
+        question_map()
         
 
     elif current_map != sm:
@@ -845,6 +864,9 @@ final_score = 0
 pause_img = pygame.image.load('pause_button.jpg')
 pause_img = pygame.transform.scale(pause_img, (50, 50))
 
+question_img = pygame.image.load('question_mark.jpg')
+question_img = pygame.transform.scale(question_img, (50,50))
+
 red_gun_img = pygame.image.load('red_gun.jpg')
 red_gun_img = pygame.transform.scale(red_gun_img, (50, 50))
 
@@ -935,6 +957,8 @@ while not done:
                         sc_map = maps.level_one
                     else:
                         sc_map = [0]
+                elif (x > 1200 and x < 1250) and (y > 20 and y < 70):
+                        sc_map = ['question']
 
 
     #screen.blit(background_image, (0, 0))
@@ -982,31 +1006,56 @@ while not done:
 
            # time.sleep(0.001)
 
-  
+    screen.blit(question_img,(1200,20))
     if sc_map == maps.level_one:
         screen.blit(pause_img, (30, 20))
+
+
+
+        font = pygame.font.Font('freesansbold.ttf',30)
+        if player1.color == (255,0,0):
+            text = font.render(f'Color : Red',True,RED)
+        else:
+             text = font.render(f'Color : Green',True,GREEN)
+
+        textRect = text.get_rect()
+        textRect.center = ( 1280//2//2 + 50, 40)
+        screen.blit(text, textRect)
+
+        font = pygame.font.Font('freesansbold.ttf',30)
+        if player1.color == (255,0,0):
+            text = font.render(f'Color : Blue',True,BLUE)
+        else:
+             text = font.render(f'Color : Black',True,BLACK)
+
+        textRect = text.get_rect()
+        textRect.center = ((1280//2+1280)//2, 40)
+        screen.blit(text, textRect)
+
+
         score(final_score)
         if player1.guns:
             screen.blit(red_gun_img, (200, 20))
             remaining_time = (player1.duration - (current_time - player1.timer)) / 1000
             timer_text = font.render(str(int(remaining_time)), True, RED)
-            screen.blit(timer_text, (250, 20))
+            screen.blit(timer_text, (260, 35))
             if current_time - player1.timer > player1.duration:
                 player1.guns = False
                 player1.timer = None
             
         # Blit the timer text next to the gun icon:
-            screen.blit(timer_text, (250, 20))
+            screen.blit(timer_text, (260, 35))
         else:
             screen.blit(no_gun_img, (200, 20))
         if player2.guns:
             screen.blit(blue_gun_img, (1080, 20))
             remaining_time = (player2.duration - (current_time - player2.timer)) / 1000
             timer_text = font.render(str(int(remaining_time)), True, BLUE)
-            screen.blit(timer_text, (1130, 20))
+            screen.blit(timer_text, (1140, 35))
             if current_time - player2.timer > player2.duration:
                 player2.guns = False
                 player2.timer = None
+            screen.blit(timer_text, (1140, 35))
         else:
             screen.blit(no_gun_img, (1080, 20))
 
@@ -1073,4 +1122,4 @@ pygame.quit()
 # quiting the pygame
 
 
-
+print(player1.color)
