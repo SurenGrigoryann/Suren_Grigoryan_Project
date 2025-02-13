@@ -625,16 +625,23 @@ def delete_map():
 def question_map():
     global sc_map
     screen.fill(BROWN)
-    font = pygame.font.Font('freesansbold.ttf',82)
-    play = font.render('How to control players?', True, WHITE)
-    playRect = play.get_rect()
-    playRect.center = (1280//2, 720//2)
-    screen.blit(play, playRect)
-    font = pygame.font.Font('freesansbold.ttf',82)
-    play = font.render('Enemies', True, WHITE)
-    playRect = play.get_rect()
-    playRect.center = (1280//2, 50)
-    screen.blit(play, playRect)
+    font = pygame.font.Font('freesansbold.ttf', 32)
+    
+    # List of tuples containing (text, (x, y) position)
+    texts = [
+        ('Controlling players', (1280 // 2, 720 // 2 - 150)),
+        ('Enemies', (1280 // 2, 720 // 2)),
+        ('Lakes', (1280 // 2 + 400, 720 // 2)),
+        ('Portals', (1280 // 2 - 400, 720 // 2)),
+        ('To return to the game press B', (1280 // 2, 720 // 2 + 100))
+    ]
+    
+    # Loop through and render each text
+    for message, pos in texts:
+        text_surface = font.render(message, True, WHITE)
+        text_rect = text_surface.get_rect(center=pos)
+        screen.blit(text_surface, text_rect)
+        
     sc_map =['question']
 
     
