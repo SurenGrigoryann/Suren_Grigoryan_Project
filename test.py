@@ -1,9 +1,8 @@
-# importing libraries
 import pygame
 import random
 import maps
 import time
-
+import sys
  
 # Colors
 BLACK = (0, 0, 0)
@@ -13,19 +12,198 @@ RED = (255,0,0)
 LIGHT_RED = (255,144,144)
 LIGHT_BLUE = (135,206,235)
 GREEN = (0,255,0)
-DARK_GREEN = (1, 50, 32)
+DARK_GREEN = (1, 50, 22)
+LIGHT_GREEN = (0,130,0)
 YELLOW = (255,255,0)
+PURPLE = (160,32,240)
+BROWN = (139,69,19)
+ORANGE = (255, 99, 7)
 
 # Screen dimensions
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 
 # Classes
+class Door(pygame.sprite.Sprite):
+    def __init__(self,x,y,color):
+        super().__init__()
+
+        self.color = color
+        if self.color == LIGHT_RED:
+            self.img= pygame.image.load('red_door.jpg')
+        elif self.color == LIGHT_BLUE:
+            self.img= pygame.image.load('blue_door.jpg')
+        self.image = pygame.transform.scale(self.img, (35, 50))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def update_door(self, player):
+        if (player.rect.x <= self.rect.x + 20 and player.rect.x >= self.rect.x - 20) and (player.rect.y <= self.rect.y +20 and player.rect.y >= self.rect.y - 20):
+            return True
+        else:
+            return False
+class Portal(pygame.sprite.Sprite):
+    def __init__(self,x,y,color):
+        super().__init__()
+
+        self.image = pygame.Surface([10,10])
+        self.image.fill(color)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.x1 = x
+        self.y1 = y 
+        self.x2 = x 
+        self.y2 = y + 110
+        self.y3 = y - 110
+        self.color = color
+    
+    def open_portal(self,portal_opener,p1,p2, direction):
+        if direction == "down":
+            if ((self.y2 != self.rect.y) and 
+            (((p1.rect.x <= portal_opener.rect.x + 15 and p1.rect.x >= portal_opener.rect.x - 15) and (p1.rect.y <= portal_opener.rect.y + 15 and p1.rect.y >= portal_opener.rect.y - 15))
+            or
+            ((p2.rect.x <= portal_opener.rect.x + 15 and p2.rect.x >= portal_opener.rect.x - 15) and (p2.rect.y <= portal_opener.rect.y + 15 and p2.rect.y >= portal_opener.rect.y - 15)))):
+                self.rect.y += 1.25
+
+            elif (self.y1 != self.rect.y):
+                self.rect.y -= 1.25
+
+        elif direction == "up":
+            if ((self.y3 != self.rect.y) and 
+            (((p1.rect.x <= portal_opener.rect.x + 15 and p1.rect.x >= portal_opener.rect.x - 15) and (p1.rect.y <= portal_opener.rect.y + 15 and p1.rect.y >= portal_opener.rect.y - 15))
+            or
+            ((p2.rect.x <= portal_opener.rect.x + 15 and p2.rect.x >= portal_opener.rect.x - 15) and (p2.rect.y <= portal_opener.rect.y + 15 and p2.rect.y >= portal_opener.rect.y - 15)))):
+                self.rect.y -= 1.25
+            elif (self.y1 != self.rect.y):
+                self.rect.y += 1.25
+            
+            
+
+class Portal_opener(pygame.sprite.Sprite):
+    def __init__(self,x,y,color):
+        super().__init__()
+        self.image = pygame.Surface([10,10])
+        self.image.fill(color)
+
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.color = color
+
+
+
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self,x,y,type):
+        super().__init__()
+            
+        self.type = type
+        self.life = 0
+        self.gun = None
+        if self.type == "Fast":
+            self.length = 45
+            self.width = 40
+            self.life = 3
+            self.gun == "Short"
+            self.img= pygame.image.load('enemy.jpg')
+            self.image = pygame.transform.scale(self.img, (self.width, self.length))
+
+        elif self.type == "Tank":
+            self.length = 60
+            self.width = 50
+            self.life = 10
+            self.gun == "Short"
+            self.img= pygame.image.load('Tank.jpg')
+            self.image = pygame.transform.scale(self.img, (self.width, self.length))
+
+        self.rect = self.image.get_rect()
+        self.rect.y = y
+        self.rect.x = x
+        self.x = x
+        self.y = y
+    def attack(self,player):
+        if self.type == "Tank":
+            if (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y -25) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 160)):
+                self.img= pygame.image.load('Tank.jpg')
+                self.image = pygame.transform.scale(self.img, (50, 60))
+
+                self.rect.x += 0.75
+            
+            elif (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y - 25) and ((player.rect.x <= self.rect.x) and (player.rect.x >= self.x -160)):
+                self.flipped_image = pygame.transform.flip(self.img, True, False)
+                self.image = pygame.transform.scale(self.flipped_image, (50, 60))
+
+                self.rect.x -= 0.75
+        elif self.type == "Fast":
+            if (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y -25) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 200)):
+                self.flipped_image = pygame.transform.flip(self.img, True, False)
+                self.image = pygame.transform.scale(self.flipped_image, (40, 45))
+
+                self.rect.x += 2   
+
+            elif (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y - 25) and ((player.rect.x <= self.rect.x) and (player.rect.x >= self.x -200)):
+                self.img= pygame.image.load('enemy.jpg')
+                self.image = pygame.transform.scale(self.img, (40, 45))
+
+                self.rect.x -= 2
+                
+
+class Gun(pygame.sprite.Sprite):
+    def __init__(self,x,y):
+        super().__init__()
+        self.img= pygame.image.load('no_gun.jpg')
+        self.image = pygame.transform.scale(self.img, (40,30))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+    
+
+
+        
+
+class Bullet(pygame.sprite.Sprite):
+    def __init__(self,x,y, direction):
+        super().__init__()
+        
+        self.image = pygame.Surface([10,10])
+        self.image.fill(BROWN)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.direction = direction
+        if self.direction == "right":
+            self.speed_x = 5
+        elif direction == "left":
+            self.speed_x = -5
+        else:
+            self.speed_x = 0
+        self.speed_y = 0
+
+    def update(self):
+        self.rect.x += self.speed_x
+        self.rect.y += self.speed_y
+        if self.rect.x < 0 or self.rect.x > SCREEN_WIDTH:
+            self.kill()
+
+
+
+                
+
+    
+    
+
+
+        
+
+
+
 
 class Player(pygame.sprite.Sprite):
     
     # Constructor function
-    def __init__(self, x, y,color):
+    def __init__(self, x, y, color):
         
         super().__init__()
  
@@ -42,15 +220,20 @@ class Player(pygame.sprite.Sprite):
         # speed vector
         self.change_x = 0
         self.change_y = 0
+        self.enemies = None
         # walls and lakes collisions
         self.walls = None
+        self.portals = None
         self.coins = None
         self.lakes = None
-        self.ghosts = None
+        self.guns = False
+        self.timer = False
+        self.duration = 10000
         # lives
         self.life = 1
         # power level
         self.level = None
+        self.previous_direction = 0
     # end procedure
 
     # updating the players cordinations and other features
@@ -62,6 +245,7 @@ class Player(pygame.sprite.Sprite):
  
         # Checking if we hit anything horizontally
         block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
+
         for block in block_hit_list:
             # If we are moving right, set our right side to the left side of
             # the wall
@@ -70,12 +254,15 @@ class Player(pygame.sprite.Sprite):
             else:
                 # do the same for left
                 self.rect.left = block.rect.right
+
+
             # end if
         # next block
+
  
         # moving up or down
+
         self.rect.y += self.change_y
- 
         # Checking if we hit anything 
         block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
         for block in block_hit_list:
@@ -89,6 +276,21 @@ class Player(pygame.sprite.Sprite):
 
             self.change_y = 0
 
+       
+        portal_hit_list = pygame.sprite.spritecollide(self, self.portals, False)
+        for portal in portal_hit_list:
+ 
+            # If we are moving up, set our up side to the bottom side of
+            # the wall and the same if we are moving down
+            if self.change_y > 0:
+                self.rect.bottom = portal.rect.top
+            elif self.change_y < 0:
+                self.rect.top = portal.rect.bottom
+
+            self.change_y = 0
+
+       # gun_hit_list = pygame.sprite.spritecollide(self, self.guns, False)
+        #for gun in gun_hit_list:
 
             # end if
         # next block
@@ -112,25 +314,31 @@ class Player(pygame.sprite.Sprite):
     def jump(self):
 
         self.rect.y += 2
-        platform_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
+        platform_hit_list = pygame.sprite.spritecollide(self, self.walls, False) + pygame.sprite.spritecollide(self,self.portals,False)
         self.rect.y -= 2
  
         # If it is ok to jump, set our speed upwards
         if len(platform_hit_list) > 0 or self.rect.bottom >= SCREEN_HEIGHT:
-            self.change_y = -6
+            self.change_y = -6.5
         # end if
     # end procedure
 
     # movements procedures
     def go_left(self):
+        self.previous_direction = -1
         self.change_x = -3
     # end procedure
 
     def go_right(self):
+        self.previous_direction = 1
         self.change_x = 3
     # end procedure
 
     def stop(self):
+        if self.change_x == 3:
+            self.previous_direction = 1
+        elif self.change_x == -3:
+            self.previous_direction = -1
         self.change_x = 0
     # end procedure
 
@@ -142,6 +350,18 @@ class Player(pygame.sprite.Sprite):
     # getting the life
     def get_life(self):
         return self.life
+    def shoot(self):
+
+        if self.guns:
+            if self.previous_direction == 1:
+                bullet = Bullet(self.rect.x,self.rect.y,"right")
+                bullet_list.add(bullet)
+                all_sprite_list.add(bullet)
+            elif self.previous_direction == -1:
+                bullet = Bullet(self.rect.x,self.rect.y,"left")
+                bullet_list.add(bullet)
+                all_sprite_list.add(bullet)
+
     # end procedure
 
 # end class Player
@@ -150,14 +370,21 @@ class Player(pygame.sprite.Sprite):
 class Block(pygame.sprite.Sprite):
     # Creating a class block in which players cannot collide to
     # Constructor function
+    image = None
+    @classmethod
+    def load_image(cls):
+        cls.image = pygame.image.load('block.jpg').convert_alpha()
+        cls.image = pygame.transform.scale(cls.image, (10, 10))
     def __init__(self, x, y):
 
         super().__init__()
- 
+        if Block.image is None:
+            raise ValueError("Enemy image not loaded. Call Enemy.load_image() first.")
         # Making a dark green block with 18 heigth and 18 width from which we will build our walls
-        self.image = pygame.Surface([10,10])
-        self.image.fill(DARK_GREEN)
- 
+
+        self.image = Block.image  # all instances use the same image
+        self.rect = self.image.get_rect()
+
         # set positions
         self.rect = self.image.get_rect()
         self.rect.y = y
@@ -189,6 +416,7 @@ class Trapeze(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+    
 
 class Coins(pygame.sprite.Sprite):
     def __init__ (self,x,y,color):
@@ -219,18 +447,23 @@ pygame.init()
  
 # Creating the screen
 screen = pygame.display.set_mode([SCREEN_WIDTH, SCREEN_HEIGHT])
+Block.load_image()
  
 # Seting the title of the window
 pygame.display.set_caption('Fboy and Wgirl')
 
 # Setting all of our groums that we are going to use
 all_sprite_list = pygame.sprite.Group()
+
+all_players_list = pygame.sprite.Group()
  
 wall_list = pygame.sprite.Group()
 
 red_lake_list = pygame.sprite.Group()
 
 blue_lake_list = pygame.sprite.Group()
+
+green_lake_list = pygame.sprite.Group()
 
 trapeze_list = pygame.sprite.Group()
 
@@ -240,22 +473,37 @@ red_coin_list = pygame.sprite.Group()
 
 blue_coin_list = pygame.sprite.Group()
 
+all_enemy_list = pygame.sprite.Group()
+
+all_gun_list = pygame.sprite.Group()
+
+bullet_list = pygame.sprite.Group()
+
+portal_list_spr = pygame.sprite.Group()
+portal_list = {'purple': [], 'yellow ': [], 'orange':[], 'black':[], 'brown': []}
+
+portal_opener_list_spr = pygame.sprite.Group()
+portal_opener_list = {'purple': [], 'yellow ': [], 'orange':[], 'black':[], 'brown':[]}
+
+door_list_spr = pygame.sprite.Group()
+door_list = []
 
 
 
 
 # sc_map is the current map
 
-sc_map = maps.level_one
-# sm is the starting map
-sm = maps.level_one
+sc_map = maps.level_two
 
+# sm is the starting map
+sm = maps.level_two
+start_time = pygame.time.get_ticks() 
 
 
 # creating the map from a 2D list of numbers
 def create_map(map):
-        global all_sprite_list
-        global wall_list
+        #global all_sprite_list
+        #global wall_list
         x = 0
         y = 0
         for i in map:
@@ -278,16 +526,78 @@ def create_map(map):
                     trapeze = Trapeze(x,y)
                     trapeze_list.add(trapeze)
                     all_sprite_list.add(trapeze)
+                elif j == 5:
+                    blue_door = Door(x,y,LIGHT_BLUE)
+                    door_list_spr.add(blue_door)  
+                    door_list.append(blue_door)    
+                    all_sprite_list.add(blue_door)
+                elif j == 6:
+                    red_door = Door(x,y,LIGHT_RED)
+                    door_list_spr.add(red_door)  
+                    door_list.append(red_door)    
+                    all_sprite_list.add(red_door)
+                elif j == 7:
+                    green_lake = Lakes(x, y,LIGHT_GREEN)
+                    green_lake_list.add(green_lake)    
+                    all_sprite_list.add(green_lake)
+                
 
                 elif j == 8:
                     red_coin = Coins(x,y,RED)
                     red_coin_list.add(red_coin)
                     coins_list.add(red_coin)
 
+
                 elif j == 9:
                     blue_coin = Coins(x,y,BLUE)
                     blue_coin_list.add(blue_coin)
                     coins_list.add(blue_coin)
+
+
+                elif j == 'p':
+                    purple_portal = Portal(x,y,PURPLE)
+                    portal_list_spr.add(purple_portal)
+                    portal_list['purple'].append(purple_portal) 
+                    all_sprite_list.add(purple_portal)
+                elif j == 'P':
+                    purple_portal_opener = Portal_opener(x,y,PURPLE)
+                    portal_opener_list_spr.add(purple_portal_opener)
+                    portal_opener_list['purple'].append(purple_portal_opener) 
+                    all_sprite_list.add(purple_portal_opener)                    
+                elif j == 'b':
+                    brown_portal = Portal(x,y, BROWN)
+                    portal_list_spr.add(brown_portal)
+                    portal_list['brown'].append(brown_portal) 
+                    all_sprite_list.add(brown_portal)
+                elif j == 'B':
+                    brown_portal_opener = Portal_opener(x,y,BROWN)
+                    portal_opener_list_spr.add(brown_portal_opener)
+                    portal_opener_list['brown'].append(brown_portal_opener) 
+                    all_sprite_list.add(brown_portal_opener)    
+                elif j == 'o':
+                    orange_portal = Portal(x,y,ORANGE)
+                    portal_list_spr.add(orange_portal)
+                    portal_list['orange'].append(orange_portal) 
+                    all_sprite_list.add(orange_portal)
+                elif j == 'O':
+                    orange_portal_opener = Portal_opener(x,y,ORANGE)
+                    portal_opener_list_spr.add(orange_portal_opener)
+                    portal_opener_list['orange'].append(orange_portal_opener) 
+                    all_sprite_list.add(orange_portal_opener)    
+                elif j == 'F':
+                    fast_enemy = Enemy(x,y, 'Fast')
+                    all_enemy_list.add(fast_enemy)
+                    all_sprite_list.add(fast_enemy)
+                elif j == 'T':
+                    Tank_enemy = Enemy(x,y, 'Tank')
+                    all_enemy_list.add(Tank_enemy)
+                    all_sprite_list.add(Tank_enemy)
+
+                elif j == 'G':
+                    gun = Gun(x,y)
+                    all_gun_list.add(gun)
+                    all_sprite_list.add(gun)
+                                
 
                 # end if
 
@@ -307,27 +617,78 @@ def delete_map():
     all_sprite_list.empty()
     wall_list.empty()
     coins_list.empty()
+    player1.guns = False
+    player2.guns = False
 # end procedure
+
+def question_map():
+    global sc_map
+    screen.fill(BROWN)
+    font = pygame.font.Font('freesansbold.ttf', 32)
+    
+    # List of tuples containing (text, (x, y) position)
+    texts = [
+        ('Controlling players', (1280 // 2, 720 // 2 - 150)),
+        ('Enemies', (1280 // 2, 720 // 2)),
+        ('Lakes', (1280 // 2 + 400, 720 // 2)),
+        ('Portals', (1280 // 2 - 400, 720 // 2)),
+        ('To return to the game press B', (1280 // 2, 720 // 2 + 100))
+    ]
+    
+    # Loop through and render each text
+    for message, pos in texts:
+        text_surface = font.render(message, True, WHITE)
+        text_rect = text_surface.get_rect(center=pos)
+        screen.blit(text_surface, text_rect)
+        
+    sc_map =['question']
 
     
 
-def check_die(player,lake_list):
+def check_die(player,lake_list, enemies):
     for lake in lake_list:
         if(player.rect.x+24 >= lake.rect.x and player.rect.x - 9 <= lake.rect.x) and (player.rect.y +24 >= lake.rect.y  and player.rect.y -9 <= lake.rect.y ):
             player.life = player.life - 1
+    for enemy in enemies:
+        if(player.rect.x + 25 >= enemy.rect.x and player.rect.x <= enemy.rect.x) and (player.rect.y +25 >= enemy.rect.y  and player.rect.y -15 <= enemy.rect.y ):
+            player.life = player.life - 1
+            
+
         # end if
     # next lake
 # end procedure
 def high(player,list_of_trapeze):
     for trapeze in list_of_trapeze:
-        if(player.rect.x+12 >= trapeze.rect.x and player.rect.x - 9 <= trapeze.rect.x) and (player.rect.y +12 >= trapeze.rect.y - 170  and player.rect.y -9 <= trapeze.rect.y ):
-                return True
+        if(player.rect.x >= trapeze.rect.x-10 and player.rect.x <= trapeze.rect.x + 10) and (player.rect.y <= trapeze.rect.y and player.rect.y > trapeze.rect.y - 200):
+            return 1
 
-def red_score(player):
-    global coins_list
-    for coin in coins_list:
-        if(player.rect.x+24 >= coin.x and player.rect.x - 9 <= coin.x) and (player.rect.y +24 >= coin.y  and player.rect.y -9 <= coin.y ):
-            coins_list.remove(coin)
+        elif (player.rect.x >= trapeze.rect.x-10 and player.rect.x <= trapeze.rect.x + 10) and player.rect.y == trapeze.rect.y - 250:
+            return 2
+            #and (player.rect.y >= trapeze.rect.y - 20 and player.rect.y <= trapeze.rect.y + 200):
+   
+
+
+def score_total(player):
+    if player.color == BLUE: 
+        for coin in blue_coin_list:
+            if(player.rect.x+24 >= coin.x and player.rect.x - 9 <= coin.x) and (player.rect.y +24 >= coin.y  and player.rect.y -9 <= coin.y ):
+                blue_coin_list.remove(coin)
+                coins_list.remove(coin)
+                
+                return 1
+        
+    elif player.color == RED:
+        for coin in red_coin_list:
+            if(player.rect.x+24 >= coin.x and player.rect.x - 9 <= coin.x) and (player.rect.y +24 >= coin.y and player.rect.y -9 <= coin.y ):
+                red_coin_list.remove(coin)
+                coins_list.remove(coin)
+                return 1
+    return 0
+    
+
+                
+                
+                
 
                 
                  
@@ -335,12 +696,15 @@ def red_score(player):
 def create_players(x,y,color):
     player = Player(x, y, color)
     player.walls = wall_list
+    player.enemies = all_enemy_list
+    player.portals = portal_list_spr
     all_sprite_list.add(player)
+
     return player
 # end function
 
 player1 = create_players(25,575,RED)
-player2 = create_players(1225,575,BLUE)    
+player2 = create_players(20,400,BLUE)    
 
 # creating the map
 
@@ -350,17 +714,27 @@ def initial_map(first_m):
 
 def live_map(current_map,player_one,player_two):
     global sm
+
     
    
     if player1.life <= 0 or player2.life <= 0 or current_map == [1] :
         delete_map()
         lose()
         return_to_menu()
-        current_map = 1
+        current_map = [1]
 
+    elif current_map == [2]:
+        delete_map()
+        win()
+        return_to_menu()
+        current_map = [1]
     elif current_map == [0]:
         delete_map()
         menu()
+
+    elif current_map == ['question']:
+        delete_map()
+        question_map()
         
 
     elif current_map != sm:
@@ -370,9 +744,30 @@ def live_map(current_map,player_one,player_two):
         player_two.walls = wall_list
         all_sprite_list.add(player1)
         all_sprite_list.add(player2)
+    if current_map == sm:
+        if door_list[0].update_door(player1) and door_list[1].update_door(player2):
+            delete_map()
+            win()
+    
     # end if
+    
+
+
+    #p.open_portal(p_opener,player1)
+
+
+
+    #for i in portal_list['brown']:
+       #rb i.open_portal(p_opener_brown,player1, player2)
+
+    
+   
+   # print(x)
+
+
     for coin in coins_list:
         coin.draw(screen)
+
     sm = current_map
 # end procedure
 
@@ -390,6 +785,14 @@ def menu():
     screen.blit(text2,text2Rect)
 # end procedure
 
+def score(current_score):
+    font = pygame.font.Font('freesansbold.ttf',25)
+    text = font.render(f'Score {current_score}',True,GREEN,BLUE)
+    textRect = text.get_rect()
+    textRect.center = (800, 50)
+    screen.blit(text, textRect)
+
+
 def lose():
     global sc_map
     screen.fill(BLACK)
@@ -399,6 +802,22 @@ def lose():
     loseRect.center = (1280//2, 720//2)
     screen.blit(lose, loseRect)
     sc_map =[1]
+    for i in all_enemy_list:
+        all_enemy_list.remove(i)
+    for coin in blue_coin_list:
+        blue_coin_list.remove(coin)
+    for coin in red_coin_list:
+        red_coin_list.remove(coin)
+def win():
+    global sc_map
+    screen.fill(WHITE)
+    font = pygame.font.Font('freesansbold.ttf',82)
+    win = font.render('You WIIIIN!', True, LIGHT_BLUE,BLUE)
+    winRect = win.get_rect()
+    winRect.center = (1280//2, 720//2)
+    screen.blit(win, winRect)
+    sc_map =[2]
+
 # end procedure
     
 def return_to_menu():
@@ -416,6 +835,7 @@ def scores(p1,p2,c_list, rc_list, bc_list,score):
     textfont = pygame.font.SysFont('monospace',50)
     textTBD = textfont.render(f'score {score}',1,(RED))
     screen.blit(textTBD)
+
 # end procedure
 
 #setting up the clock
@@ -426,6 +846,30 @@ clock = pygame.time.Clock()
 initial_map(sc_map)
 
 done = False
+SCORE = 0
+final_score = 0
+
+pause_img = pygame.image.load('pause_button.jpg')
+pause_img = pygame.transform.scale(pause_img, (50, 50))
+
+question_img = pygame.image.load('question_mark.jpg')
+question_img = pygame.transform.scale(question_img, (50,50))
+
+red_gun_img = pygame.image.load('red_gun.jpg')
+red_gun_img = pygame.transform.scale(red_gun_img, (50, 50))
+
+blue_gun_img = pygame.image.load('blue_gun.jpg')
+blue_gun_img = pygame.transform.scale(blue_gun_img, (50, 50))
+
+no_gun_img = pygame.image.load('no_gun.jpg')
+no_gun_img = pygame.transform.scale(no_gun_img, (50, 50))
+
+play_img = pygame.image.load('play_button.jpg')
+play_img = pygame.transform.scale(play_img, (50, 50))
+
+
+#background_image = pygame.image.load("background.jpg").convert()
+#background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
 # the main loop
 while not done:
     
@@ -443,6 +887,8 @@ while not done:
             elif event.key == pygame.K_UP:
                 player1.jump()
 
+            if event.key == pygame.K_DOWN:
+                player1.shoot()
 
             if event.key == pygame.K_a:
                 player2.go_left()
@@ -451,19 +897,31 @@ while not done:
             elif event.key == pygame.K_w:
                 player2.jump()
 
-            if event.key == pygame.K_l:
-                sc_map = maps.map1
+            if event.key == pygame.K_s:
+                player2.shoot()
+
             if event.key == pygame.K_b:
-                sc_map = maps.l
+                sc_map = maps.level_two
             if event.key == pygame.K_m:
                 sc_map = [0]
             if event.key == pygame.K_r:
+                start_time = pygame.time.get_ticks()
                 if sc_map == [1]:
-                    player1.life =1
+                    player1.life = 1
                     player2.life = 1
                     player1.rect.x,player1.rect.y = 25,575
-                    player2.rect.x,player2.rect.y = 1225,575
+                    player2.rect.x,player2.rect.y = 20,400
                     sc_map = [0]
+                elif sc_map == [2]:
+                    player1.life = 1
+                    player2.life = 1
+                    player1.rect.x,player1.rect.y = 25,575
+                    player2.rect.x,player2.rect.y = 20,400
+
+            if event.key == pygame.K_s:
+                player2.shoot()
+
+
 
 
         if event.type == pygame.KEYUP:
@@ -484,30 +942,117 @@ while not done:
   
                 if (x > 30 and x < 80) and (y > 20 and y < 70):
                     if sc_map == [0]:
-                        sc_map = maps.l
+                        sc_map = maps.level_two
                     else:
                         sc_map = [0]
-        
+                elif (x > 1200 and x < 1250) and (y > 20 and y < 70):
+                        sc_map = ['question']
+
+
+    #screen.blit(background_image, (0, 0))
 
     screen.fill(GREEN)
-
     live_map(sc_map,player1,player2)
-    check_die(player1,blue_lake_list)
-    check_die(player2,red_lake_list)
-    while high(player1,trapeze_list):
-        player1.rect.y = player1.rect.y - 10
+    check_die(player1,blue_lake_list, all_enemy_list)
+    check_die(player2,red_lake_list, all_enemy_list)
+    check_die(player1, green_lake_list, all_enemy_list)
+    check_die(player2, green_lake_list, all_enemy_list)
+    final_score = final_score + score_total(player2) + score_total(player1)
 
-    high(player2, trapeze_list)
-    if sc_map == [0]:
-        play = pygame.image.load('play_button.jpg')
-        play_image = pygame.transform.scale(play, (50,50))
-        screen.blit(play_image, (30,20))
+
+    k1 = high(player1,trapeze_list)
     
-    elif sc_map != [1]:
+    if k1 == 1:
+        player1.rect.y -= 10
+        player1.change_y = 0
+        player1.rect.y += 8
+    elif k1 == 2:
+        player1.rect.y += 10
+        player1.change_y = 0
+        player1.rect.y -= 8
 
-        pause = pygame.image.load('pause_button.jpg')
-        pause_image = pygame.transform.scale(pause, (50,50))
-        screen.blit(pause_image,(30,20))
+    k2 = high(player2, trapeze_list)          
+    if k2 == 1:
+        player2.rect.y -= 10
+        player2.change_y = 0
+        player2.rect.y += 8
+    elif k2 == 2:
+        player2.rect.y += 10
+        player2.change_y = 0
+        player2.rect.y -= 8
+
+    if not player1.guns:
+        gun_hits = pygame.sprite.spritecollide(player1, all_gun_list, True)
+        if gun_hits:
+            player1.guns = True
+            player1.timer = pygame.time.get_ticks()
+    if not player2.guns:
+        gun_hits = pygame.sprite.spritecollide(player2, all_gun_list, True)
+        if gun_hits:
+            player2.guns = True
+            player2.timer = pygame.time.get_ticks()
+
+           # time.sleep(0.001)
+
+    screen.blit(question_img,(1200,20))
+    if sc_map == maps.level_two:
+        screen.blit(pause_img, (30, 20))
+
+
+
+        font = pygame.font.Font('freesansbold.ttf',30)
+        if player1.color == (255,0,0):
+            text = font.render(f'Color : Red',True,RED)
+        else:
+             text = font.render(f'Color : Green',True,GREEN)
+
+        textRect = text.get_rect()
+        textRect.center = ( 1280//2//2 + 50, 40)
+        screen.blit(text, textRect)
+
+        font = pygame.font.Font('freesansbold.ttf',30)
+        if player1.color == (255,0,0):
+            text = font.render(f'Color : Blue',True,BLUE)
+        else:
+             text = font.render(f'Color : Black',True,BLACK)
+
+        textRect = text.get_rect()
+        textRect.center = ((1280//2+1280)//2, 40)
+        screen.blit(text, textRect)
+
+
+        score(final_score)
+        if player1.guns:
+            screen.blit(red_gun_img, (200, 20))
+            remaining_time = (player1.duration - (current_time - player1.timer)) / 1000
+            timer_text = font.render(str(int(remaining_time)), True, RED)
+            screen.blit(timer_text, (260, 35))
+            if current_time - player1.timer > player1.duration:
+                player1.guns = False
+                player1.timer = None
+            
+        # Blit the timer text next to the gun icon:
+            screen.blit(timer_text, (260, 35))
+        else:
+            screen.blit(no_gun_img, (200, 20))
+        if player2.guns:
+            screen.blit(blue_gun_img, (1080, 20))
+            remaining_time = (player2.duration - (current_time - player2.timer)) / 1000
+            timer_text = font.render(str(int(remaining_time)), True, BLUE)
+            screen.blit(timer_text, (1140, 35))
+            if current_time - player2.timer > player2.duration:
+                player2.guns = False
+                player2.timer = None
+            screen.blit(timer_text, (1140, 35))
+        else:
+            screen.blit(no_gun_img, (1080, 20))
+
+
+    elif sc_map == [0]:
+        screen.blit(play_img, (30, 20))
+    elif sc_map == [1]:
+        final_score = 0
+    
     
 
 
@@ -515,13 +1060,54 @@ while not done:
     
     # updating all of the objects
     all_sprite_list.update()
+    for bullet in bullet_list:
+        enemy_hits = pygame.sprite.spritecollide(bullet, all_enemy_list, False)
+        if enemy_hits:
+            bullet.kill()
+            for enemy in enemy_hits:
 
+                if enemy.life > 1:
+                    enemy.life -= 1
+                    print(enemy.life)
+                else:
+                    enemy.kill()
+                    final_score += 10
+            
+        block_hits = pygame.sprite.spritecollide(bullet, wall_list, False)
+        if block_hits:
+            bullet.kill()
     all_sprite_list.draw(screen)
     
     # drawing everything
+
+
+
+
+    # TIME
+    if sc_map not in ([0], [1], [2]):
+        current_time = pygame.time.get_ticks()
+        elapsed_time = current_time - start_time
+        seconds = elapsed_time // 1000
+        minutes = seconds // 60
+        seconds %= 60    
+        time_string = f"{minutes:02}:{seconds:02}"
+
+        # Render the timer text
+        font = pygame.font.Font(None, 50)
+        text = font.render(time_string, True, WHITE)
+        text_rect = text.get_rect(center=(SCREEN_WIDTH//2, 50))
+        screen.blit(text, text_rect)
+
+
+
+
     pygame.display.flip()
     # fliping the display
     clock.tick(60)
+    
  
 pygame.quit()
 # quiting the pygame
+
+
+print(player1.color)
