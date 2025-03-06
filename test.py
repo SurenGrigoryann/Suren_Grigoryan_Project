@@ -137,6 +137,7 @@ class Enemy(pygame.sprite.Sprite):
 
                 self.rect.x -= 0.75
         elif self.type == "Fast":
+            
             if (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y -25) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 200)):
                 self.flipped_image = pygame.transform.flip(self.img, True, False)
                 self.image = pygame.transform.scale(self.flipped_image, (40, 45))
