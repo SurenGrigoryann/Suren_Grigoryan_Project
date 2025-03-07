@@ -1,4 +1,3 @@
-# importing libraries
 import pygame
 import random
 import maps
@@ -56,7 +55,8 @@ class Portal(pygame.sprite.Sprite):
         self.rect.y = y
         self.x1 = x
         self.y1 = y 
-        self.x2 = x 
+        self.x2 = x + 110
+        self.x3 = x - 300
         self.y2 = y + 110
         self.y3 = y - 110
         self.color = color
@@ -80,8 +80,16 @@ class Portal(pygame.sprite.Sprite):
                 self.rect.y -= 1.25
             elif (self.y1 != self.rect.y):
                 self.rect.y += 1.25
-            
-            
+
+        elif direction == "left":
+            if ((self.x3 != self.rect.x) and 
+            (((p1.rect.x <= portal_opener.rect.x + 15 and p1.rect.x >= portal_opener.rect.x - 15) and (p1.rect.y <= portal_opener.rect.y + 15 and p1.rect.y >= portal_opener.rect.y - 15))
+            or
+            ((p2.rect.x <= portal_opener.rect.x + 15 and p2.rect.x >= portal_opener.rect.x - 15) and (p2.rect.y <= portal_opener.rect.y + 15 and p2.rect.y >= portal_opener.rect.y - 15)))):
+                self.rect.x -= 1.25
+
+            elif (self.x1 != self.rect.x):
+                self.rect.x += 1.25
 
 class Portal_opener(pygame.sprite.Sprite):
     def __init__(self,x,y,color):
@@ -138,6 +146,7 @@ class Enemy(pygame.sprite.Sprite):
 
                 self.rect.x -= 0.75
         elif self.type == "Fast":
+            
             if (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y -25) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 200)):
                 self.flipped_image = pygame.transform.flip(self.img, True, False)
                 self.image = pygame.transform.scale(self.flipped_image, (40, 45))
@@ -494,10 +503,10 @@ door_list = []
 
 # sc_map is the current map
 
-sc_map = maps.level_three
+sc_map = maps.level_one
 
 # sm is the starting map
-sm = maps.level_three
+sm = maps.level_one
 start_time = pygame.time.get_ticks() 
 
 
@@ -705,7 +714,7 @@ def create_players(x,y,color):
 # end function
 
 player1 = create_players(25,575,RED)
-player2 = create_players(1225,575,BLUE)    
+player2 = create_players(20,400,BLUE)    
 
 # creating the map
 
@@ -751,36 +760,23 @@ def live_map(current_map,player_one,player_two):
             win()
     
     # end if
-    c = 11
+    
+
 
     p_opener_purple = portal_opener_list['purple'][0]
 
-    p_opener_brown = portal_opener_list['brown'][0]
-
     p_opener_orange = portal_opener_list['orange'][0]
-    
-    #p.open_portal(p_opener,player1)
-    
+
+   
     for i in portal_list['purple']:
-
         i.open_portal(p_opener_purple, player1, player2,"down")
-    for i in portal_list['brown']:
 
-        i.open_portal(p_opener_brown, player1, player2, "down")
     for i in portal_list['orange']:
-
-        i.open_portal(p_opener_orange, player1, player2, "up")
+        i.open_portal(p_opener_orange, player1, player2, "left")
         
     for enemy in all_enemy_list:
         enemy.attack(player1)
         enemy.attack(player2)
-
-
-    #for i in portal_list['brown']:
-       #rb i.open_portal(p_opener_brown,player1, player2)
-
-    
-   
    # print(x)
 
 
@@ -920,7 +916,7 @@ while not done:
                 player2.shoot()
 
             if event.key == pygame.K_b:
-                sc_map = maps.level_three
+                sc_map = maps.level_one
             if event.key == pygame.K_m:
                 sc_map = [0]
             if event.key == pygame.K_r:
@@ -929,13 +925,13 @@ while not done:
                     player1.life = 1
                     player2.life = 1
                     player1.rect.x,player1.rect.y = 25,575
-                    player2.rect.x,player2.rect.y = 1225,575
+                    player2.rect.x,player2.rect.y = 20,400
                     sc_map = [0]
                 elif sc_map == [2]:
                     player1.life = 1
                     player2.life = 1
                     player1.rect.x,player1.rect.y = 25,575
-                    player2.rect.x,player2.rect.y = 1225,575
+                    player2.rect.x,player2.rect.y = 20,400
 
             if event.key == pygame.K_s:
                 player2.shoot()
@@ -961,7 +957,7 @@ while not done:
   
                 if (x > 30 and x < 80) and (y > 20 and y < 70):
                     if sc_map == [0]:
-                        sc_map = maps.level_three
+                        sc_map = maps.level_one
                     else:
                         sc_map = [0]
                 elif (x > 1200 and x < 1250) and (y > 20 and y < 70):

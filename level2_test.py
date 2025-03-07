@@ -494,10 +494,10 @@ door_list = []
 
 # sc_map is the current map
 
-sc_map = maps.level_one
+sc_map = maps.level_two
 
 # sm is the starting map
-sm = maps.level_three
+sm = maps.level_two
 start_time = pygame.time.get_ticks() 
 
 
@@ -745,10 +745,10 @@ def live_map(current_map,player_one,player_two):
         player_two.walls = wall_list
         all_sprite_list.add(player1)
         all_sprite_list.add(player2)
-    if current_map == sm:
-        if door_list[0].update_door(player1) and door_list[1].update_door(player2):
-            delete_map()
-            win()
+   # if current_map == sm:
+    #    if door_list[0].update_door(player1) and door_list[1].update_door(player2):
+     #       delete_map()
+      #      win()
     
     # end if
     
@@ -902,7 +902,7 @@ while not done:
                 player2.shoot()
 
             if event.key == pygame.K_b:
-                sc_map = maps.level_three
+                sc_map = maps.level_two
             if event.key == pygame.K_m:
                 sc_map = [0]
             if event.key == pygame.K_r:
@@ -943,7 +943,7 @@ while not done:
   
                 if (x > 30 and x < 80) and (y > 20 and y < 70):
                     if sc_map == [0]:
-                        sc_map = maps.level_three
+                        sc_map = maps.level_two
                     else:
                         sc_map = [0]
                 elif (x > 1200 and x < 1250) and (y > 20 and y < 70):
