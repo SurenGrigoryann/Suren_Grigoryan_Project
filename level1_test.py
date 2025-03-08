@@ -24,6 +24,34 @@ SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 
 # Classes
+
+class Drink(pygame.sprite.Sprite):
+    def __init__(self,x,y):
+        super().__init__()
+        self.image = pygame.Surface([10,10])
+        self.image.fill(YELLOW)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    
+
+class Box(pygame.sprite.Sprite):
+    def __init__(self,x,y):
+        super().__init__()
+        self.image = pygame.Surface([10,10])
+        self.image.fill(WHITE)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def update(self):
+        self.rect.x += 0.5
+        if self.rect.x > SCREEN_WIDTH:
+            self.rect.x = 0
+
+
+
 class Door(pygame.sprite.Sprite):
     def __init__(self,x,y,color):
         super().__init__()
@@ -43,6 +71,9 @@ class Door(pygame.sprite.Sprite):
             return True
         else:
             return False
+        
+
+
 class Portal(pygame.sprite.Sprite):
     def __init__(self,x,y,color):
         super().__init__()
@@ -475,6 +506,8 @@ blue_lake_list = pygame.sprite.Group()
 
 green_lake_list = pygame.sprite.Group()
 
+all_lake_list = {'red': [], 'blue': [], 'green':[]}
+
 trapeze_list = pygame.sprite.Group()
 
 coins_list = pygame.sprite.Group()
@@ -526,11 +559,13 @@ def create_map(map):
                     red_lake = Lakes(x, y,LIGHT_RED)
                     red_lake_list.add(red_lake)    
                     all_sprite_list.add(red_lake)
+                    all_lake_list['red'].append(red_lake)
 
                 elif j == 2:
                     blue_lake = Lakes(x, y,LIGHT_BLUE)
                     blue_lake_list.add(blue_lake)    
                     all_sprite_list.add(blue_lake)
+                    all_lake_list['blue'].append(blue_lake)
                 
                 elif j == 4:
                     trapeze = Trapeze(x,y)
@@ -550,7 +585,7 @@ def create_map(map):
                     green_lake = Lakes(x, y,LIGHT_GREEN)
                     green_lake_list.add(green_lake)    
                     all_sprite_list.add(green_lake)
-                
+                    all_lake_list['green'].append(green_lake)
 
                 elif j == 8:
                     red_coin = Coins(x,y,RED)
@@ -656,13 +691,15 @@ def question_map():
     
 
 def check_die(player,lake_list, enemies):
-    for lake in lake_list:
-        if(player.rect.x+24 >= lake.rect.x and player.rect.x - 9 <= lake.rect.x) and (player.rect.y +24 >= lake.rect.y  and player.rect.y -9 <= lake.rect.y ):
-            player.life = player.life - 1
-    for enemy in enemies:
-        if(player.rect.x + 25 >= enemy.rect.x and player.rect.x <= enemy.rect.x) and (player.rect.y +25 >= enemy.rect.y  and player.rect.y -15 <= enemy.rect.y ):
-            player.life = player.life - 1
-            
+    if player.color != lake_list.color:
+
+        for lake in lake_list:
+            if(player.rect.x+24 >= lake.rect.x and player.rect.x - 9 <= lake.rect.x) and (player.rect.y +24 >= lake.rect.y  and player.rect.y -9 <= lake.rect.y ):
+                player.life = player.life - 1
+        for enemy in enemies:
+            if(player.rect.x + 25 >= enemy.rect.x and player.rect.x <= enemy.rect.x) and (player.rect.y +25 >= enemy.rect.y  and player.rect.y -15 <= enemy.rect.y ):
+                player.life = player.life - 1
+                
 
         # end if
     # next lake
@@ -968,10 +1005,16 @@ while not done:
 
     screen.fill(GREEN)
     live_map(sc_map,player1,player2)
-    check_die(player1,blue_lake_list, all_enemy_list)
-    check_die(player2,red_lake_list, all_enemy_list)
-    check_die(player1, green_lake_list, all_enemy_list)
-    check_die(player2, green_lake_list, all_enemy_list)
+    check_die(player1,all_lake_list, all_enemy_list)
+
+
+
+
+
+
+   # check_die(player2,red_lake_list, all_enemy_list)
+   # check_die(player1, green_lake_list, all_enemy_list)
+   # check_die(player2, green_lake_list, all_enemy_list)
     final_score = final_score + score_total(player2) + score_total(player1)
 
 

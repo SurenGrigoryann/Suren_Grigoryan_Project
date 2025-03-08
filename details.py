@@ -1,5 +1,4 @@
 import pygame
-import sys
 
 pygame.init()
 
@@ -174,7 +173,9 @@ def main():
         for event in events:
             if event.type == pygame.QUIT:
                 running = False
-        
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_b:
+                    running = False
         # Route to the correct scene based on current_scene.
         if current_scene == "main":
             main_scene(events)
@@ -189,8 +190,8 @@ def main():
         
         clock.tick(60)
     
-    pygame.quit()
-    sys.exit()
+    return
 
 if __name__ == '__main__':
     main()
+

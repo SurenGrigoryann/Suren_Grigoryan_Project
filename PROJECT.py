@@ -2,6 +2,7 @@
 import pygame
 import random
 import maps
+import details
 import time
 import sys
  
@@ -965,7 +966,7 @@ while not done:
                     else:
                         sc_map = [0]
                 elif (x > 1200 and x < 1250) and (y > 20 and y < 70):
-                        sc_map = ['question']
+                        details.main()
 
 
     #screen.blit(background_image, (0, 0))
