@@ -29,7 +29,7 @@ class Drink(pygame.sprite.Sprite):
     def __init__(self,x,y):
         super().__init__()
         self.image = pygame.Surface([10,10])
-        self.image.fill(YELLOW)
+        self.image.fill(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -147,7 +147,7 @@ class Enemy(pygame.sprite.Sprite):
             self.width = 40
             self.life = 3
             self.gun == "Short"
-            self.img= pygame.image.load('enemy.jpg')
+            self.img= pygame.image.load('enemy.png')
             self.image = pygame.transform.scale(self.img, (self.width, self.length))
 
         elif self.type == "Tank":
@@ -155,7 +155,7 @@ class Enemy(pygame.sprite.Sprite):
             self.width = 50
             self.life = 10
             self.gun == "Short"
-            self.img= pygame.image.load('Tank.jpg')
+            self.img= pygame.image.load('Tank.png')
             self.image = pygame.transform.scale(self.img, (self.width, self.length))
 
         self.rect = self.image.get_rect()
@@ -166,7 +166,7 @@ class Enemy(pygame.sprite.Sprite):
     def attack(self,player):
         if self.type == "Tank":
             if (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y -25) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 160)):
-                self.img= pygame.image.load('Tank.jpg')
+                self.img= pygame.image.load('Tank.png')
                 self.image = pygame.transform.scale(self.img, (50, 60))
 
                 self.rect.x += 0.75
@@ -185,7 +185,7 @@ class Enemy(pygame.sprite.Sprite):
                 self.rect.x += 2   
 
             elif (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y - 25) and ((player.rect.x <= self.rect.x) and (player.rect.x >= self.x -200)):
-                self.img= pygame.image.load('enemy.jpg')
+                self.img= pygame.image.load('enemy.png')
                 self.image = pygame.transform.scale(self.img, (40, 45))
 
                 self.rect.x -= 2
@@ -194,7 +194,7 @@ class Enemy(pygame.sprite.Sprite):
 class Gun(pygame.sprite.Sprite):
     def __init__(self,x,y):
         super().__init__()
-        self.img= pygame.image.load('no_gun.jpg')
+        self.img= pygame.image.load('no_gun.png')
         self.image = pygame.transform.scale(self.img, (40,30))
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -472,11 +472,11 @@ class Coins(pygame.sprite.Sprite):
 
     def draw(self,screen_to_draw):
         if self.color == RED:
-             red_coin = pygame.image.load('red_coin.jpg')
+             red_coin = pygame.image.load('red_coin.png')
              red_coin_image = pygame.transform.scale(red_coin, (20,20))
              screen_to_draw.blit(red_coin_image, (self.x,self.y))
         if self.color == BLUE:
-             blue_coin = pygame.image.load('blue_coin.jpg')
+             blue_coin = pygame.image.load('blue_coin.png')
              blue_coin_image = pygame.transform.scale(blue_coin, (20,20))
              screen_to_draw.blit(blue_coin_image, (self.x,self.y))
     
@@ -506,7 +506,7 @@ blue_lake_list = pygame.sprite.Group()
 
 green_lake_list = pygame.sprite.Group()
 
-all_lake_list = {'red': [], 'blue': [], 'green':[]}
+all_lake_list = {RED: [], BLUE: [], LIGHT_GREEN:[]}
 
 trapeze_list = pygame.sprite.Group()
 
@@ -519,6 +519,8 @@ blue_coin_list = pygame.sprite.Group()
 all_enemy_list = pygame.sprite.Group()
 
 all_gun_list = pygame.sprite.Group()
+
+all_drink_list = pygame.sprite.Group()
 
 bullet_list = pygame.sprite.Group()
 
@@ -559,13 +561,13 @@ def create_map(map):
                     red_lake = Lakes(x, y,LIGHT_RED)
                     red_lake_list.add(red_lake)    
                     all_sprite_list.add(red_lake)
-                    all_lake_list['red'].append(red_lake)
+                    all_lake_list[RED].append(red_lake)
 
                 elif j == 2:
                     blue_lake = Lakes(x, y,LIGHT_BLUE)
                     blue_lake_list.add(blue_lake)    
                     all_sprite_list.add(blue_lake)
-                    all_lake_list['blue'].append(blue_lake)
+                    all_lake_list[BLUE].append(blue_lake)
                 
                 elif j == 4:
                     trapeze = Trapeze(x,y)
@@ -585,7 +587,7 @@ def create_map(map):
                     green_lake = Lakes(x, y,LIGHT_GREEN)
                     green_lake_list.add(green_lake)    
                     all_sprite_list.add(green_lake)
-                    all_lake_list['green'].append(green_lake)
+                    all_lake_list[LIGHT_GREEN].append(green_lake)
 
                 elif j == 8:
                     red_coin = Coins(x,y,RED)
@@ -642,7 +644,10 @@ def create_map(map):
                     gun = Gun(x,y)
                     all_gun_list.add(gun)
                     all_sprite_list.add(gun)
-                                
+                elif j == 'd':
+                    drink = Drink(x,y)
+                    all_drink_list.add(drink)
+                    all_sprite_list.add(drink)    
 
                 # end if
 
@@ -664,6 +669,8 @@ def delete_map():
     coins_list.empty()
     player1.guns = False
     player2.guns = False
+    player1.color = RED
+    player2.color = BLUE
 # end procedure
 
 def question_map():
@@ -691,14 +698,15 @@ def question_map():
     
 
 def check_die(player,lake_list, enemies):
-    if player.color != lake_list.color:
+    for key in lake_list:
+        if player.color != key:
 
-        for lake in lake_list:
-            if(player.rect.x+24 >= lake.rect.x and player.rect.x - 9 <= lake.rect.x) and (player.rect.y +24 >= lake.rect.y  and player.rect.y -9 <= lake.rect.y ):
-                player.life = player.life - 1
-        for enemy in enemies:
-            if(player.rect.x + 25 >= enemy.rect.x and player.rect.x <= enemy.rect.x) and (player.rect.y +25 >= enemy.rect.y  and player.rect.y -15 <= enemy.rect.y ):
-                player.life = player.life - 1
+            for lake in lake_list[key]:
+                if(player.rect.x+24 >= lake.rect.x and player.rect.x - 9 <= lake.rect.x) and (player.rect.y +24 >= lake.rect.y  and player.rect.y -9 <= lake.rect.y ):
+                    player.life = player.life - 1
+            for enemy in enemies:
+                if(player.rect.x + 25 >= enemy.rect.x and player.rect.x <= enemy.rect.x) and (player.rect.y +25 >= enemy.rect.y  and player.rect.y -15 <= enemy.rect.y ):
+                    player.life = player.life - 1
                 
 
         # end if
@@ -901,26 +909,26 @@ done = False
 SCORE = 0
 final_score = 0
 
-pause_img = pygame.image.load('pause_button.jpg')
+pause_img = pygame.image.load('pause_button.png')
 pause_img = pygame.transform.scale(pause_img, (50, 50))
 
-question_img = pygame.image.load('question_mark.jpg')
+question_img = pygame.image.load('question_mark.png')
 question_img = pygame.transform.scale(question_img, (50,50))
 
-red_gun_img = pygame.image.load('red_gun.jpg')
+red_gun_img = pygame.image.load('red_gun.png')
 red_gun_img = pygame.transform.scale(red_gun_img, (50, 50))
 
-blue_gun_img = pygame.image.load('blue_gun.jpg')
+blue_gun_img = pygame.image.load('blue_gun.png')
 blue_gun_img = pygame.transform.scale(blue_gun_img, (50, 50))
 
-no_gun_img = pygame.image.load('no_gun.jpg')
+no_gun_img = pygame.image.load('no_gun.png')
 no_gun_img = pygame.transform.scale(no_gun_img, (50, 50))
 
-play_img = pygame.image.load('play_button.jpg')
+play_img = pygame.image.load('play_button.png')
 play_img = pygame.transform.scale(play_img, (50, 50))
 
 
-#background_image = pygame.image.load("background.jpg").convert()
+#background_image = pygame.image.load("background.png").convert()
 #background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
 # the main loop
 while not done:
@@ -938,6 +946,12 @@ while not done:
                 player1.go_right()
             elif event.key == pygame.K_UP:
                 player1.jump()
+            elif event.key == pygame.K_1:
+                player1.color = BLUE
+                player1.image.fill(BLUE)
+            elif event.key == pygame.K_2:
+                player1.color = RED
+                player1.image.fill(RED)
 
             if event.key == pygame.K_DOWN:
                 player1.shoot()
@@ -1006,6 +1020,7 @@ while not done:
     screen.fill(GREEN)
     live_map(sc_map,player1,player2)
     check_die(player1,all_lake_list, all_enemy_list)
+    check_die(player2,all_lake_list, all_enemy_list)
 
 
 
@@ -1049,6 +1064,23 @@ while not done:
         if gun_hits:
             player2.guns = True
             player2.timer = pygame.time.get_ticks()
+
+    if player1.color == RED:
+        drink_hit  = pygame.sprite.spritecollide(player1, all_drink_list, True)
+        if drink_hit:
+            player1.guns = True
+            player1.timer = pygame.time.get_ticks()
+            player1.color = BLUE
+    
+    if player2.color == BLUE:
+        drink_hit  = pygame.sprite.spritecollide(player2, all_drink_list, True)
+        if drink_hit:
+            player2.guns = True
+            player2.timer = pygame.time.get_ticks()
+            player2.color = RED
+        
+        
+
 
            # time.sleep(0.001)
 
