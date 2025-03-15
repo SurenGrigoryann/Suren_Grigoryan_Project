@@ -56,7 +56,7 @@ class Button:
 current_scene = "main"
 
 # Load the back button image and scale it to 50x50 pixels.
-back_button_img = pygame.image.load("back_button.png")
+back_button_img = pygame.image.load("pictures/Back_button.png")
 back_button_img = pygame.transform.scale(back_button_img, (100, 100))
 
 

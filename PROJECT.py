@@ -5,7 +5,8 @@ import maps
 import details
 import time
 import sys
- 
+import menu
+
 # Colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -29,14 +30,14 @@ SCREEN_HEIGHT = 720
 
 
 images = {
-    'red_player': pygame.image.load('red_player.png').convert_alpha(),
-    'blue_player': pygame.image.load('blue_player.png').convert_alpha(),
-    'fast_enemy': pygame.image.load('fast_enemy.png').convert_alpha(),
-    'tank_enemy': pygame.image.load('Tank.png').convert_alpha(),
-    'red_door': pygame.image.load('red_door.jpg').convert(),
-    'blue_door': pygame.image.load('blue_door.jpg').convert(),
-    'background': pygame.transform.scale(pygame.image.load("background1.jpg").convert(), (SCREEN_WIDTH, SCREEN_HEIGHT-80)),
-    'block': pygame.image.load('block.jpg').convert(),
+    'red_player': pygame.image.load('pictures/red_player.png').convert_alpha(),
+    'blue_player': pygame.image.load('pictures/blue_player.png').convert_alpha(),
+    'fast_enemy': pygame.image.load('pictures/fast_enemy.png').convert_alpha(),
+    'tank_enemy': pygame.image.load('pictures/Tank.png').convert_alpha(),
+    'red_door': pygame.image.load('pictures/red_door.jpg').convert(),
+    'blue_door': pygame.image.load('pictures/blue_door.jpg').convert(),
+    'background': pygame.transform.scale(pygame.image.load("pictures/background1.jpg").convert(), (SCREEN_WIDTH, SCREEN_HEIGHT-80)),
+    'block': pygame.image.load('pictures/block.jpg').convert(),
 }
 
 
@@ -50,6 +51,16 @@ images = {
 
 
 
+
+class Drink(pygame.sprite.Sprite):
+    def __init__(self,x,y):
+        super().__init__()
+        self.image = pygame.Surface([10,10])
+        self.image.fill(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
 # Classes
 class Door(pygame.sprite.Sprite):
     def __init__(self,x,y,color):
@@ -57,9 +68,9 @@ class Door(pygame.sprite.Sprite):
 
         self.color = color
         if self.color == LIGHT_RED:
-            self.img= pygame.image.load('red_door.jpg')
+            self.img= pygame.image.load('pictures/red_door.jpg')
         elif self.color == LIGHT_BLUE:
-            self.img= pygame.image.load('blue_door.jpg')
+            self.img= pygame.image.load('pictures/blue_door.jpg')
         self.image = pygame.transform.scale(self.img, (35, 50))
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -168,7 +179,7 @@ class Enemy(pygame.sprite.Sprite):
                 self.rect.x += 2   
 
             elif (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y - 25) and ((player.rect.x <= self.rect.x) and (player.rect.x >= self.x -200)):
-                self.img= pygame.image.load('fast_enemy.png')
+                self.img= pygame.image.load('pictures/fast_enemy.png')
                 self.image = pygame.transform.scale(self.img, (40, 45))
 
                 self.rect.x -= 2
@@ -177,7 +188,7 @@ class Enemy(pygame.sprite.Sprite):
 class Gun(pygame.sprite.Sprite):
     def __init__(self,x,y):
         super().__init__()
-        self.img= pygame.image.load('no_gun.png')
+        self.img= pygame.image.load('pictures/no_gun.png')
         self.image = pygame.transform.scale(self.img, (40,30))
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -357,9 +368,9 @@ class Player(pygame.sprite.Sprite):
     def go_left(self):
         if  self.direction == "right" and self.previous_direction == 1:
             if self.color == RED:
-                self.img= pygame.image.load('red_player.png')
+                self.img= pygame.image.load('pictures/red_player.png')
             elif self.color == BLUE:
-                self.img= pygame.image.load('blue_player.png')
+                self.img= pygame.image.load('pictures/blue_player.png')
 
             self.flipped_image = pygame.transform.flip(self.img, True, False)
             self.image = pygame.transform.scale(self.flipped_image, (25, 35))
@@ -376,9 +387,9 @@ class Player(pygame.sprite.Sprite):
         if self.direction =="left" and self.previous_direction == -1:
             if self.color == RED:
                 
-                self.img= pygame.image.load('red_player.png')
+                self.img= pygame.image.load('pictures/red_player.png')
             elif self.color == BLUE:
-                self.img= pygame.image.load('blue_player.png')
+                self.img= pygame.image.load('pictures/blue_player.png')
 
             
             self.image = pygame.transform.scale(self.img, (25, 35))
@@ -458,11 +469,11 @@ class Lakes(pygame.sprite.Sprite):
         super().__init__()
         self.color = color
         if self.color == LIGHT_RED:
-            self.img = pygame.image.load('red_lake.png').convert_alpha()
+            self.img = pygame.image.load('pictures/red_lake.png').convert_alpha()
         elif self.color == LIGHT_BLUE:
-            self.img = pygame.image.load('blue_lake.png').convert_alpha()
+            self.img = pygame.image.load('pictures/blue_lake.png').convert_alpha()
         elif self.color == LIGHT_GREEN:
-            self.img = pygame.image.load('green_lake.png').convert_alpha()
+            self.img = pygame.image.load('pictures/green_lake.png').convert_alpha()
         self.image = pygame.transform.scale(self.img, (10, 10))
        
         self.rect = self.image.get_rect()
@@ -496,11 +507,11 @@ class Coins(pygame.sprite.Sprite):
 
     def draw(self,screen_to_draw):
         if self.color == RED:
-             red_coin = pygame.image.load('red_coin.png')
+             red_coin = pygame.image.load('pictures/red_coin.png')
              red_coin_image = pygame.transform.scale(red_coin, (20,20))
              screen_to_draw.blit(red_coin_image, (self.x,self.y))
         if self.color == BLUE:
-             blue_coin = pygame.image.load('blue_coin.png')
+             blue_coin = pygame.image.load('pictures/blue_coin.png')
              blue_coin_image = pygame.transform.scale(blue_coin, (20,20))
              screen_to_draw.blit(blue_coin_image, (self.x,self.y))
     
@@ -914,22 +925,22 @@ done = False
 SCORE = 0
 final_score = 0
 
-pause_img = pygame.image.load('pause_button.png')
+pause_img = pygame.image.load('pictures/pause_button.png')
 pause_img = pygame.transform.scale(pause_img, (50, 50))
 
-question_img = pygame.image.load('question_mark.png')
+question_img = pygame.image.load('pictures/question_mark.png')
 question_img = pygame.transform.scale(question_img, (50,50))
 
-red_gun_img = pygame.image.load('red_gun.png')
+red_gun_img = pygame.image.load('pictures/red_gun.png')
 red_gun_img = pygame.transform.scale(red_gun_img, (50, 50))
 
-blue_gun_img = pygame.image.load('blue_gun.png')
+blue_gun_img = pygame.image.load('pictures/blue_gun.png')
 blue_gun_img = pygame.transform.scale(blue_gun_img, (50, 50))
 
-no_gun_img = pygame.image.load('no_gun.png')
+no_gun_img = pygame.image.load('pictures/no_gun.png')
 no_gun_img = pygame.transform.scale(no_gun_img, (50, 50))
 
-play_img = pygame.image.load('play_button.png')
+play_img = pygame.image.load('pictures/play_button.png')
 play_img = pygame.transform.scale(play_img, (50, 50))
 
 

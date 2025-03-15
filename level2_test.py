@@ -27,6 +27,19 @@ ORANGE = (255, 99, 7)
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 
+
+class Drink(pygame.sprite.Sprite):
+    def __init__(self,x,y):
+        super().__init__()
+        self.image = pygame.Surface([10,10])
+        self.image.fill(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+
+
+
 # Classes
 class Door(pygame.sprite.Sprite):
     def __init__(self,x,y,color):
@@ -220,6 +233,11 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = y
         self.rect.x = x
         self.color = color
+
+        self.original_color = color
+
+        self.color_timer = None
+        self.color_duration = 3000
  
         # speed vector
         self.change_x = 0
@@ -290,8 +308,18 @@ class Player(pygame.sprite.Sprite):
                 self.rect.bottom = portal.rect.top
             elif self.change_y < 0:
                 self.rect.top = portal.rect.bottom
-
             self.change_y = 0
+
+        if self.color != self.original_color and self.color_timer is not None:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.color_timer >= self.color_duration:
+                # 10 seconds have passed, revert to original
+                self.color = self.original_color
+                self.image.fill(self.original_color)
+                self.color_timer = None
+
+
+
 
        # gun_hit_list = pygame.sprite.spritecollide(self, self.guns, False)
         #for gun in gun_hit_list:
@@ -365,6 +393,13 @@ class Player(pygame.sprite.Sprite):
                 bullet = Bullet(self.rect.x,self.rect.y,"left")
                 bullet_list.add(bullet)
                 all_sprite_list.add(bullet)
+
+    def change_color(self,changing_color):
+        if self.color != changing_color:
+            self.color_timer = pygame.time.get_ticks()
+            self.color = changing_color
+            self.image.fill(changing_color)
+    # end procedure
 
     # end procedure
 
@@ -482,6 +517,8 @@ blue_coin_list = pygame.sprite.Group()
 all_enemy_list = pygame.sprite.Group()
 
 all_gun_list = pygame.sprite.Group()
+
+all_drink_list = pygame.sprite.Group()
 
 bullet_list = pygame.sprite.Group()
 
@@ -606,6 +643,10 @@ def create_map(map):
                     gun = Gun(x,y)
                     all_gun_list.add(gun)
                     all_sprite_list.add(gun)
+                elif j == 'd':
+                    drink = Drink(x,y)
+                    all_drink_list.add(drink)
+                    all_sprite_list.add(drink)
                                 
 
                 # end if
@@ -1021,6 +1062,15 @@ while not done:
             player2.guns = True
             player2.timer = pygame.time.get_ticks()
 
+    
+        player1_drink_hit  = pygame.sprite.spritecollide(player1, all_drink_list, True)
+        player2_drink_hit = pygame.sprite.spritecollide(player2, all_drink_list, True)
+        if player1_drink_hit or player2_drink_hit:
+            player1.change_color(BLUE)
+            
+            player2.change_color(RED)
+
+
            # time.sleep(0.001)
 
     screen.blit(question_img,(1200,20))
@@ -1033,7 +1083,7 @@ while not done:
         if player1.color == (255,0,0):
             text = font.render(f'Color : Red',True,RED)
         else:
-             text = font.render(f'Color : Green',True,GREEN)
+             text = font.render(f'Color : Blue',True,BLUE)
 
         textRect = text.get_rect()
         textRect.center = ( 1280//2//2 + 50, 40)
@@ -1043,7 +1093,7 @@ while not done:
         if player1.color == (255,0,0):
             text = font.render(f'Color : Blue',True,BLUE)
         else:
-             text = font.render(f'Color : Black',True,BLACK)
+            text = font.render(f'Color : Red',True,RED)
 
         textRect = text.get_rect()
         textRect.center = ((1280//2+1280)//2, 40)

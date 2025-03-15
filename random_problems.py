@@ -38,7 +38,7 @@ def linear_search_recursive (list,item, total):
 
 
 def binary_search(list, item, first,last):
-    if first == las
+    if first == last:
         return False
     elif list[(first + last) //2 + 1] == item:
         return True
