@@ -359,8 +359,14 @@ class Player(pygame.sprite.Sprite):
     def jump(self):
 
         self.rect.y += 2
-        platform_hit_list = pygame.sprite.spritecollide(self, self.walls, False) + pygame.sprite.spritecollide(self,self.portals,False)
+        walls_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
+        if self.portals is not None:
+             portals_hit_list = pygame.sprite.spritecollide(self, self.portals, False)
+        else:
+            portals_hit_list = []
+        platform_hit_list = walls_hit_list + portals_hit_list
         self.rect.y -= 2
+        
  
         # If it is ok to jump, set our speed upwards
         if len(platform_hit_list) > 0 or self.rect.bottom >= SCREEN_HEIGHT:
@@ -533,43 +539,35 @@ Block.load_image()
 pygame.display.set_caption('Fboy and Wgirl')
 
 # Setting all of our groums that we are going to use
-all_sprite_list = pygame.sprite.Group()
 
-all_players_list = pygame.sprite.Group()
- 
-wall_list = pygame.sprite.Group()
+def create_lists():
+    global all_sprite_list, all_players_list, wall_list, red_lake_list, blue_lake_list, green_lake_list
+    global all_lakes_list, trapeze_list, coins_list, red_coin_list, blue_coin_list
+    global all_enemy_list, all_gun_list, bullet_list, portal_list_spr, portal_list
+    global portal_opener_list_spr, portal_opener_list, door_list_spr, door_list
 
-red_lake_list = pygame.sprite.Group()
+    all_sprite_list = pygame.sprite.Group()
+    all_players_list = pygame.sprite.Group()
+    wall_list = pygame.sprite.Group()
+    red_lake_list = pygame.sprite.Group()
+    blue_lake_list = pygame.sprite.Group()
+    green_lake_list = pygame.sprite.Group()
+    all_lakes_list = {RED: [], BLUE: [], LIGHT_GREEN: []}
+    trapeze_list = pygame.sprite.Group()
+    coins_list = pygame.sprite.Group()
+    red_coin_list = pygame.sprite.Group()
+    blue_coin_list = pygame.sprite.Group()
+    all_enemy_list = pygame.sprite.Group()
+    all_gun_list = pygame.sprite.Group()
+    bullet_list = pygame.sprite.Group()
+    portal_list_spr = pygame.sprite.Group()
+    portal_list = {'purple': [], 'yellow ': [], 'orange': [], 'black': [], 'brown': []}
+    portal_opener_list_spr = pygame.sprite.Group()
+    portal_opener_list = {'purple': [], 'yellow ': [], 'orange': [], 'black': [], 'brown': []}
+    door_list_spr = pygame.sprite.Group()
+    door_list = []
 
-blue_lake_list = pygame.sprite.Group()
-
-green_lake_list = pygame.sprite.Group()
-
-all_lakes_list = {RED: [], BLUE: [], LIGHT_GREEN:[]}
-
-trapeze_list = pygame.sprite.Group()
-
-coins_list = pygame.sprite.Group()
-
-red_coin_list = pygame.sprite.Group()
-
-blue_coin_list = pygame.sprite.Group()
-
-all_enemy_list = pygame.sprite.Group()
-
-all_gun_list = pygame.sprite.Group()
-
-bullet_list = pygame.sprite.Group()
-
-portal_list_spr = pygame.sprite.Group()
-portal_list = {'purple': [], 'yellow ': [], 'orange':[], 'black':[], 'brown': []}
-
-portal_opener_list_spr = pygame.sprite.Group()
-portal_opener_list = {'purple': [], 'yellow ': [], 'orange':[], 'black':[], 'brown':[]}
-
-door_list_spr = pygame.sprite.Group()
-door_list = []
-
+create_lists()
 
 
 
@@ -705,12 +703,25 @@ def delete_map():
     trapeze_list.empty()
     red_lake_list.empty()
     blue_lake_list.empty()
+    all_lakes_list[RED].clear()
+    all_lakes_list[BLUE].clear()
+    all_lakes_list[LIGHT_GREEN].clear()
     green_lake_list.empty()
     all_enemy_list.empty()
     all_gun_list.empty()
     bullet_list.empty()
     portal_list_spr.empty()
     portal_opener_list_spr.empty()
+    portal_list['black'].clear()
+    portal_list['brown'].clear()
+    portal_list['orange'].clear()
+    portal_list['purple'].clear()
+    portal_list['yellow '].clear()
+    portal_opener_list['black'].clear()
+    portal_opener_list['brown'].clear()
+    portal_opener_list['orange'].clear()
+    portal_opener_list['purple'].clear()
+    portal_opener_list['yellow '].clear()
     door_list_spr.empty()   
     door_list.clear()
     player1.guns = False
@@ -836,11 +847,22 @@ def live_map(current_map,player_one,player_two):
     # end if
     c = 11
 
-    p_opener_purple = portal_opener_list['purple'][0]
+    if portal_opener_list['purple']:
+        p_opener_purple = portal_opener_list['purple'][0]
+    else:
+        p_opener_purple = []
 
-    p_opener_brown = portal_opener_list['brown'][0]
+    if portal_opener_list['brown']:
+        p_opener_brown = portal_opener_list['brown'][0]
+    else:
+        p_opener_brown = []
 
-    p_opener_orange = portal_opener_list['orange'][0]
+    if portal_opener_list['orange']:
+        p_opener_orange = portal_opener_list['orange'][0]
+    else:
+        p_opener_orange = []
+
+    
     
     #p.open_portal(p_opener,player1)
     
@@ -995,10 +1017,12 @@ while not done:
                 player1.jump()
             if event.key == pygame.K_h: 
                 delete_map() # When H is pressed, open the menu
+                create_lists()
                 sc_map = run_menu()
                 player1 = create_players(25,575,RED)
                 player2 = create_players(20,400,BLUE)   
                 create_map(sc_map)
+                #create_lists()
 
 
 
