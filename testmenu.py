@@ -93,20 +93,21 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             pos = pygame.mouse.get_pos()
             for level in levels_objs:
-                if level.rect.collidepoint(pos):
-                    # Only switch to a level if it is unlocked or already passed.
-                    if level.condition in ["unlocked", "passed"]:
-                        if level.number == 1:
-                            maps.level_one
-                        elif level.number == 2:
-                            maps.level_two
-                        elif level.number == 3:
-                            maps.level_three()
-                        elif level.number == 4:
-                            maps.level_four()
-                        elif level.number == 5:
-                            maps.level_five()
-    
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    pos = pygame.mouse.get_pos()
+                    x,y = pos[0],pos[1]          
+                    if x >= level.rect.x and x <= level.rect.x + 100 and y >= level.rect.y and y <= level.rect.y + 100:
+                        if level.condition == "unlocked":
+                            if level.number == 1:
+                                print(1)
+                            elif level.number == 2:
+                                maps.level_two()
+                            elif level.number == 3:
+                                maps.level_three()
+                            elif level.number == 4:
+                                maps.level_four()
+                            elif level.number == 5:
+                                maps.level_five()      
     # Draw all level icons.
     for level in levels_objs:
       level.draw(screen)

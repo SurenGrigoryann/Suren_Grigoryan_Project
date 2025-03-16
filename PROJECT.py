@@ -6,6 +6,7 @@ import details
 import time
 import sys
 import menu
+from menu import run_menu
 
 # Colors
 BLACK = (0, 0, 0)
@@ -318,7 +319,10 @@ class Player(pygame.sprite.Sprite):
             self.change_y = 0
 
        
-        portal_hit_list = pygame.sprite.spritecollide(self, self.portals, False)
+        if self.portals is not None:
+            portal_hit_list = pygame.sprite.spritecollide(self, self.portals, False)
+        else:
+            portal_hit_list = []
         for portal in portal_hit_list:
  
             # If we are moving up, set our up side to the bottom side of
@@ -698,8 +702,30 @@ def delete_map():
     all_sprite_list.empty()
     wall_list.empty()
     coins_list.empty()
+    trapeze_list.empty()
+    red_lake_list.empty()
+    blue_lake_list.empty()
+    green_lake_list.empty()
+    all_enemy_list.empty()
+    all_gun_list.empty()
+    bullet_list.empty()
+    portal_list_spr.empty()
+    portal_opener_list_spr.empty()
+    door_list_spr.empty()   
+    door_list.clear()
     player1.guns = False
     player2.guns = False
+    player1.lakes = None
+    player2.lakes = None
+    player1.coins = None
+    player2.coins = None
+    player1.portals = None
+    player2.portals = None
+    player1.walls = None
+    player2.walls = None
+
+
+
 # end procedure
 
     
@@ -967,6 +993,14 @@ while not done:
                 player1.go_right()
             elif event.key == pygame.K_UP:
                 player1.jump()
+            if event.key == pygame.K_h: 
+                delete_map() # When H is pressed, open the menu
+                sc_map = run_menu()
+                player1 = create_players(25,575,RED)
+                player2 = create_players(20,400,BLUE)   
+                create_map(sc_map)
+
+
 
             if event.key == pygame.K_DOWN:
                 player1.shoot()
