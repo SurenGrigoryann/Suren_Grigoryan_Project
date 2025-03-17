@@ -63,15 +63,15 @@ class Level(pygame.sprite.Sprite):
 levels_objs = pygame.sprite.Group()
 font_one = pygame.font.Font('freesansbold.ttf',25)
 font_two = pygame.font.Font('freesansbold.ttf', 40)
-level_one = Level(SCREEN_WIDTH // 4.5, SCREEN_HEIGHT // 2 - 100, "Level 1", font_one, font_two, "unlocked", 1)
+level_one = Level(SCREEN_WIDTH // 4.5, SCREEN_HEIGHT // 2 - 100, "Level 1", font_one, font_two, levels_data[1], 1)
 levels_objs.add(level_one)
-level_two = Level(SCREEN_WIDTH // 4.5 + 150, SCREEN_HEIGHT // 2 - 100, "Level 2", font_one, font_two, "locked", 2)
+level_two = Level(SCREEN_WIDTH // 4.5 + 150, SCREEN_HEIGHT // 2 - 100, "Level 2", font_one, font_two, levels_data[2], 2)
 levels_objs.add(level_two)
-level_three = Level(SCREEN_WIDTH // 4.5 + 300, SCREEN_HEIGHT // 2 - 100, "Level 3", font_one, font_two, "locked", 3)
+level_three = Level(SCREEN_WIDTH // 4.5 + 300, SCREEN_HEIGHT // 2 - 100, "Level 3", font_one, font_two, levels_data[3], 3)
 levels_objs.add(level_three)
-level_four = Level(SCREEN_WIDTH // 4.5 + 450, SCREEN_HEIGHT // 2 - 100, "Level 4", font_one, font_two, "locked", 4)
+level_four = Level(SCREEN_WIDTH // 4.5 + 450, SCREEN_HEIGHT // 2 - 100, "Level 4", font_one, font_two, levels_data[4], 4)
 levels_objs.add(level_four)
-level_five = Level(SCREEN_WIDTH // 4.5 + 600, SCREEN_HEIGHT // 2 - 100, "Level 5", font_one, font_two, "locked", 5)            
+level_five = Level(SCREEN_WIDTH // 4.5 + 600, SCREEN_HEIGHT // 2 - 100, "Level 5", font_one, font_two, levels_data[5], 5)            
 levels_objs.add(level_five)
 
 
@@ -79,6 +79,12 @@ font = pygame.font.SysFont(None, 30)
 start_x = 50  # Starting x position
 start_y = 50  # Starting y position for all icons
 spacing = 150  # Horizontal space between each level icon
+
+
+def change_level(level, passed_not_passed):
+    if passed_not_passed == "passed":
+        levels_data[level] = "passed"
+        levels_data[level + 1] = "unlocked"
 
 
 def run_menu():
@@ -100,7 +106,7 @@ def run_menu():
                         if x >= level.rect.x and x <= level.rect.x + 100 and y >= level.rect.y and y <= level.rect.y + 100:
                             if level.condition == "unlocked":
                                 if level.number == 1:
-                                    return maps.level_one
+                                    return maps.level_one_test
                                 elif level.number == 2:
                                     return maps.level_two
                                 elif level.number == 3:
@@ -115,3 +121,5 @@ def run_menu():
         pygame.display.flip()
 
     pygame.quit()
+
+
