@@ -36,7 +36,7 @@ images = {
     'fast_enemy': pygame.image.load('pictures/fast_enemy.png').convert_alpha(),
     'tank_enemy': pygame.image.load('pictures/Tank.png').convert_alpha(),
     'red_door': pygame.image.load('pictures/red_door.jpg').convert(),
-    'blue_door': pygame.image.load('pictures/blue_door.jpg').convert(),
+    'blue_door': pygame.image.load('pictures/blue_door.jpg').convert()images,
     'background': pygame.transform.scale(pygame.image.load("pictures/background1.jpg").convert(), (SCREEN_WIDTH, SCREEN_HEIGHT-80)),
     'block': pygame.image.load('pictures/block.jpg').convert(),
 }
@@ -576,7 +576,7 @@ create_lists()
 sc_map = maps.level_three
 
 # sm is the starting map
-sm = maps.level_three
+sm = [1]
 start_time = pygame.time.get_ticks() 
 
 
@@ -786,41 +786,29 @@ def score_total(player):
     
 
                 
-                
-                
 
-                
-                 
-        
-def create_players(x,y,color):
-    player = Player(x, y, color)
-    player.walls = wall_list
-    player.enemies = all_enemy_list
-    player.portals = portal_list_spr
-    all_sprite_list.add(player)
 
-    return player
-# end function
 
-player1 = create_players(25,575,RED)
-player2 = create_players(1225,575,BLUE)    
 
-# creating the map
+levels = [maps.level_one, maps.level_two, maps.level_three, maps.level_four, maps.level_five]
+current_level_index = 0            # index for the levels list
+current_map = levels[current_level_index]   # the actual map data
+current_state = 'game'             # when playing, this is 'game'; you can set it to 'win', 'lose', or 'menu' as needed
+sm = current_map  
+# ['win'] is the winning screen
+# ['lose'] is the losing screen
+# ['menu'] is the menu screen
+# ['details'] is the details screen
 
-def initial_map(first_m):
-    create_map(first_m)
-# end procedure
 
 def live_map(current_map,player_one,player_two):
-    global sm
+    global sc_map
 
-    
-   
-    if player1.life <= 0 or player2.life <= 0 or current_map == [1] :
+    if player1.life <= 0 or player2.life <= 0 or current_map == ['lose']:
         delete_map()
         lose()
         return_to_menu()
-        current_map = [1]
+        current_map = ['menu']
 
     elif current_map == [2]:
         delete_map()
@@ -893,6 +881,40 @@ def live_map(current_map,player_one,player_two):
         coin.draw(screen)
 
     sm = current_map
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+
+                
+                 
+        
+
+# creating the map
+
+def initial_map(first_m):
+    create_map(first_m)
+# end procedure
+
+
 # end procedure
 
 def menu():
@@ -954,13 +976,22 @@ def return_to_menu():
 
 
 
-
-def scores(p1,p2,c_list, rc_list, bc_list,score):
-    textfont = pygame.font.SysFont('monospace',50)
-    textTBD = textfont.render(f'score {score}',1,(RED))
-    screen.blit(textTBD)
-
 # end procedure
+
+
+def create_players(x,y,color):
+    player = Player(x, y, color)
+    player.walls = wall_list
+    player.enemies = all_enemy_list
+    player.portals = portal_list_spr
+    all_sprite_list.add(player)
+
+    return player
+# end function
+
+player1 = create_players(25,575,RED)
+player2 = create_players(1225,575,BLUE)    
+
 
 #setting up the clock
 clock = pygame.time.Clock()
