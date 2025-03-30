@@ -1,5 +1,6 @@
 import pygame
-import maps  # This module should define functions like level_one(), level_two(), etc.
+import maps
+
 
 pygame.init()
 
@@ -82,35 +83,55 @@ spacing = 150  # Horizontal space between each level icon
 
 
 
-running = True
-while running:
-    screen.fill(DARK_GRAY)
-    
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
 
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            pos = pygame.mouse.get_pos()
-            for level in levels_objs:
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    pos = pygame.mouse.get_pos()
-                    x,y = pos[0],pos[1]          
-                    if x >= level.rect.x and x <= level.rect.x + 100 and y >= level.rect.y and y <= level.rect.y + 100:
-                        if level.condition == "unlocked":
-                            if level.number == 1:
-                                print(1)
-                            elif level.number == 2:
-                                maps.level_two()
-                            elif level.number == 3:
-                                maps.level_three()
-                            elif level.number == 4:
-                                maps.level_four()
-                            elif level.number == 5:
-                                maps.level_five()      
-    # Draw all level icons.
-    for level in levels_objs:
-      level.draw(screen)
-    pygame.display.flip()
+def main():
+    running = True
+    while running:
+        screen.fill(DARK_GRAY)
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.QUIT:
+                running = False
+                return quit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                # Check if the back button was clicked (positioned at (10,10), size 100x100)
+                if 10 <= pos[0] <= 110 and 10 <= pos[1] <= 110:
+                    return 'back'
+                elif question_rect.collidepoint(pos):
+                    return 'controls'
 
-pygame.quit()
+                for level in levels_objs:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        pos = pygame.mouse.get_pos()
+                        x,y = pos[0],pos[1]          
+                        if x >= level.rect.x and x <= level.rect.x + 100 and y >= level.rect.y and y <= level.rect.y + 100:
+                            if level.condition == "unlocked":
+                                if level.number == 1:
+                                    return 'level_one'
+                                elif level.number == 2:
+                                    maps.level_two()
+                                elif level.number == 3:
+                                    maps.level_three()
+                                elif level.number == 4:
+                                    maps.level_four()
+                                elif level.number == 5:
+                                    maps.level_five()  
+        # Draw all level icons.
+        back_button_img = pygame.image.load("pictures/Back_button.png")
+        back_button_img = pygame.transform.scale(back_button_img, (100, 100))
+        screen.blit(back_button_img, (10, 10))
+        question_img = pygame.image.load('pictures/question_grey.png')
+        question_img = pygame.transform.scale(question_img, (150, 150))
+        question_rect = question_img.get_rect(center=(1200,100))
+        screen.blit(question_img, question_rect)
+
+
+        for level in levels_objs:
+            level.draw(screen)
+        pygame.display.flip()    
+
+    return
+
+if __name__ == '__main__':
+    main()

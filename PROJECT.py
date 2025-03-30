@@ -36,7 +36,7 @@ images = {
     'fast_enemy': pygame.image.load('pictures/fast_enemy.png').convert_alpha(),
     'tank_enemy': pygame.image.load('pictures/Tank.png').convert_alpha(),
     'red_door': pygame.image.load('pictures/red_door.jpg').convert(),
-    'blue_door': pygame.image.load('pictures/blue_door.jpg').convert()images,
+    'blue_door': pygame.image.load('pictures/blue_door.jpg').convert(),
     'background': pygame.transform.scale(pygame.image.load("pictures/background1.jpg").convert(), (SCREEN_WIDTH, SCREEN_HEIGHT-80)),
     'block': pygame.image.load('pictures/block.jpg').convert(),
 }
@@ -82,6 +82,8 @@ class Door(pygame.sprite.Sprite):
             return True
         else:
             return False
+        
+
 class Portal(pygame.sprite.Sprite):
     def __init__(self,x,y,color):
         super().__init__()
@@ -145,6 +147,7 @@ class Enemy(pygame.sprite.Sprite):
             self.length = 45
             self.width = 40
             self.life = 5
+            self.speed = 2
             self.gun == "Short"
             self.image = pygame.transform.scale(images['fast_enemy'], (self.width, self.length))
 
@@ -152,6 +155,7 @@ class Enemy(pygame.sprite.Sprite):
             self.length = 60
             self.width = 50
             self.life = 10
+            self.speed = 0.75
             self.gun == "Short"
             self.image = pygame.transform.scale(images['tank_enemy'], (self.width, self.length))
             
@@ -162,6 +166,28 @@ class Enemy(pygame.sprite.Sprite):
         self.x = x
         self.y = y
     def attack(self,player):
+        if (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y -25) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 160)):
+                if self.type == "Tank":
+                    self.image = pygame.transform.scale(images['tank_enemy'], (self.width, self.length))
+                elif self.type == "Fast":
+                    self.flipped_image = pygame.transform.flip(self.image, True, False)
+                    self.image = pygame.transform.scale(self.flipped_image, (40, 45))
+
+                self.rect += self.speed
+
+            
+        elif (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y - 25) and ((player.rect.x <= self.rect.x) and (player.rect.x >= self.x -160)):
+                if self.type == "Tank":
+                    self.flipped_image = pygame.transform.flip(self.image, True, False)
+                    self.image = pygame.transform.scale(self.flipped_image, (50, 60))
+                elif self.type == "Fast":
+                    self.img= pygame.image.load('pictures/fast_enemy.png')
+                    self.image = pygame.transform.scale(self.img, (40, 45))
+
+                self.rect.x -= self.speed
+
+
+
         if self.type == "Tank":
             if (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y -25) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 160)):
                 self.image = pygame.transform.scale(images['tank_enemy'], (self.width, self.length))
@@ -274,7 +300,7 @@ class Player(pygame.sprite.Sprite):
         # lives
         self.life = 1
         # power level
-        self.level = None
+        
     
     # end procedure
 
@@ -790,48 +816,22 @@ def score_total(player):
 
 
 
-levels = [maps.level_one, maps.level_two, maps.level_three, maps.level_four, maps.level_five]
-current_level_index = 0            # index for the levels list
-current_map = levels[current_level_index]   # the actual map data
-current_state = 'game'             # when playing, this is 'game'; you can set it to 'win', 'lose', or 'menu' as needed
-sm = current_map  
+all_maps = ['starting', 'levels', 'controls','settings','slides','level_one','level_two','level_three','level_four','level_five', 'winning',
+            'losing', 'pause', 'quit','thanks']
+current_map = "starting"
+map = [0]
 # ['win'] is the winning screen
 # ['lose'] is the losing screen
 # ['menu'] is the menu screen
 # ['details'] is the details screen
 
 
-def live_map(current_map,player_one,player_two):
-    global sc_map
+def live_map():
+    global map
+    global current_map
 
-    if player1.life <= 0 or player2.life <= 0 or current_map == ['lose']:
-        delete_map()
-        lose()
-        return_to_menu()
-        current_map = ['menu']
-
-    elif current_map == [2]:
-        delete_map()
-        win()
-        return_to_menu()
-        current_map = [1]
-    elif current_map == [0]:
-        delete_map()
-        menu()
-
-
-    elif current_map != sm:
-        delete_map()
-        create_map(current_map)
-        player_one.walls = wall_list
-        player_two.walls = wall_list
-        all_sprite_list.add(player1)
-        all_sprite_list.add(player2)
-    if current_map == sm:
-        if door_list[0].update_door(player1) and door_list[1].update_door(player2):
-            delete_map()
-            win()
-    
+    if current_map == all_maps[0]:
+        starting_map()
     # end if
     c = 11
 
@@ -884,8 +884,20 @@ def live_map(current_map,player_one,player_two):
 
 
 
-
-
+def starting_map():
+    screen.fill(WHITE)
+    font = pygame.font.Font('freesansbold.ttf', 82)
+    text = font.render('Menu', True, GREEN, BLUE)
+    textRect = text.get_rect()
+    textRect.center = (1280//2, 720//2)
+    
+    font2 = pygame.font.Font('freesansbold.ttf', 32)
+    text2 = font2.render('To return to the game press B or the button on the top right', True, GREEN, BLUE)
+    text2Rect = text2.get_rect()
+    text2Rect.center = (1280//2, 720//2 + 100)
+    
+    screen.blit(text, textRect)
+    screen.blit(text2, text2Rect)
 
 
 
@@ -1120,7 +1132,7 @@ while not done:
 
     screen.fill(GREEN)
 
-    live_map(sc_map,player1,player2)
+
     check_die(player1,all_lakes_list, all_enemy_list)
     check_die(player2,all_lakes_list, all_enemy_list)
 

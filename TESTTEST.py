@@ -239,12 +239,14 @@ class Player(pygame.sprite.Sprite):
                 self.rect.top = block.rect.bottom
             self.change_y = 0
         portal_hit_list = pygame.sprite.spritecollide(self, self.portals, False)
+
         for portal in portal_hit_list:
             if self.change_y > 0:
                 self.rect.bottom = portal.rect.top
             elif self.change_y < 0:
                 self.rect.top = portal.rect.bottom
             self.change_y = 0
+
 
     def calc_grav(self):
         if self.change_y == 0:
@@ -253,7 +255,7 @@ class Player(pygame.sprite.Sprite):
             self.change_y += .25
         if self.rect.y >= SCREEN_HEIGHT - self.rect.height and self.change_y >= 0:
             self.change_y = 0
-            self.rect.y = SCREEN_HEIGHT - self.rect.height
+            
 
     def jump(self):
         self.rect.y += 2
@@ -600,7 +602,7 @@ def menu():
     textRect = text.get_rect()
     textRect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
     font2 = pygame.font.Font('freesansbold.ttf', 32)
-    text2 = font2.render('To return to the game press B or the button on the top right', True, GREEN, BLUE)
+    text2 = font2.render('GOOOD BOOOY. NOW To return to the game press B or the button on the top right', True, GREEN, BLUE)
     text2Rect = text2.get_rect()
     text2Rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 100)
     screen.blit(text, textRect)

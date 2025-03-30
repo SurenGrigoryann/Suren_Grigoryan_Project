@@ -92,6 +92,10 @@ def main_scene(events):
     for button in buttons:
         button.draw(screen)
     
+
+    back_button_img = pygame.image.load('pictures/back_button.png')
+    back_button_img = pygame.transform.scale(back_button_img, (100, 100))
+    back_button_rect = back_button_img.get_rect(center=(60, 60))
     # Check for clicks on buttons.
     for event in events:
         if buttons[0].is_clicked(event):
@@ -102,8 +106,13 @@ def main_scene(events):
             current_scene = "lakes_info"
         if buttons[3].is_clicked(event):
             current_scene = "portals_info"
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            pos = pygame.mouse.get_pos()
+            if back_button_rect.collidepoint(pos):
+                return 'back'
 
-    
+    screen.blit(back_button_img, back_button_rect)
+
     pygame.display.flip()
 
 def player_info_scene(events):
@@ -123,8 +132,8 @@ def player_info_scene(events):
 
 
 
-    player1_image = pygame.image.load("red_player.png").convert_alpha()
-    player2_image = pygame.image.load("blue_player.png").convert_alpha()
+    player1_image = pygame.image.load("pictures/red_player.png").convert_alpha()
+    player2_image = pygame.image.load("pictures/blue_player.png").convert_alpha()
 
     player1_image = pygame.transform.scale(player1_image, (60, 100))
     player2_image = pygame.transform.scale(player2_image, (60, 100))
@@ -208,8 +217,8 @@ def enemy_info_scene(events):
     screen.blit(enemy_text, enemy_rect)
 
     # --- Load and optionally scale images ---
-    tank_image = pygame.image.load("tank.png").convert_alpha()
-    fast_image = pygame.image.load("fast_enemy.png").convert_alpha()
+    tank_image = pygame.image.load("pictures/Tank.png").convert_alpha()
+    fast_image = pygame.image.load("pictures/fast_enemy.png").convert_alpha()
 
     tank_image = pygame.transform.scale(tank_image, (100, 100))
     fast_image = pygame.transform.scale(fast_image, (100, 100))
@@ -319,7 +328,7 @@ def portals_info_scene(events):
     pygame.display.flip()
 
 def main():
-    global current_scene
+    global current_scene    
     clock = pygame.time.Clock()
     running = True
     while running:
@@ -333,7 +342,10 @@ def main():
                     running = False
                     
         # Route to the correct scene based on current_scene.
+
         if current_scene == "main":
+            if main_scene(events) == 'back':
+                return 'back'
             main_scene(events)
         elif current_scene == "player_info":
             player_info_scene(events)
@@ -344,6 +356,7 @@ def main():
         elif current_scene == "portals_info":
             portals_info_scene(events)
         clock.tick(60)
+
     
     return
 
