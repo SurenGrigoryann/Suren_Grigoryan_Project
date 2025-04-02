@@ -72,14 +72,15 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         # updating player's position
         self.rect.x += self.change_x
-        self.rect.y += self.change_y
+        
 
         # Checking if we hit anything horizontally
         block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
 
         for block in block_hit_list:
             # If we are moving right, set our right side to the left side of
-            # the wall
+            # the wall and the same if we are moving left
+
             if self.change_x > 0:
                 self.rect.right = block.rect.left
             else:
@@ -89,6 +90,18 @@ class Player(pygame.sprite.Sprite):
 
             # end if
         # next block
+        self.rect.y += self.change_y
+        block_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
+        for block in block_hit_list:
+ 
+            # If we are moving up, set our up side to the bottom side of
+            # the wall and the same if we are moving down
+            if self.change_y > 0:
+                self.rect.bottom = block.rect.top
+            elif self.change_y < 0:
+                self.rect.top = block.rect.bottom
+
+            self.change_y = 0
 
     # end procedure
 
@@ -102,6 +115,10 @@ class Player(pygame.sprite.Sprite):
     def stop(self):
         self.change_x = 0
     # end procedure
+    def jump(self):
+        self.change_y -= 3
+    # end procedure
+
 
 # end class
 
