@@ -849,8 +849,8 @@ def live_map():
     elif current_map != sm:
         delete_map()
         create_map(current_map)
-        player_one.walls = wall_list
-        player_two.walls = wall_list
+        #player_one.walls = wall_list
+        #player_two.walls = wall_list
         all_sprite_list.add(player1)
         all_sprite_list.add(player2)
     if current_map == sm:

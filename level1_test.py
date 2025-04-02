@@ -1,6 +1,6 @@
 import pygame
 import random
-import main.maps as maps
+import maps
 import time
 import sys
  

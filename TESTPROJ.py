@@ -353,7 +353,7 @@ class Player(pygame.sprite.Sprite):
         self.walls = None
         self.portals = None
         self.coins = None
-        self.lakes = None
+        #self.lakes = None
         self.guns = False
         self.timer = False
         self.duration = 10000
@@ -857,16 +857,24 @@ def delete_map():
 
     
 
-def check_die(player,lake_list, enemies):
-    for key in lake_list:
-        if player.color != key:
+def check_die(player, lake_dict, enemies):
 
-            for lake in lake_list[key]:
-                if(player.rect.x+24 >= lake.rect.x and player.rect.x - 9 <= lake.rect.x) and (player.rect.y +34 >= lake.rect.y  and player.rect.y -14 <= lake.rect.y ):
-                    player.life = player.life - 1
-            for enemy in enemies:
-                if(player.rect.x + 25 >= enemy.rect.x and player.rect.x <= enemy.rect.x) and (player.rect.y +25 >= enemy.rect.y  and player.rect.y -15 <= enemy.rect.y ):
-                    player.life = player.life - 1
+    # Check collisions with lakes of a different color
+    for lake_color, lakes in lake_dict.items():
+        # Only check lakes that are not the same color as the player
+        if player.color != lake_color:
+            for lake in lakes:
+                # Use colliderect to check for collision between player and lake
+                if player.rect.colliderect(lake.rect):
+                    player.life -= 1
+                    # Optionally, break after one collision per frame:
+                    # break
+
+    # Check collisions with enemies
+    for enemy in enemies:
+        # Use colliderect to check for collision between player and enemy
+        if player.rect.colliderect(enemy.rect):
+            player.life -= 1
                 
 
         # end if
@@ -960,7 +968,7 @@ def live_map():
         if previous_map.peek() != 'level_one':
             delete_map()
             create_lists()
-            map = maps.level_one
+            map = maps.level_three
             player1 = create_players(25,575,RED)
             player2 = create_players(20,400,BLUE)
             player1.walls = wall_list
@@ -1397,6 +1405,7 @@ def ingame():
         gun_hits = pygame.sprite.spritecollide(player2, all_gun_list, True)
         if gun_hits:
             player2.guns = True
+            
             player2.timer = pygame.time.get_ticks()
 
     player1_drink_hit  = pygame.sprite.spritecollide(player1, all_drink_list, True)
@@ -1509,6 +1518,9 @@ def ingame():
             bullet.kill()
     all_sprite_list.draw(screen)
     #screen.blit(background_image, (0, 0))
+
+
+
 
 
 
