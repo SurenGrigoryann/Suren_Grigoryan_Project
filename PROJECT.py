@@ -5,7 +5,7 @@ import maps
 import details
 import time
 import sys
-import menu
+import  menu
 from menu import run_menu
 
 # Colors
@@ -714,6 +714,7 @@ def create_map(map):
             # next i
             x = 0
             y += 10
+        
         # next j 
 
 # end procedure
@@ -827,11 +828,36 @@ map = [0]
 
 
 def live_map():
-    global map
-    global current_map
+    global sc_map
 
-    if current_map == all_maps[0]:
-        starting_map()
+    if player1.life <= 0 or player2.life <= 0 or current_map == ['lose']:
+        delete_map()
+        lose()
+        return_to_menu()
+        current_map = ['menu']
+
+    elif current_map == [2]:
+        delete_map()
+        win()
+        return_to_menu()
+        current_map = [1]
+    elif current_map == [0]:
+        delete_map()
+        menu()
+
+
+    elif current_map != sm:
+        delete_map()
+        create_map(current_map)
+        player_one.walls = wall_list
+        player_two.walls = wall_list
+        all_sprite_list.add(player1)
+        all_sprite_list.add(player2)
+    if current_map == sm:
+        if door_list[0].update_door(player1) and door_list[1].update_door(player2):
+            delete_map()
+            win()
+    
     # end if
     c = 11
 
@@ -884,20 +910,8 @@ def live_map():
 
 
 
-def starting_map():
-    screen.fill(WHITE)
-    font = pygame.font.Font('freesansbold.ttf', 82)
-    text = font.render('Menu', True, GREEN, BLUE)
-    textRect = text.get_rect()
-    textRect.center = (1280//2, 720//2)
-    
-    font2 = pygame.font.Font('freesansbold.ttf', 32)
-    text2 = font2.render('To return to the game press B or the button on the top right', True, GREEN, BLUE)
-    text2Rect = text2.get_rect()
-    text2Rect.center = (1280//2, 720//2 + 100)
-    
-    screen.blit(text, textRect)
-    screen.blit(text2, text2Rect)
+
+
 
 
 
@@ -1132,7 +1146,7 @@ while not done:
 
     screen.fill(GREEN)
 
-
+    live_map(sc_map,player1,player2)
     check_die(player1,all_lakes_list, all_enemy_list)
     check_die(player2,all_lakes_list, all_enemy_list)
 

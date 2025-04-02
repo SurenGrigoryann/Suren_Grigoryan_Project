@@ -302,23 +302,31 @@ def lakes_info_scene(events):
     
     pygame.display.flip()
 
-def portals_info_scene(events):
+def other_info_scene(events):
     global current_scene
     screen.fill(DARK_GRAY)
-    font = pygame.font.Font('freesansbold.ttf', 32)
-    info_font = pygame.font.Font('freesansbold.ttf', 24)
     
-    # Display "portals info" text.
-    portals_text = font.render("portals info", True, WHITE)
-    portals_rect = portals_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 100))
-    screen.blit(portals_text, portals_rect)
+    # Use a large font for the heading
+    title_font = pygame.font.Font('freesansbold.ttf', 36)
+    # Use a smaller font for the enemy details
+    info_font = pygame.font.Font('freesansbold.ttf', 24)
 
-    portal_opener_details = ".Oblivion - K17\n One of the favourite robots of the witch. She created them \nto be strong and brutal!\n Do not go head to head with them they will kill you! They are not that fast so you may consider running!\n Health: 10 | Speed: 0.75"
-    portal_opener_text = info_font.render(portal_opener_details, True, (230, 230, 230))  # Light gray text
-    portal_opener_text = info_font.render(portal_opener_details, True, (230, 230, 230))
-    portal_opener_text_rect = portal_opener_text.get_rect(midtop=(portal_opener_text.centerx, portal_opener_text.bottom + 10))
-    screen.blit(portal_opener_text, portal_opener_text_rect)
+    # Display "enemy info" text at the top
+    enemy_text = title_font.render("Other Info", True, (255, 220, 0))  # Gold-like color
+    enemy_rect = enemy_text.get_rect(center=(SCREEN_WIDTH // 2, 50))
+    screen.blit(enemy_text, enemy_rect)
 
+    red_door_image = pygame.image.load("pictures/red_door.png").convert_alpha()
+    red_door_image = pygame.transform.scale(red_door_image, (100, 100))
+    red_door_rect = red_door_image.get_rect(center=(SCREEN_WIDTH // 5, SCREEN_HEIGHT // 3))
+    screen.blit(red_door_image, red_door_rect)
+
+    blue_door_image = pygame.image.load("pictures/blue_door.png").convert_alpha()
+    blue_door_image = pygame.transform.scale(blue_door_image, (100, 100))
+    blue_door_rect = blue_door_image.get_rect(center=(SCREEN_WIDTH // 5 + 100, SCREEN_HEIGHT // 3))
+    screen.blit(blue_door_image, blue_door_rect)
+
+    
 
 
 
@@ -354,7 +362,7 @@ def main():
         elif current_scene == "lakes_info":
             lakes_info_scene(events)
         elif current_scene == "portals_info":
-            portals_info_scene(events)
+            other_info_scene(events)
         clock.tick(60)
 
     

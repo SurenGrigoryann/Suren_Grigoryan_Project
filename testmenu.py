@@ -1,5 +1,5 @@
 import pygame
-import maps
+import  maps
 
 
 pygame.init()
@@ -24,8 +24,14 @@ class Level(pygame.sprite.Sprite):
         self.font_2 = font_2
         self.condition = condition
         self.number = number
+        self.rect = pygame.Rect(x, y, 100, 100)  # Using a rect for positioning
+        self.set_condition(condition)
 
         # Load the appropriate image based on the condition.
+        
+
+    def set_condition(self, condition):
+        self.condition = condition
         if self.condition == "passed":
             self.image = pygame.transform.scale(
                 pygame.image.load("pictures/level_passed.png"), (100, 100)
@@ -38,11 +44,8 @@ class Level(pygame.sprite.Sprite):
             self.image = pygame.transform.scale(
                 pygame.image.load("pictures/level_unlocked.png"), (100, 100)
             )
-
+        
         # Create a rectangle for collision detection.
-        self.rect = self.image.get_rect()
-        self.rect.y = y
-        self.rect.x = x
 
 
 
@@ -54,7 +57,7 @@ class Level(pygame.sprite.Sprite):
         level_text_Rect.center = (self.rect.x + 50, self.rect.y+120)
         surface.blit(level_text, level_text_Rect)
         if self.condition == "unlocked":
-            level_text_2 = self.font_2.render(f'1', True, WHITE)
+            level_text_2 = self.font_2.render(f'{self.number}', True, WHITE)
             level_text_2_Rect = level_text_2.get_rect()
             level_text_2_Rect.center = (self.rect.x + 50, self.rect.y+50)
             surface.blit(level_text_2, level_text_2_Rect)
@@ -106,11 +109,11 @@ def main():
                         pos = pygame.mouse.get_pos()
                         x,y = pos[0],pos[1]          
                         if x >= level.rect.x and x <= level.rect.x + 100 and y >= level.rect.y and y <= level.rect.y + 100:
-                            if level.condition == "unlocked":
+                            if level.condition == "unlocked" or level.condition == 'passed':
                                 if level.number == 1:
                                     return 'level_one'
                                 elif level.number == 2:
-                                    maps.level_two()
+                                    return 'level_two'
                                 elif level.number == 3:
                                     maps.level_three()
                                 elif level.number == 4:

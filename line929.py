@@ -1,9 +1,15 @@
+# importing libraries
 import pygame
 import random
-import  maps
+import main.maps as maps
+import main.details as details
+import main.testmenu as testmenu
+from main.details import Button
 import time
 import sys
- 
+import main.menu as menu
+from main.menu import run_menu
+
 # Colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -14,6 +20,9 @@ LIGHT_BLUE = (135,206,235)
 GREEN = (0,255,0)
 DARK_GREEN = (1, 50, 22)
 LIGHT_GREEN = (0,130,0)
+DARK_GRAY = (70,70,70)
+
+
 YELLOW = (255,255,0)
 PURPLE = (160,32,240)
 BROWN = (139,69,19)
@@ -23,6 +32,90 @@ ORANGE = (255, 99, 7)
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 
+
+images = {
+    'red_player': pygame.image.load('pictures/red_player.png').convert_alpha(),
+    'blue_player': pygame.image.load('pictures/blue_player.png').convert_alpha(),
+    'fast_enemy': pygame.image.load('pictures/fast_enemy.png').convert_alpha(),
+    'tank_enemy': pygame.image.load('pictures/Tank.png').convert_alpha(),
+    'red_door': pygame.image.load('pictures/red_door.jpg').convert(),
+    'blue_door': pygame.image.load('pictures/blue_door.jpg').convert(),
+    'background': pygame.transform.scale(pygame.image.load("pictures/background1.jpg").convert(), (SCREEN_WIDTH, SCREEN_HEIGHT-80)),
+    'block': pygame.image.load('pictures/block.jpg').convert(),
+}
+
+
+
+
+
+class Stack:
+    def __init__(self):
+        self.items = []
+
+    def push(self, item):
+        """Add an item to the top of the stack."""
+        self.items.append(item)
+
+    def pop(self):
+        """Remove and return the item from the top of the stack.
+        
+        Raises:
+            IndexError: If the stack is empty.
+        """
+        if not self.is_empty():
+            return self.items.pop()
+        else:
+            raise IndexError("pop from empty stack")
+
+    def peek(self):
+        """Return the item at the top of the stack without removing it.
+        
+        Raises:
+            IndexError: If the stack is empty.
+        """
+        if not self.is_empty():
+            return self.items[-1]
+        else:
+            raise IndexError("peek from empty stack")
+
+    def is_empty(self):
+        """Return True if the stack is empty, False otherwise."""
+        return len(self.items) == 0
+
+    def size(self):
+        """Return the number of items in the stack."""
+        return len(self.items)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class Drink(pygame.sprite.Sprite):
+    def __init__(self,x,y):
+        super().__init__()
+        self.image = pygame.Surface([10,10])
+        self.image.fill(BLACK)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
 # Classes
 class Door(pygame.sprite.Sprite):
     def __init__(self,x,y,color):
@@ -30,9 +123,9 @@ class Door(pygame.sprite.Sprite):
 
         self.color = color
         if self.color == LIGHT_RED:
-            self.img= pygame.image.load('red_door.jpg')
+            self.img= pygame.image.load('pictures/red_door.jpg')
         elif self.color == LIGHT_BLUE:
-            self.img= pygame.image.load('blue_door.jpg')
+            self.img= pygame.image.load('pictures/blue_door.jpg')
         self.image = pygame.transform.scale(self.img, (35, 50))
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -43,6 +136,8 @@ class Door(pygame.sprite.Sprite):
             return True
         else:
             return False
+        
+
 class Portal(pygame.sprite.Sprite):
     def __init__(self,x,y,color):
         super().__init__()
@@ -63,9 +158,9 @@ class Portal(pygame.sprite.Sprite):
     def open_portal(self,portal_opener,p1,p2, direction):
         if direction == "down":
             if ((self.y2 != self.rect.y) and 
-            (((p1.rect.x <= portal_opener.rect.x + 15 and p1.rect.x >= portal_opener.rect.x - 15) and (p1.rect.y <= portal_opener.rect.y + 15 and p1.rect.y >= portal_opener.rect.y - 15))
+            (((p1.rect.x <= portal_opener.rect.x + 15 and p1.rect.x >= portal_opener.rect.x - 15) and (p1.rect.y <= portal_opener.rect.y + 15 and p1.rect.y >= portal_opener.rect.y - 25))
             or
-            ((p2.rect.x <= portal_opener.rect.x + 15 and p2.rect.x >= portal_opener.rect.x - 15) and (p2.rect.y <= portal_opener.rect.y + 15 and p2.rect.y >= portal_opener.rect.y - 15)))):
+            ((p2.rect.x <= portal_opener.rect.x + 15 and p2.rect.x >= portal_opener.rect.x - 15) and (p2.rect.y <= portal_opener.rect.y + 15 and p2.rect.y >= portal_opener.rect.y - 25)))):
                 self.rect.y += 1.25
 
             elif (self.y1 != self.rect.y):
@@ -73,9 +168,9 @@ class Portal(pygame.sprite.Sprite):
 
         elif direction == "up":
             if ((self.y3 != self.rect.y) and 
-            (((p1.rect.x <= portal_opener.rect.x + 15 and p1.rect.x >= portal_opener.rect.x - 15) and (p1.rect.y <= portal_opener.rect.y + 15 and p1.rect.y >= portal_opener.rect.y - 15))
+            (((p1.rect.x <= portal_opener.rect.x + 15 and p1.rect.x >= portal_opener.rect.x - 15) and (p1.rect.y <= portal_opener.rect.y + 15 and p1.rect.y >= portal_opener.rect.y - 25))
             or
-            ((p2.rect.x <= portal_opener.rect.x + 15 and p2.rect.x >= portal_opener.rect.x - 15) and (p2.rect.y <= portal_opener.rect.y + 15 and p2.rect.y >= portal_opener.rect.y - 15)))):
+            ((p2.rect.x <= portal_opener.rect.x + 15 and p2.rect.x >= portal_opener.rect.x - 15) and (p2.rect.y <= portal_opener.rect.y + 15 and p2.rect.y >= portal_opener.rect.y - 25)))):
                 self.rect.y -= 1.25
             elif (self.y1 != self.rect.y):
                 self.rect.y += 1.25
@@ -105,18 +200,19 @@ class Enemy(pygame.sprite.Sprite):
         if self.type == "Fast":
             self.length = 45
             self.width = 40
-            self.life = 3
+            self.life = 5
+            self.speed = 2
             self.gun == "Short"
-            self.img= pygame.image.load('enemy.jpg')
-            self.image = pygame.transform.scale(self.img, (self.width, self.length))
+            self.image = pygame.transform.scale(images['fast_enemy'], (self.width, self.length))
 
         elif self.type == "Tank":
             self.length = 60
             self.width = 50
             self.life = 10
+            self.speed = 0.75
             self.gun == "Short"
-            self.img= pygame.image.load('Tank.jpg')
-            self.image = pygame.transform.scale(self.img, (self.width, self.length))
+            self.image = pygame.transform.scale(images['tank_enemy'], (self.width, self.length))
+            
 
         self.rect = self.image.get_rect()
         self.rect.y = y
@@ -124,28 +220,47 @@ class Enemy(pygame.sprite.Sprite):
         self.x = x
         self.y = y
     def attack(self,player):
+        if (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y -25) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 160)):
+                if self.type == "Tank":
+                    self.image = pygame.transform.scale(images['tank_enemy'], (self.width, self.length))
+                elif self.type == "Fast":
+                    self.flipped_image = pygame.transform.flip(self.image, True, False)
+                    self.image = pygame.transform.scale(self.flipped_image, (40, 45))
+
+                self.rect += self.speed
+
+            
+        elif (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y - 25) and ((player.rect.x <= self.rect.x) and (player.rect.x >= self.x -160)):
+                if self.type == "Tank":
+                    self.flipped_image = pygame.transform.flip(self.image, True, False)
+                    self.image = pygame.transform.scale(self.flipped_image, (50, 60))
+                elif self.type == "Fast":
+                    self.img= pygame.image.load('pictures/fast_enemy.png')
+                    self.image = pygame.transform.scale(self.img, (40, 45))
+
+                self.rect.x -= self.speed
+
+
+
         if self.type == "Tank":
             if (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y -25) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 160)):
-                self.img= pygame.image.load('Tank.jpg')
-                self.image = pygame.transform.scale(self.img, (50, 60))
-
+                self.image = pygame.transform.scale(images['tank_enemy'], (self.width, self.length))
                 self.rect.x += 0.75
             
             elif (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y - 25) and ((player.rect.x <= self.rect.x) and (player.rect.x >= self.x -160)):
-                self.flipped_image = pygame.transform.flip(self.img, True, False)
+                self.flipped_image = pygame.transform.flip(self.image, True, False)
                 self.image = pygame.transform.scale(self.flipped_image, (50, 60))
 
                 self.rect.x -= 0.75
         elif self.type == "Fast":
-            
             if (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y -25) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 200)):
-                self.flipped_image = pygame.transform.flip(self.img, True, False)
+                self.flipped_image = pygame.transform.flip(self.image, True, False)
                 self.image = pygame.transform.scale(self.flipped_image, (40, 45))
 
                 self.rect.x += 2   
 
             elif (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y - 25) and ((player.rect.x <= self.rect.x) and (player.rect.x >= self.x -200)):
-                self.img= pygame.image.load('enemy.jpg')
+                self.img= pygame.image.load('pictures/fast_enemy.png')
                 self.image = pygame.transform.scale(self.img, (40, 45))
 
                 self.rect.x -= 2
@@ -154,7 +269,7 @@ class Enemy(pygame.sprite.Sprite):
 class Gun(pygame.sprite.Sprite):
     def __init__(self,x,y):
         super().__init__()
-        self.img= pygame.image.load('no_gun.jpg')
+        self.img= pygame.image.load('pictures/no_gun.png')
         self.image = pygame.transform.scale(self.img, (40,30))
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -207,11 +322,17 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, x, y, color):
         
         super().__init__()
- 
+        self.color = color
+
+        if self.color == RED:
+            self.image = pygame.transform.scale(images['red_player'], (25, 35))
+            self.direction = "right"
+            self.previous_direction = 1
+        elif self.color == BLUE:
+            self.image = pygame.transform.scale(images['blue_player'], (25, 35))
+            self.direction = "left"
+            self.previous_direction = -1
         # height, width
-        self.image = pygame.Surface([25,25])
-        self.image.fill(color)
- 
         # setting the positon 
         self.rect = self.image.get_rect()
         self.rect.y = y
@@ -233,8 +354,8 @@ class Player(pygame.sprite.Sprite):
         # lives
         self.life = 1
         # power level
-        self.level = None
-        self.previous_direction = 0
+        
+    
     # end procedure
 
     # updating the players cordinations and other features
@@ -278,7 +399,10 @@ class Player(pygame.sprite.Sprite):
             self.change_y = 0
 
        
-        portal_hit_list = pygame.sprite.spritecollide(self, self.portals, False)
+        if self.portals is not None:
+            portal_hit_list = pygame.sprite.spritecollide(self, self.portals, False)
+        else:
+            portal_hit_list = []
         for portal in portal_hit_list:
  
             # If we are moving up, set our up side to the bottom side of
@@ -315,8 +439,14 @@ class Player(pygame.sprite.Sprite):
     def jump(self):
 
         self.rect.y += 2
-        platform_hit_list = pygame.sprite.spritecollide(self, self.walls, False) + pygame.sprite.spritecollide(self,self.portals,False)
+        walls_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
+        if self.portals is not None:
+             portals_hit_list = pygame.sprite.spritecollide(self, self.portals, False)
+        else:
+            portals_hit_list = []
+        platform_hit_list = walls_hit_list + portals_hit_list
         self.rect.y -= 2
+        
  
         # If it is ok to jump, set our speed upwards
         if len(platform_hit_list) > 0 or self.rect.bottom >= SCREEN_HEIGHT:
@@ -326,11 +456,37 @@ class Player(pygame.sprite.Sprite):
 
     # movements procedures
     def go_left(self):
+        if  self.direction == "right" and self.previous_direction == 1:
+            if self.color == RED:
+                self.img= pygame.image.load('pictures/red_player.png')
+            elif self.color == BLUE:
+                self.img= pygame.image.load('pictures/blue_player.png')
+
+            self.flipped_image = pygame.transform.flip(self.img, True, False)
+            self.image = pygame.transform.scale(self.flipped_image, (25, 35))
+            screen.blit(self.image, (self.rect.x, self.rect.y))
+            self.direction = "left"
+            
         self.previous_direction = -1
         self.change_x = -3
+        
+        
     # end procedure
 
     def go_right(self):
+        if self.direction =="left" and self.previous_direction == -1:
+            if self.color == RED:
+                
+                self.img= pygame.image.load('pictures/red_player.png')
+            elif self.color == BLUE:
+                self.img= pygame.image.load('pictures/blue_player.png')
+
+            
+            self.image = pygame.transform.scale(self.img, (25, 35))
+            screen.blit(self.image, (self.rect.x, self.rect.y))
+            print(1)
+            self.direction = "right"
+
         self.previous_direction = 1
         self.change_x = 3
     # end procedure
@@ -362,6 +518,7 @@ class Player(pygame.sprite.Sprite):
                 bullet = Bullet(self.rect.x,self.rect.y,"left")
                 bullet_list.add(bullet)
                 all_sprite_list.add(bullet)
+        
 
     # end procedure
 
@@ -374,8 +531,9 @@ class Block(pygame.sprite.Sprite):
     image = None
     @classmethod
     def load_image(cls):
-        cls.image = pygame.image.load('block.jpg').convert_alpha()
-        cls.image = pygame.transform.scale(cls.image, (10, 10))
+
+        cls.image = pygame.transform.scale(images['block'], (10, 10))
+        
     def __init__(self, x, y):
 
         super().__init__()
@@ -396,15 +554,22 @@ class Block(pygame.sprite.Sprite):
 class Lakes(pygame.sprite.Sprite):
     # creating a class lakes. Red player can go through the red lake but not the blue lake. The opposite for the Blue player.
     # Cosntructor function
-    def __init__(self,x,y,COLOR):
+    def __init__(self,x,y,color):
 
         super().__init__()
-        self.image = pygame.Surface([10,10])
-        self.image.fill(COLOR)
+        self.color = color
+        if self.color == LIGHT_RED:
+            self.img = pygame.image.load('pictures/red_lake.png').convert_alpha()
+        elif self.color == LIGHT_BLUE:
+            self.img = pygame.image.load('pictures/blue_lake.png').convert_alpha()
+        elif self.color == LIGHT_GREEN:
+            self.img = pygame.image.load('pictures/green_lake.png').convert_alpha()
+        self.image = pygame.transform.scale(self.img, (10, 10))
+       
         self.rect = self.image.get_rect()
         self.rect.y = y
         self.rect.x = x
-        self.color = COLOR
+
     # end procedure
 # end class Lakes
 
@@ -432,11 +597,11 @@ class Coins(pygame.sprite.Sprite):
 
     def draw(self,screen_to_draw):
         if self.color == RED:
-             red_coin = pygame.image.load('red_coin.jpg')
+             red_coin = pygame.image.load('pictures/red_coin.png')
              red_coin_image = pygame.transform.scale(red_coin, (20,20))
              screen_to_draw.blit(red_coin_image, (self.x,self.y))
         if self.color == BLUE:
-             blue_coin = pygame.image.load('blue_coin.jpg')
+             blue_coin = pygame.image.load('pictures/blue_coin.png')
              blue_coin_image = pygame.transform.scale(blue_coin, (20,20))
              screen_to_draw.blit(blue_coin_image, (self.x,self.y))
     
@@ -454,57 +619,63 @@ Block.load_image()
 pygame.display.set_caption('Fboy and Wgirl')
 
 # Setting all of our groums that we are going to use
-all_sprite_list = pygame.sprite.Group()
 
-all_players_list = pygame.sprite.Group()
- 
-wall_list = pygame.sprite.Group()
+def create_lists():
+    global all_sprite_list, all_players_list, wall_list, red_lake_list, blue_lake_list, green_lake_list
+    global all_lakes_list, trapeze_list, coins_list, red_coin_list, blue_coin_list
+    global all_enemy_list, all_gun_list, bullet_list, portal_list_spr, portal_list
+    global portal_opener_list_spr, portal_opener_list, door_list_spr, door_list
 
-red_lake_list = pygame.sprite.Group()
+    all_sprite_list = pygame.sprite.Group()
+    all_players_list = pygame.sprite.Group()
+    wall_list = pygame.sprite.Group()
+    red_lake_list = pygame.sprite.Group()
+    blue_lake_list = pygame.sprite.Group()
+    green_lake_list = pygame.sprite.Group()
+    all_lakes_list = {RED: [], BLUE: [], LIGHT_GREEN: []}
+    trapeze_list = pygame.sprite.Group()
+    coins_list = pygame.sprite.Group()
+    red_coin_list = pygame.sprite.Group()
+    blue_coin_list = pygame.sprite.Group()
+    all_enemy_list = pygame.sprite.Group()
+    all_gun_list = pygame.sprite.Group()
+    bullet_list = pygame.sprite.Group()
+    portal_list_spr = pygame.sprite.Group()
+    portal_list = {'purple': [], 'yellow ': [], 'orange': [], 'black': [], 'brown': []}
+    portal_opener_list_spr = pygame.sprite.Group()
+    portal_opener_list = {'purple': [], 'yellow ': [], 'orange': [], 'black': [], 'brown': []}
+    door_list_spr = pygame.sprite.Group()
+    door_list = []
 
-blue_lake_list = pygame.sprite.Group()
+create_lists()
 
-green_lake_list = pygame.sprite.Group()
+def create_players(x,y,color):
+    player = Player(x, y, color)
+    player.walls = wall_list
+    player.enemies = all_enemy_list
+    player.portals = portal_list_spr
+    all_sprite_list.add(player)
 
-trapeze_list = pygame.sprite.Group()
+    return player
 
-coins_list = pygame.sprite.Group()
-
-red_coin_list = pygame.sprite.Group()
-
-blue_coin_list = pygame.sprite.Group()
-
-all_enemy_list = pygame.sprite.Group()
-
-all_gun_list = pygame.sprite.Group()
-
-bullet_list = pygame.sprite.Group()
-
-portal_list_spr = pygame.sprite.Group()
-portal_list = {'purple': [], 'yellow ': [], 'orange':[], 'black':[], 'brown': []}
-
-portal_opener_list_spr = pygame.sprite.Group()
-portal_opener_list = {'purple': [], 'yellow ': [], 'orange':[], 'black':[], 'brown':[]}
-
-door_list_spr = pygame.sprite.Group()
-door_list = []
-
+player1 = create_players(25,575,RED)
+player2 = create_players(20,400,BLUE)   
 
 
 
 # sc_map is the current map
 
-sc_map = maps.level_two
+sc_map = maps.level_three
 
 # sm is the starting map
-sm = maps.level_two
+sm = [1]
 start_time = pygame.time.get_ticks() 
 
 
 # creating the map from a 2D list of numbers
 def create_map(map):
-        #global all_sprite_list
-        #global wall_list
+        global all_sprite_list
+        global wall_list
         x = 0
         y = 0
         for i in map:
@@ -517,11 +688,13 @@ def create_map(map):
                     red_lake = Lakes(x, y,LIGHT_RED)
                     red_lake_list.add(red_lake)    
                     all_sprite_list.add(red_lake)
+                    all_lakes_list[RED].append(red_lake)
 
                 elif j == 2:
                     blue_lake = Lakes(x, y,LIGHT_BLUE)
                     blue_lake_list.add(blue_lake)    
                     all_sprite_list.add(blue_lake)
+                    all_lakes_list[BLUE].append(blue_lake)
                 
                 elif j == 4:
                     trapeze = Trapeze(x,y)
@@ -541,6 +714,7 @@ def create_map(map):
                     green_lake = Lakes(x, y,LIGHT_GREEN)
                     green_lake_list.add(green_lake)    
                     all_sprite_list.add(green_lake)
+                    all_lakes_list[LIGHT_GREEN].append(green_lake)
                 
 
                 elif j == 8:
@@ -606,6 +780,7 @@ def create_map(map):
             # next i
             x = 0
             y += 10
+
         # next j 
 
 # end procedure
@@ -618,42 +793,58 @@ def delete_map():
     all_sprite_list.empty()
     wall_list.empty()
     coins_list.empty()
+    trapeze_list.empty()
+    red_lake_list.empty()
+    blue_lake_list.empty()
+    all_lakes_list[RED].clear()
+    all_lakes_list[BLUE].clear()
+    all_lakes_list[LIGHT_GREEN].clear()
+    green_lake_list.empty()
+    all_enemy_list.empty()
+    all_gun_list.empty()
+    bullet_list.empty()
+    portal_list_spr.empty()
+    portal_opener_list_spr.empty()
+    portal_list['black'].clear()
+    portal_list['brown'].clear()
+    portal_list['orange'].clear()
+    portal_list['purple'].clear()
+    portal_list['yellow '].clear()
+    portal_opener_list['black'].clear()
+    portal_opener_list['brown'].clear()
+    portal_opener_list['orange'].clear()
+    portal_opener_list['purple'].clear()
+    portal_opener_list['yellow '].clear()
+    door_list_spr.empty()   
+    door_list.clear()
     player1.guns = False
     player2.guns = False
-# end procedure
+    player1.lakes = None
+    player2.lakes = None
+    player1.coins = None
+    player2.coins = None
+    player1.portals = None
+    player2.portals = None
+    player1.walls = None
+    player2.walls = None
 
-def question_map():
-    global sc_map
-    screen.fill(BROWN)
-    font = pygame.font.Font('freesansbold.ttf', 32)
-    
-    # List of tuples containing (text, (x, y) position)
-    texts = [
-        ('Controlling players', (1280 // 2, 720 // 2 - 150)),
-        ('Enemies', (1280 // 2, 720 // 2)),
-        ('Lakes', (1280 // 2 + 400, 720 // 2)),
-        ('Portals', (1280 // 2 - 400, 720 // 2)),
-        ('To return to the game press B', (1280 // 2, 720 // 2 + 100))
-    ]
-    
-    # Loop through and render each text
-    for message, pos in texts:
-        text_surface = font.render(message, True, WHITE)
-        text_rect = text_surface.get_rect(center=pos)
-        screen.blit(text_surface, text_rect)
-        
-    sc_map =['question']
+
+
+# end procedure
 
     
 
 def check_die(player,lake_list, enemies):
-    for lake in lake_list:
-        if(player.rect.x+24 >= lake.rect.x and player.rect.x - 9 <= lake.rect.x) and (player.rect.y +24 >= lake.rect.y  and player.rect.y -9 <= lake.rect.y ):
-            player.life = player.life - 1
-    for enemy in enemies:
-        if(player.rect.x + 25 >= enemy.rect.x and player.rect.x <= enemy.rect.x) and (player.rect.y +25 >= enemy.rect.y  and player.rect.y -15 <= enemy.rect.y ):
-            player.life = player.life - 1
-            
+    for key in lake_list:
+        if player.color != key:
+
+            for lake in lake_list[key]:
+                if(player.rect.x+24 >= lake.rect.x and player.rect.x - 9 <= lake.rect.x) and (player.rect.y +34 >= lake.rect.y  and player.rect.y -14 <= lake.rect.y ):
+                    player.life = player.life - 1
+            for enemy in enemies:
+                if(player.rect.x + 25 >= enemy.rect.x and player.rect.x <= enemy.rect.x) and (player.rect.y +25 >= enemy.rect.y  and player.rect.y -15 <= enemy.rect.y ):
+                    player.life = player.life - 1
+                
 
         # end if
     # next lake
@@ -688,74 +879,103 @@ def score_total(player):
     
 
                 
-                
-                
 
-                
-                 
+
+
+
+all_maps = ['starting', 'levels', 'controls','settings','slides','level_one','level_two','level_three','level_four','level_five', 'winning',
+            'losing', 'pause', 'quit','thanks']
+current_map = 'starting'
+previous_map = Stack()
+
+
+map = [0]
+# ['win'] is the winning screen
+# ['lose'] is the losing screen
+# ['menu'] is the menu screen
+# ['details'] is the details screen
+
+
+def live_map():
+    global map
+    global current_map
+    global previous_map
+    global all_sprite_list
+
+    if current_map == all_maps[0]:
+        previous_map.push(current_map)
+        current_map = starting_map()
         
-def create_players(x,y,color):
-    player = Player(x, y, color)
-    player.walls = wall_list
-    player.enemies = all_enemy_list
-    player.portals = portal_list_spr
-    all_sprite_list.add(player)
+    elif current_map == 'levels':
+        if testmenu.main() == 'back':
+            current_map = previous_map.pop()
+        else:
+            previous_map.push(current_map)
+            current_map = testmenu.main()
 
-    return player
-# end function
-
-player1 = create_players(25,575,RED)
-player2 = create_players(20,400,BLUE)    
-
-# creating the map
-
-def initial_map(first_m):
-    create_map(first_m)
-# end procedure
-
-def live_map(current_map,player_one,player_two):
-    global sm
-
-    
-   
-    if player1.life <= 0 or player2.life <= 0 or current_map == [1] :
-        delete_map()
-        lose()
-        return_to_menu()
-        current_map = [1]
-
-    elif current_map == [2]:
-        delete_map()
-        win()
-        return_to_menu()
-        current_map = [1]
-    elif current_map == [0]:
-        delete_map()
-        menu()
-
-    elif current_map == ['question']:
-        delete_map()
-        question_map()
-        
-
-    elif current_map != sm:
-        delete_map()
-        create_map(current_map)
-        player_one.walls = wall_list
-        player_two.walls = wall_list
-        all_sprite_list.add(player1)
-        all_sprite_list.add(player2)
-    if current_map == sm:
-        if door_list[0].update_door(player1) and door_list[1].update_door(player2):
+    elif current_map =='controls':
+        if details.main() == 'back':
+            current_map = previous_map.pop()
+        else:
+            previous_map.push(current_map)
+            current_map = details.main()
+    elif current_map == 'settings':
+        if settings() == 'back':
+            current_map = previous_map.pop()
+        else:
+            previous_map.push(current_map)
+            current_map = settings()
+    elif current_map == 'level_one':
+        if previous_map.peek() != 'level_one':
             delete_map()
-            win()
+            create_lists()
+            map = maps.level_one
+            create_map(map)
+            print(all_sprite_list)
+            player1.walls = wall_list
+            player2.walls = wall_list
+            all_sprite_list.add(player1)
+            all_sprite_list.add(player2)
+            previous_map.push(current_map)
+
+        
+
     
     # end if
+    c = 11
+
+    if portal_opener_list['purple']:
+        p_opener_purple = portal_opener_list['purple'][0]
+    else:
+        p_opener_purple = []
+
+    if portal_opener_list['brown']:
+        p_opener_brown = portal_opener_list['brown'][0]
+    else:
+        p_opener_brown = []
+
+    if portal_opener_list['orange']:
+        p_opener_orange = portal_opener_list['orange'][0]
+    else:
+        p_opener_orange = []
+
     
-
-
+    
     #p.open_portal(p_opener,player1)
+    
+    for i in portal_list['purple']:
 
+        i.open_portal(p_opener_purple, player1, player2,"down")
+    for i in portal_list['brown']:
+
+        i.open_portal(p_opener_brown, player1, player2, "down")
+    for i in portal_list['orange']:
+
+        i.open_portal(p_opener_orange, player1, player2, "up")
+        
+    for enemy in all_enemy_list:
+        enemy.attack(player1)
+        enemy.attack(player2)
 
 
     #for i in portal_list['brown']:
@@ -769,7 +989,171 @@ def live_map(current_map,player_one,player_two):
     for coin in coins_list:
         coin.draw(screen)
 
-    sm = current_map
+
+
+
+def starting_map():
+    # Fill background
+    global current_map
+    while True:
+        screen.fill(DARK_GRAY)
+        
+        # Draw the title
+        title_font = pygame.font.Font('freesansbold.ttf', 64)
+        title_text = title_font.render('TWIN TO WIN', True, BLACK)
+        # Position the title at the top-center
+        title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
+
+        screen.blit(title_text, title_rect)
+
+
+
+        levels_img = pygame.image.load('pictures/levels_button.png')
+        levels_img = pygame.transform.scale(levels_img, (300, 300))
+        levels_rect = levels_img.get_rect(center=(SCREEN_WIDTH // 4, 250))
+        screen.blit(levels_img, levels_rect)
+
+        start_img = pygame.image.load('pictures/start_button.png')
+        start_img = pygame.transform.scale(start_img, (300, 300))
+        start_rect = start_img.get_rect(center=(SCREEN_WIDTH //2, 400))
+        screen.blit(start_img, start_rect)
+
+        tutorial_img = pygame.image.load('pictures/tutorial_button.png')
+        tutorial_img = pygame.transform.scale(tutorial_img, (300, 300))
+        tutorial_rect = tutorial_img.get_rect(center=(SCREEN_WIDTH //4, 550))
+        screen.blit(tutorial_img, tutorial_rect)
+
+
+
+        settings_img = pygame.image.load('pictures/settings_button.png')
+        settings_img = pygame.transform.scale(settings_img, (300, 300))
+        settings_rect = settings_img.get_rect(center=(SCREEN_WIDTH - SCREEN_WIDTH //5 - 100, 550))
+        screen.blit(settings_img, settings_rect)
+
+
+        story_img = pygame.image.load('pictures/story_button.png')
+        story_img = pygame.transform.scale(story_img, (300, 300))
+        story_rect = story_img.get_rect(center=(SCREEN_WIDTH - SCREEN_WIDTH //5 - 100, 250))
+        screen.blit(story_img, story_rect)
+
+        question_rect = question_button()
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()  # or return some value to handle closing
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()  # Get the current mouse position
+                if levels_rect.collidepoint(pos):
+                    return 'levels'
+                elif start_rect.collidepoint(pos):
+                    return 'start'
+                elif tutorial_rect.collidepoint(pos):
+                    return 'tutorial'
+                elif settings_rect.collidepoint(pos):
+                    return 'settings'
+                elif story_rect.collidepoint(pos):
+                    return 'story'
+                elif question_rect.collidepoint(pos):
+                    return 'controls'
+    
+
+def settings():
+    global current_map
+    while True:
+        screen.fill(DARK_GRAY)
+
+                # Draw the title
+        title_font = pygame.font.Font('freesansbold.ttf', 64)
+        title_text = title_font.render('Settings', True, BLACK)
+        # Position the title at the top-center
+        title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
+        screen.blit(title_text, title_rect)
+
+
+        restart_img = pygame.image.load('pictures/restart_the_game.png')
+        restart_img = pygame.transform.scale(restart_img, (300, 300))
+        restart_rect = restart_img.get_rect(center=(SCREEN_WIDTH // 2 - 300, 400))
+        screen.blit(restart_img, restart_rect)
+
+        menu_img = pygame.image.load('pictures/menu_button.png')
+        menu_img = pygame.transform.scale(menu_img, (300, 300))
+        menu_rect = restart_img.get_rect(center=(SCREEN_WIDTH // 2, 400))
+        screen.blit(menu_img, menu_rect)
+
+        quit_img = pygame.image.load('pictures/Quit.png')
+        quit_img = pygame.transform.scale(quit_img, (300, 300))
+        quit_rect = quit_img.get_rect(center=(SCREEN_WIDTH // 2 + 300, 400))
+        screen.blit(quit_img, quit_rect)
+
+        question_rect = question_button()
+        back_rect = back_button()
+
+
+
+        pygame.display.flip()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit() 
+             # or return some value to handle closing
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()  # Get the current mouse position
+                if restart_rect.collidepoint(pos):
+                    return 'levels'
+                elif menu_rect.collidepoint(pos):
+                    return 'start'
+                elif quit_rect.collidepoint(pos):
+                    return 'tutorial'
+                elif question_rect.collidepoint(pos):
+                    return 'controls'
+                elif back_rect.collidepoint(pos):
+                    return 'back'
+
+#def in_level():
+
+
+
+
+def question_button():
+    question_img = pygame.image.load('pictures/question_grey.png')
+    question_img = pygame.transform.scale(question_img, (150, 150))
+    question_rect = question_img.get_rect(center=(1200,100))
+    screen.blit(question_img, question_rect)
+    return question_rect
+
+def back_button():
+    back_img = pygame.image.load('pictures/back_button.png')
+    back_img = pygame.transform.scale(back_img, (150, 150))
+    back_rect = back_img.get_rect(center=(100,100))
+    screen.blit(back_img, back_rect)
+    return back_rect
+
+    
+
+
+
+
+
+
+
+
+
+                
+
+                
+                 
+        
+
+# creating the map
+
+#def initial_map(first_m):
+ #   create_map(first_m)
+# end procedure
+
+
 # end procedure
 
 def menu():
@@ -791,7 +1175,7 @@ def score(current_score):
     text = font.render(f'Score {current_score}',True,GREEN,BLUE)
     textRect = text.get_rect()
     textRect.center = (800, 50)
-    screen.blit(text, textRect)
+    #screen.blit(text, textRect)
 
 
 def lose():
@@ -831,47 +1215,61 @@ def return_to_menu():
 
 
 
-
-def scores(p1,p2,c_list, rc_list, bc_list,score):
-    textfont = pygame.font.SysFont('monospace',50)
-    textTBD = textfont.render(f'score {score}',1,(RED))
-    screen.blit(textTBD)
-
 # end procedure
+
+
+def create_players(x,y,color):
+    player = Player(x, y, color)
+    player.walls = wall_list
+    player.enemies = all_enemy_list
+    player.portals = portal_list_spr
+    all_sprite_list.add(player)
+
+    return player
+# end function
+player1 = create_players(20,500,RED)
+player2 = create_players(20,50,BLUE)
+
+
 
 #setting up the clock
 clock = pygame.time.Clock()
  
 
 # drawinf the initial map
-initial_map(sc_map)
+#initial_map(sc_map)
 
 done = False
 SCORE = 0
 final_score = 0
 
-pause_img = pygame.image.load('pause_button.jpg')
+pause_img = pygame.image.load('pictures/pause_button.png')
 pause_img = pygame.transform.scale(pause_img, (50, 50))
 
-question_img = pygame.image.load('question_mark.jpg')
+question_img = pygame.image.load('pictures/question_mark.png')
 question_img = pygame.transform.scale(question_img, (50,50))
 
-red_gun_img = pygame.image.load('red_gun.jpg')
+red_gun_img = pygame.image.load('pictures/red_gun.png')
 red_gun_img = pygame.transform.scale(red_gun_img, (50, 50))
 
-blue_gun_img = pygame.image.load('blue_gun.jpg')
+blue_gun_img = pygame.image.load('pictures/blue_gun.png')
 blue_gun_img = pygame.transform.scale(blue_gun_img, (50, 50))
 
-no_gun_img = pygame.image.load('no_gun.jpg')
+no_gun_img = pygame.image.load('pictures/no_gun.png')
 no_gun_img = pygame.transform.scale(no_gun_img, (50, 50))
 
-play_img = pygame.image.load('play_button.jpg')
+play_img = pygame.image.load('pictures/play_button.png')
 play_img = pygame.transform.scale(play_img, (50, 50))
 
 
 #background_image = pygame.image.load("background.jpg").convert()
 #background_image = pygame.transform.scale(background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
 # the main loop
+
+
+
+
+
 while not done:
     
     for event in pygame.event.get():
@@ -880,84 +1278,53 @@ while not done:
         # the quit method
             
         # Creating the keys for player 1 and player 2     
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                player1.go_left()
-            elif event.key == pygame.K_RIGHT:
-                player1.go_right()
-            elif event.key == pygame.K_UP:
-                player1.jump()
+        if current_map =='level_one' or current_map == 'level_two' or current_map == 'level_three' or current_map == 'level_four' or current_map == 'level_five':
+            if event.type == pygame.KEYDOWN:   
+                if event.key == pygame.K_LEFT:
+                    player1.go_left()
+                elif event.key == pygame.K_RIGHT:
+                    player1.go_right()
+                elif event.key == pygame.K_UP:
+                    player1.jump()
 
-            if event.key == pygame.K_DOWN:
-                player1.shoot()
+                if event.key == pygame.K_DOWN:
+                    player1.shoot()
 
-            if event.key == pygame.K_a:
-                player2.go_left()
-            elif event.key == pygame.K_d:
-                player2.go_right()
-            elif event.key == pygame.K_w:
-                player2.jump()
+                if event.key == pygame.K_a:
+                    player2.go_left()
+                elif event.key == pygame.K_d:
+                    player2.go_right()
+                elif event.key == pygame.K_w:
+                    player2.jump()
+                if event.key == pygame.K_s:
+                    player2.shoot()
+            # end if   
 
-            if event.key == pygame.K_s:
-                player2.shoot()
 
-            if event.key == pygame.K_b:
-                sc_map = maps.level_two
-            if event.key == pygame.K_m:
-                sc_map = [0]
-            if event.key == pygame.K_r:
-                start_time = pygame.time.get_ticks()
-                if sc_map == [1]:
-                    player1.life = 1
-                    player2.life = 1
-                    player1.rect.x,player1.rect.y = 25,575
-                    player2.rect.x,player2.rect.y = 20,400
-                    sc_map = [0]
-                elif sc_map == [2]:
-                    player1.life = 1
-                    player2.life = 1
-                    player1.rect.x,player1.rect.y = 25,575
-                    player2.rect.x,player2.rect.y = 20,400
 
-            if event.key == pygame.K_s:
-                player2.shoot()
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT and player1.change_x < 0:
+                    player1.stop()
+                if event.key == pygame.K_RIGHT and player1.change_x > 0:
+                    player1.stop()
+
+                if event.key == pygame.K_a and player2.change_x < 0:
+                    player2.stop()
+                if event.key == pygame.K_d and player2.change_x > 0:
+                    player2.stop()
 
 
 
 
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT and player1.change_x < 0:
-                player1.stop()
-            if event.key == pygame.K_RIGHT and player1.change_x > 0:
-                player1.stop()
-
-            if event.key == pygame.K_a and player2.change_x < 0:
-                player2.stop()
-            if event.key == pygame.K_d and player2.change_x > 0:
-                player2.stop()
 
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-                pos = pygame.mouse.get_pos()
-                x,y = pos[0],pos[1]
-  
-                if (x > 30 and x < 80) and (y > 20 and y < 70):
-                    if sc_map == [0]:
-                        sc_map = maps.level_two
-                    else:
-                        sc_map = [0]
-                elif (x > 1200 and x < 1250) and (y > 20 and y < 70):
-                        sc_map = ['question']
+    # end if
+    screen.fill(GREEN)   
 
+    live_map()
+    check_die(player1,all_lakes_list, all_enemy_list)
+    check_die(player2,all_lakes_list, all_enemy_list)
 
-    #screen.blit(background_image, (0, 0))
-
-    screen.fill(GREEN)
-    live_map(sc_map,player1,player2)
-    check_die(player1,blue_lake_list, all_enemy_list)
-    check_die(player2,red_lake_list, all_enemy_list)
-    check_die(player1, green_lake_list, all_enemy_list)
-    check_die(player2, green_lake_list, all_enemy_list)
     final_score = final_score + score_total(player2) + score_total(player1)
 
 
@@ -995,9 +1362,9 @@ while not done:
 
            # time.sleep(0.001)
 
-    screen.blit(question_img,(1200,20))
-    if sc_map == maps.level_two:
-        screen.blit(pause_img, (30, 20))
+    #screen.blit(question_img,(1200,20))
+    if current_map == 'level_one' or current_map == 'level_two' or current_map == 'level_three' or current_map == 'level_four' or current_map == 'level_five':  
+     #   screen.blit(pause_img, (30, 20))
 
 
 
@@ -1009,7 +1376,7 @@ while not done:
 
         textRect = text.get_rect()
         textRect.center = ( 1280//2//2 + 50, 40)
-        screen.blit(text, textRect)
+        #screen.blit(text, textRect)
 
         font = pygame.font.Font('freesansbold.ttf',30)
         if player1.color == (255,0,0):
@@ -1019,40 +1386,39 @@ while not done:
 
         textRect = text.get_rect()
         textRect.center = ((1280//2+1280)//2, 40)
-        screen.blit(text, textRect)
+        #screen.blit(text, textRect)
 
 
         score(final_score)
         if player1.guns:
-            screen.blit(red_gun_img, (200, 20))
+            #screen.blit(red_gun_img, (200, 20))
             remaining_time = (player1.duration - (current_time - player1.timer)) / 1000
             timer_text = font.render(str(int(remaining_time)), True, RED)
-            screen.blit(timer_text, (260, 35))
+            #screen.blit(timer_text, (260, 35))
             if current_time - player1.timer > player1.duration:
                 player1.guns = False
                 player1.timer = None
             
         # Blit the timer text next to the gun icon:
-            screen.blit(timer_text, (260, 35))
-        else:
-            screen.blit(no_gun_img, (200, 20))
+            #screen.blit(timer_text, (260, 35))
+        #else:
+            #screen.blit(no_gun_img, (200, 20))
         if player2.guns:
-            screen.blit(blue_gun_img, (1080, 20))
+            #screen.blit(blue_gun_img, (1080, 20))
             remaining_time = (player2.duration - (current_time - player2.timer)) / 1000
             timer_text = font.render(str(int(remaining_time)), True, BLUE)
-            screen.blit(timer_text, (1140, 35))
+         #   screen.blit(timer_text, (1140, 35))
             if current_time - player2.timer > player2.duration:
                 player2.guns = False
                 player2.timer = None
-            screen.blit(timer_text, (1140, 35))
-        else:
-            screen.blit(no_gun_img, (1080, 20))
+          #  screen.blit(timer_text, (1140, 35))
+        #else:
+           # screen.blit(no_gun_img, (1080, 20))
 
 
-    elif sc_map == [0]:
-        screen.blit(play_img, (30, 20))
-    elif sc_map == [1]:
-        final_score = 0
+   # elif sc_map == [0]:
+        #screen.blit(play_img, (30, 20))
+
     
     
 
@@ -1097,18 +1463,20 @@ while not done:
         font = pygame.font.Font(None, 50)
         text = font.render(time_string, True, WHITE)
         text_rect = text.get_rect(center=(SCREEN_WIDTH//2, 50))
-        screen.blit(text, text_rect)
+        #screen.blit(text, text_rect)
 
 
 
-
+    
     pygame.display.flip()
     # fliping the display
     clock.tick(60)
     
  
-pygame.quit()
-# quiting the pygame
+
+def quit():
+    pygame.quit()
+    # quiting the pygame
 
 
-print(player1.color)
+quit()

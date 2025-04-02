@@ -1,8 +1,8 @@
 # importing libraries
 import pygame
 import random
-import maps
-import details
+import  maps
+import  details
 import time
 import sys
  

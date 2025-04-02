@@ -2,7 +2,7 @@ import pygame
 import random
 import time
 import math
-import maps
+import  maps
 
 # Colors
 BLACK = (0, 0, 0)
