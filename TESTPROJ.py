@@ -54,8 +54,6 @@ images = {
     'drink': pygame.image.load('pictures/color_changin_spell.png').convert_alpha(),
     'bullet': pygame.image.load('pictures/bullet.png').convert_alpha(),
     'block': pygame.image.load('pictures/block.jpg').convert_alpha(),
-    'menu_button': pygame.image.load('pictures/menu_button.png'),
-    'next_level_button': pygame.image.load('pictures/next_level.png')
 }
 
 
@@ -63,37 +61,42 @@ images = {
 
 # stack held as a stack
 class Stack:
+     # defining the stack
     def __init__(self):
         self.items = []
-    # defining the stack
+    # push procedure
     def push(self, item):
         self.items.append(item)
-    # push procedure
+    # end procedure
+
+    # pop function
     def pop(self):
         if not self.is_empty():
             return self.items.pop()
         else:
             raise IndexError("pop from empty stack")
         # end if
+    # end function
 
+    # peek function
     def peek(self):
-        """Return the item at the top of the stack without removing it.
-        
-        Raises:
-            IndexError: If the stack is empty.
-        """
         if not self.is_empty():
             return self.items[-1]
         else:
             raise IndexError("peek from empty stack")
+        # end if
+    # end function
 
+    # checking if the stack is empty
     def is_empty(self):
-        """Return True if the stack is empty, False otherwise."""
         return len(self.items) == 0
-
+    # end function
+    
+    # checking the size of the stack
     def size(self):
-        """Return the number of items in the stack."""
         return len(self.items)
+    # end function
+# end class
 
 
 
@@ -983,8 +986,6 @@ def live_map():
                 testmenu.level_one.set_condition('passed')
                 testmenu.level_two.set_condition('unlocked')
                 current_map = 'winning'  
-                print(1)
-            print(2)
                 #print('hailo')
         ingame()
 
@@ -1014,7 +1015,6 @@ def live_map():
                 testmenu.level_two.set_condition('passed')
                 testmenu.level_three.set_condition('unlocked')
                 current_map = 'winning'   
- 
         ingame()
     
     elif current_map == 'level_three':
@@ -1324,39 +1324,44 @@ def lost_map():
 
 
 def winning():
-    # overdrawing everything that was there before
-    screen.fill(DARK_GRAY)
+    global final_time_string
+    while True:
+        title_font = pygame.font.Font('freesansbold.ttf', 64)
+        title_text = title_font.render('Level Passed!', True, BLACK)
+    # Position the title at the top-center
+        title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
+        screen.blit(title_text, title_rect)
+        # Draw the title
+        menu_img = pygame.image.load('pictures/menu_button.png')
+        menu_img = pygame.transform.scale(menu_img, (300, 300))
+        menu_rect = menu_img.get_rect(center=(SCREEN_WIDTH // 2 - 160, 600))
+        screen.blit(menu_img, menu_rect)
 
-    # Create a font object for the title with size 64
-    title_font = pygame.font.Font('freesansbold.ttf', 64)
-    title_text = title_font.render('Level Passed!', True, BLACK)
-    # Get the rectangle for the text
-    title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
-    # Draw  the text onto the screen
-    screen.blit(title_text, title_rect)
+        next_level_img = pygame.image.load('pictures/next_level.png')
+        next_level_img = pygame.transform.scale(next_level_img, (300, 300))
+        next_level_rect = next_level_img.get_rect(center=(SCREEN_WIDTH // 2 + 160, 600))
+        screen.blit(next_level_img, next_level_rect)
+    
 
+        time_font = pygame.font.Font('freesansbold.ttf', 64)
+        time_text = time_font.render(f'Time: {final_time_string}', True, BLACK)
+    # Position the title at the top-center
+        time_rect = time_text.get_rect(center=(SCREEN_WIDTH // 2, 300))
 
-    # get the menu image and transform in size
-    menu_img = pygame.transform.scale(images['menu_button'], (300, 300))
-    # Get the rectangle for the menu button
-    menu_rect = menu_img.get_rect(center=(SCREEN_WIDTH // 2 - 160, 600))
-    # draw the image onto the screen
-    screen.blit(menu_img, menu_rect)
+        screen.blit(time_text, time_rect)
 
-    # get the next level image and transform in size
-    next_level_img = pygame.transform.scale(images['next_level_button'], (300, 300))
-    # get the rectangle for the next level button
-    next_level_rect = next_level_img.get_rect(center=(SCREEN_WIDTH // 2 + 160, 600))
-    # draw the image onto the screen
-    screen.blit(next_level_img, next_level_rect)
-
-    # flipping the screen
-    pygame.display.flip()
-    # checking for quit button
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit() 
+        pygame.display.flip()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit() 
+             # or return some value to handle closing
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()  # Get the current mouse position
+                if menu_rect.collidepoint(pos):
+                    return 'starting'
+                if next_level_rect.collidepoint(pos):
+                    return 'levels'
 
 
 

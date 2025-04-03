@@ -49,7 +49,9 @@ images = {
     'menu_button': pygame.image.load('pictures/menu_button.png'),
     'next_level_button': pygame.image.load('pictures/next_level.png'),
     'restart_the_level_button': pygame.image.load('pictures/restart_the_level.png'),
-    'losing_screen' : pygame.image.load('pictures/lost.png')
+    'losing_screen' : pygame.image.load('pictures/lost.png'),
+    'pause_button': pygame.image.load('pictures/pause_button.png'),
+    'back_button': pygame.image.load('pictures/back_button.png')
 
 }
 
@@ -108,6 +110,47 @@ def delete_map():
 # end procedure
 
 
+class Stack:
+     # defining the stack
+    def __init__(self):
+        self.items = []
+    # push procedure
+    def push(self, item):
+        self.items.append(item)
+    # end procedure
+
+    # pop function
+    def pop(self):
+        if not self.is_empty():
+            return self.items.pop()
+        else:
+            raise IndexError("pop from empty stack")
+        # end if
+    # end function
+
+    # peek function
+    def peek(self):
+        if not self.is_empty():
+            return self.items[-1]
+        else:
+            raise IndexError("peek from empty stack")
+        # end if
+    # end function
+
+    # checking if the stack is empty
+    def is_empty(self):
+        return len(self.items) == 0
+    # end function
+    
+    # checking the size of the stack
+    def size(self):
+        return len(self.items)
+    # end function
+# end class
+
+
+
+
 
 
 
@@ -125,6 +168,9 @@ class Player(pygame.sprite.Sprite):
             self.image = pygame.transform.scale(images['red_player'], (25, 35))
         elif self.color == BLUE:
             self.image = pygame.transform.scale(images['blue_player'], (25, 35))
+
+        self.image_right = self.image  # original image facing right
+        self.image_left = pygame.transform.flip(self.image, True, False)  # flipped image for left movement
 
  
         # setting the positon 
@@ -215,12 +261,23 @@ class Player(pygame.sprite.Sprite):
 
                 # Update the player's image based on the original color
                 if self.color == RED:
-                    self.image = pygame.transform.scale(images['red_player'], (25, 35))
+                    new_image = pygame.transform.scale(images['red_player'], (25, 35))
                 elif self.color == BLUE:
-                    self.image = pygame.transform.scale(images['blue_player'], (25, 35))
-                
-                # Reset the color timer to None (stops tracking until next change)
-                self.color_timer = None
+                    new_image = pygame.transform.scale(images['blue_player'], (25, 35))
+                # endif
+
+                self.image_right = new_image
+                self.image_left = pygame.transform.flip(new_image, True, False)
+                # Reset current image based on current facing direction
+                if self.previous_direction == -1:
+                    self.image = self.image_left
+                else:
+                    self.image = self.image_right
+                # Stop the color timer
+                self.color_timer = None    
+                # end if
+            # end if
+        # end if
 
 
     # end procedure
@@ -229,10 +286,16 @@ class Player(pygame.sprite.Sprite):
     def go_left(self):
         self.previous_direction = -1
         self.change_x = -3
+        # Set image to the left-facing flipped version
+        self.image = self.image_left
+
     # end procedure
     def go_right(self):
         self.previous_direction = 1
         self.change_x = 3
+        # Set image to the original right-facing version
+        self.image = self.image_right        
+
     # end procedure
     def stop(self):
         self.change_x = 0
@@ -296,13 +359,21 @@ class Player(pygame.sprite.Sprite):
             # Update the player's image to match the new color
             # If the color is RED, use the red player image
             if self.color == RED:
-                self.image = pygame.transform.scale(images['red_player'], (25, 35))
+                new_image = pygame.transform.scale(images['red_player'], (25, 35))
 
             # If the color is BLUE, use the blue player image
             elif self.color == BLUE:
-                self.image = pygame.transform.scale(images['blue_player'], (25, 35))
+                new_image = pygame.transform.scale(images['blue_player'], (25, 35))
             # end if
-        # end if
+            self.image_right = new_image
+            self.image_left = pygame.transform.flip(new_image, True, False)
+
+            # Set the current image based on the player's current facing direction
+            if self.previous_direction == -1:
+                self.image = self.image_left
+            else:
+                self.image = self.image_right
+            # end if
     # end procedure
 
  
@@ -640,6 +711,8 @@ create_map(amaps.level_one)
 
 
 current_map = 'level_one'
+previous_map = Stack()
+
 
 def live_map():
     global current_map
@@ -655,7 +728,7 @@ def live_map():
                 (door_list['blue'][0].update_door(player1) and player1.color == BLUE))                                                                   
                                                                                         
                 ):    
-                #print('you win!')
+                previous_map.push(current_map)
                 current_map = 'winning'
             # end if
         # end if
@@ -666,6 +739,7 @@ def live_map():
 
         # If either player has no remaining life, switch to the losing screen
         if player1.life <= 0 or player2.life <= 0:
+            previous_map.push(current_map)
             current_map = 'losing'
         # end if
         ingame()
@@ -676,6 +750,11 @@ def live_map():
     elif current_map == 'winning':
         delete_map()
         winning()
+    elif current_map == 'pause':
+        current_map = pause()
+    elif current_map == 'back':
+        current_map = previous_map.pop()
+
     # end if
 # end procedure
 
@@ -865,8 +944,10 @@ def ingame():
         enemy.attack(player2)
     # next enemy
 
-
-
+    # setting up the pause button
+    pause_img = pygame.transform.scale(images['pause_button'], (50, 50))
+    pause_rect = pause_img.get_rect(topleft=(30, 20))  # sets the top-left corner
+    screen.blit(pause_img, pause_rect)
 
 
     # drawing all the objects on the screen
@@ -958,8 +1039,57 @@ def lost_map():
 # end procedure
 
 
+def pause():
+    screen.fill(DARK_GRAY)
+    while True:
+        # Create a font object for the title with size 64
+        title_font = pygame.font.Font('freesansbold.ttf', 64)
+        title_text = title_font.render('Level paused!', True, BLACK)
+        # Get the rectangle for the text
+        title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
+        # Draw  the text onto the screen
+        screen.blit(title_text, title_rect)
+
+        # get the menu image and transform in size
+        menu_img = pygame.transform.scale(images['menu_button'], (300, 300))
+        # Get the rectangle for the menu button
+        menu_rect = menu_img.get_rect(center=(SCREEN_WIDTH // 2 - 160, 600))
+        # draw the image onto the screen
+        screen.blit(menu_img, menu_rect)
 
 
+        # get the next level image and transform in size
+        restart_the_level_img = pygame.transform.scale(images['restart_the_level_button'], (300, 300))
+        # get the rectangle for the next level button
+        restart_the_level_rect = restart_the_level_img.get_rect(center=(SCREEN_WIDTH // 2 + 160, 600))
+        # draw the image onto the screen
+        screen.blit(restart_the_level_img, restart_the_level_rect)
+
+        # fet the back button and transform in size
+        back_img = pygame.transform.scale(images['back_button'], (150, 150))
+        # get the rectangle for the back button
+        back_rect = back_img.get_rect(center=(100,100))
+        # draw the image onto the screen
+        screen.blit(back_img, back_rect)
+
+        # flipping the screen
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit() 
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()  # Get the current mouse position
+                if back_rect.collidepoint(pos):
+                    return 'back'
+            # end if
+        # next event
+    # end while
+# end procedure
+
+
+        
 
 
 done = False
@@ -1013,6 +1143,23 @@ while not done:
                 player2.stop()
             # end if
         # end if
+        # Check if an event is a mouse button press
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            # Get the position of the mouse click
+            pos = pygame.mouse.get_pos()
+            x, y = pos[0], pos[1]
+
+            # Check if the mouse click is within the specified rectangular area (button zone)
+            if (x > 30 and x < 80) and (y > 20 and y < 70):
+                # If the current map is 'level_one', switch to the 'pause' screen
+                if current_map == 'level_one':
+                    previous_map.push(current_map)
+                    current_map = 'pause'  # Change the state to pause
+                # end if
+            # end if
+        # end if
+
+                
 
     # next event
 
