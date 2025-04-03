@@ -51,9 +51,11 @@ images = {
     'red_coin': pygame.image.load('pictures/red_coin.png').convert_alpha(),
     'blue_coin': pygame.image.load('pictures/blue_coin.png').convert_alpha(),
     'no_gun': pygame.image.load('pictures/no_gun.png').convert_alpha(),
-    'drink': pygame.image.load('pictures/drink.png').convert_alpha(),
-
-    'block': pygame.image.load('pictures/block.jpg').convert(),
+    'drink': pygame.image.load('pictures/color_changin_spell.png').convert_alpha(),
+    'bullet': pygame.image.load('pictures/bullet.png').convert_alpha(),
+    'block': pygame.image.load('pictures/block.jpg').convert_alpha(),
+    'menu_button': pygame.image.load('pictures/menu_button.png'),
+    'next_level_button': pygame.image.load('pictures/next_level.png')
 }
 
 
@@ -195,13 +197,12 @@ class Enemy(pygame.sprite.Sprite):
             
         self.type = type
         self.life = 0
-        self.gun = None
+        
         if self.type == "Fast":
             self.length = 45
             self.width = 40
             self.life = 5
             self.speed = 2
-            self.gun == "Short"
             self.image = pygame.transform.scale(images['fast_enemy'], (self.width, self.length))
 
         elif self.type == "Tank":
@@ -209,7 +210,6 @@ class Enemy(pygame.sprite.Sprite):
             self.width = 50
             self.life = 10
             self.speed = 0.75
-            self.gun == "Short"
             self.image = pygame.transform.scale(images['tank_enemy'], (self.width, self.length))
             
 
@@ -218,52 +218,41 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.x = x
         self.x = x
         self.y = y
-    def attack(self,player):
-        if (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y -25) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 160)):
-                if self.type == "Tank":
-                    self.image = pygame.transform.scale(images['tank_enemy'], (self.width, self.length))
-                elif self.type == "Fast":
-                    self.flipped_image = pygame.transform.flip(self.image, True, False)
-                    self.image = pygame.transform.scale(self.flipped_image, (40, 45))
+    def attack(self, player):
+        # Check if the player's vertical position is within the enemy's "attack zone".
+        # The enemy will only engage if the player's y coordinate is between (self.rect.y - 25)
+        # and (self.rect.y + self.length).
+        if not (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y - 25):
+            return  # Player is not vertically in range; do nothing.
 
-                self.rect.x += self.speed
-
-            
-        elif (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y - 25) and ((player.rect.x <= self.rect.x) and (player.rect.x >= self.x -160)):
-                if self.type == "Tank":
-                    self.flipped_image = pygame.transform.flip(self.image, True, False)
-                    self.image = pygame.transform.scale(self.flipped_image, (50, 60))
-                elif self.type == "Fast":
-                    self.img= pygame.image.load('pictures/fast_enemy.png')
-                    self.image = pygame.transform.scale(self.img, (40, 45))
-
-                self.rect.x -= self.speed
-
-
-
-        if self.type == "Tank":
-            if (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y -25) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 160)):
+        # Determine if the player is to the right or left of the enemy.
+        # We'll use the enemy's current x position (self.rect.x) to decide.
+        if player.rect.x >= self.rect.x:
+            # Player is on the right side.
+            if self.type == "Tank" and player.rect.x <= self.x + 160:
+                # Tank enemy: if the player is within 160 pixels to the right of its original x (self.x)
+                # then set the normal tank image and move right slowly.
                 self.image = pygame.transform.scale(images['tank_enemy'], (self.width, self.length))
-                self.rect.x += 0.75
-            
-            elif (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y - 25) and ((player.rect.x <= self.rect.x) and (player.rect.x >= self.x -160)):
-                self.flipped_image = pygame.transform.flip(self.image, True, False)
-                self.image = pygame.transform.scale(self.flipped_image, (50, 60))
-
-                self.rect.x -= 0.75
-        elif self.type == "Fast":
-            if (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y -25) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 200)):
-                self.flipped_image = pygame.transform.flip(self.image, True, False)
-                self.image = pygame.transform.scale(self.flipped_image, (40, 45))
-
-                self.rect.x += 2   
-
-            elif (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y - 25) and ((player.rect.x <= self.rect.x) and (player.rect.x >= self.x -200)):
-                self.img= pygame.image.load('pictures/fast_enemy.png')
-                self.image = pygame.transform.scale(self.img, (40, 45))
-
-                self.rect.x -= 2
-                
+                self.rect.x += 0.75  # Move right at a slow speed.
+            elif self.type == "Fast" and player.rect.x <= self.x + 200:
+                # Fast enemy: if the player is within 200 pixels to the right,
+                # then set the normal fast enemy image and move right faster.
+                self.image = pygame.transform.scale(images['fast_enemy'], (40, 45))
+                self.rect.x += 2  # Move right at a faster speed.
+        else:
+            # Player is on the left side.
+            if self.type == "Tank" and player.rect.x >= self.x - 160:
+                # Tank enemy: if the player is within 160 pixels to the left,
+                # then flip the tank image horizontally, scale it, and move left slowly.
+                self.image = pygame.transform.scale(pygame.transform.flip(images['tank_enemy'], True, False), (50, 60))
+                self.rect.x -= 0.75  # Move left at a slow speed.
+            elif self.type == "Fast" and player.rect.x >= self.x - 200:
+                # Fast enemy: if the player is within 200 pixels to the left,
+                # then flip the fast enemy image horizontally, scale it, and move left faster.
+                self.image = pygame.transform.scale(pygame.transform.flip(images['fast_enemy'], True, False), (40, 45))
+                self.rect.x -= 2  # Move left at a faster speed.
+            # end if
+        #nd if
 
 class Gun(pygame.sprite.Sprite):
     def __init__(self,x,y):
@@ -279,11 +268,12 @@ class Gun(pygame.sprite.Sprite):
         
 
 class Bullet(pygame.sprite.Sprite):
+    # creating a bullet class
+    # Constructor
     def __init__(self,x,y, direction):
         super().__init__()
         
-        self.image = pygame.Surface([10,10])
-        self.image.fill(BROWN)
+        self.image = pygame.transform.scale(images['bullet'], (10, 10))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -295,12 +285,17 @@ class Bullet(pygame.sprite.Sprite):
         else:
             self.speed_x = 0
         self.speed_y = 0
-
+        # end if
+    # end constructor
     def update(self):
         self.rect.x += self.speed_x
         self.rect.y += self.speed_y
         if self.rect.x < 0 or self.rect.x > SCREEN_WIDTH:
             self.kill()
+        # end if
+    # end procedure
+# end class
+
 
 
 
@@ -501,7 +496,7 @@ class Player(pygame.sprite.Sprite):
             
             self.image = pygame.transform.scale(self.img, (25, 35))
             screen.blit(self.image, (self.rect.x, self.rect.y))
-            print(1)
+            #print(1)
             self.direction = "right"
 
         self.previous_direction = 1
@@ -525,16 +520,16 @@ class Player(pygame.sprite.Sprite):
     def get_life(self):
         return self.life
     def shoot(self):
-
-        if self.guns:
-            if self.previous_direction == 1:
-                bullet = Bullet(self.rect.x,self.rect.y,"right")
-                bullet_list.add(bullet)
-                all_sprite_list.add(bullet)
-            elif self.previous_direction == -1:
-                bullet = Bullet(self.rect.x,self.rect.y,"left")
-                bullet_list.add(bullet)
-                all_sprite_list.add(bullet)
+        # Removed gun check for testing: bullet is created every time shoot is called.
+        if self.previous_direction == 1:
+            bullet = Bullet(self.rect.x, self.rect.y, "right")
+        elif self.previous_direction == -1:
+            bullet = Bullet(self.rect.x, self.rect.y, "left")
+        else:
+            bullet = Bullet(self.rect.x, self.rect.y, "right")
+        bullet_list.add(bullet)
+        all_sprite_list.add(bullet)
+        print("Shoot method: Bullet added to sprite groups")
 
     def change_color(self, changing_color):
         if self.color != changing_color:
@@ -642,7 +637,7 @@ def create_lists():
     global all_sprite_list, all_players_list, wall_list, red_lake_list, blue_lake_list, green_lake_list
     global all_lakes_list, trapeze_list, coins_list, red_coin_list, blue_coin_list
     global all_enemy_list, all_gun_list, all_drink_list, bullet_list, portal_list_spr, portal_list
-    global portal_opener_list_spr, portal_opener_list, door_list_spr, door_list
+    global portal_opener_list_spr, portal_opener_list, door_list
 
     all_sprite_list = pygame.sprite.Group()
     all_players_list = pygame.sprite.Group()
@@ -663,7 +658,7 @@ def create_lists():
     portal_list = {'purple': [], 'yellow ': [], 'orange': [], 'black': [], 'brown': []}
     portal_opener_list_spr = pygame.sprite.Group()
     portal_opener_list = {'purple': [], 'yellow ': [], 'orange': [], 'black': [], 'brown': []}
-    door_list_spr = pygame.sprite.Group()
+    #door_list_spr = pygame.sprite.Group()
     door_list = {'red': [], 'blue': []}
 
 create_lists()
@@ -721,12 +716,12 @@ def create_map(map):
                     all_sprite_list.add(trapeze)
                 elif j == 5:
                     blue_door = Door(x,y,LIGHT_BLUE)
-                    door_list_spr.add(blue_door)  
+                    #door_list_spr.add(blue_door)  
                     door_list['blue'].append(blue_door)    
                     all_sprite_list.add(blue_door)
                 elif j == 6:
                     red_door = Door(x,y,LIGHT_RED)
-                    door_list_spr.add(red_door)  
+                    #door_list_spr.add(red_door)  
                     door_list['red'].append(red_door)    
                     all_sprite_list.add(red_door)
                 elif j == 7:
@@ -837,7 +832,7 @@ def delete_map():
     portal_opener_list['orange'].clear()
     portal_opener_list['purple'].clear()
     portal_opener_list['yellow '].clear()
-    door_list_spr.empty()   
+    #door_list_spr.empty()   
     door_list['red'].clear()
     door_list['blue'].clear()
     player1.guns = False
@@ -968,7 +963,7 @@ def live_map():
         if previous_map.peek() != 'level_one':
             delete_map()
             create_lists()
-            map = maps.level_three
+            map = maps.level_one_test
             player1 = create_players(25,575,RED)
             player2 = create_players(20,400,BLUE)
             player1.walls = wall_list
@@ -988,7 +983,9 @@ def live_map():
                 testmenu.level_one.set_condition('passed')
                 testmenu.level_two.set_condition('unlocked')
                 current_map = 'winning'  
-                print('hailo')
+                print(1)
+            print(2)
+                #print('hailo')
         ingame()
 
                 
@@ -1017,6 +1014,7 @@ def live_map():
                 testmenu.level_two.set_condition('passed')
                 testmenu.level_three.set_condition('unlocked')
                 current_map = 'winning'   
+ 
         ingame()
     
     elif current_map == 'level_three':
@@ -1102,11 +1100,11 @@ def live_map():
         for coin in red_coin_list:
             red_coin_list.remove(coin)
     
-    print(door_list)
+    #print(door_list)
 
 
 
-    print(current_map)
+    #print(current_map)
 
     
     # end if
@@ -1326,44 +1324,39 @@ def lost_map():
 
 
 def winning():
-    global final_time_string
-    while True:
-        title_font = pygame.font.Font('freesansbold.ttf', 64)
-        title_text = title_font.render('Level Passed!', True, BLACK)
-    # Position the title at the top-center
-        title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
-        screen.blit(title_text, title_rect)
-        # Draw the title
-        menu_img = pygame.image.load('pictures/menu_button.png')
-        menu_img = pygame.transform.scale(menu_img, (300, 300))
-        menu_rect = menu_img.get_rect(center=(SCREEN_WIDTH // 2 - 160, 600))
-        screen.blit(menu_img, menu_rect)
+    # overdrawing everything that was there before
+    screen.fill(DARK_GRAY)
 
-        next_level_img = pygame.image.load('pictures/next_level.png')
-        next_level_img = pygame.transform.scale(next_level_img, (300, 300))
-        next_level_rect = next_level_img.get_rect(center=(SCREEN_WIDTH // 2 + 160, 600))
-        screen.blit(next_level_img, next_level_rect)
-    
+    # Create a font object for the title with size 64
+    title_font = pygame.font.Font('freesansbold.ttf', 64)
+    title_text = title_font.render('Level Passed!', True, BLACK)
+    # Get the rectangle for the text
+    title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
+    # Draw  the text onto the screen
+    screen.blit(title_text, title_rect)
 
-        time_font = pygame.font.Font('freesansbold.ttf', 64)
-        time_text = time_font.render(f'Time: {final_time_string}', True, BLACK)
-    # Position the title at the top-center
-        time_rect = time_text.get_rect(center=(SCREEN_WIDTH // 2, 300))
 
-        screen.blit(time_text, time_rect)
+    # get the menu image and transform in size
+    menu_img = pygame.transform.scale(images['menu_button'], (300, 300))
+    # Get the rectangle for the menu button
+    menu_rect = menu_img.get_rect(center=(SCREEN_WIDTH // 2 - 160, 600))
+    # draw the image onto the screen
+    screen.blit(menu_img, menu_rect)
 
-        pygame.display.flip()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit() 
-             # or return some value to handle closing
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                pos = pygame.mouse.get_pos()  # Get the current mouse position
-                if menu_rect.collidepoint(pos):
-                    return 'starting'
-                if next_level_rect.collidepoint(pos):
-                    return 'levels'
+    # get the next level image and transform in size
+    next_level_img = pygame.transform.scale(images['next_level_button'], (300, 300))
+    # get the rectangle for the next level button
+    next_level_rect = next_level_img.get_rect(center=(SCREEN_WIDTH // 2 + 160, 600))
+    # draw the image onto the screen
+    screen.blit(next_level_img, next_level_rect)
+
+    # flipping the screen
+    pygame.display.flip()
+    # checking for quit button
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit() 
 
 
 

@@ -148,7 +148,6 @@ class Enemy(pygame.sprite.Sprite):
             self.width = 40
             self.life = 5
             self.speed = 2
-            self.gun == "Short"
             self.image = pygame.transform.scale(images['fast_enemy'], (self.width, self.length))
 
         elif self.type == "Tank":
@@ -156,7 +155,6 @@ class Enemy(pygame.sprite.Sprite):
             self.width = 50
             self.life = 10
             self.speed = 0.75
-            self.gun == "Short"
             self.image = pygame.transform.scale(images['tank_enemy'], (self.width, self.length))
             
 
@@ -165,6 +163,8 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.x = x
         self.x = x
         self.y = y
+
+
     def attack(self,player):
         if (player.rect.y <= self.rect.y + self.length and player.rect.y > self.rect.y -25) and ((player.rect.x >= self.rect.x) and (player.rect.x <= self.x + 160)):
                 if self.type == "Tank":
