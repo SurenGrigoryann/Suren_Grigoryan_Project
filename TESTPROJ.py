@@ -151,6 +151,7 @@ class Portal(pygame.sprite.Sprite):
         self.y2 = y + 110
         self.y3 = y - 110
         self.color = color
+        self.previous = 0
     
     def open_portal(self, portal_opener, p1, p2, direction):
         # Helper function to check if a player is colliding with the portal opener.
@@ -159,18 +160,22 @@ class Portal(pygame.sprite.Sprite):
             return ((portal_opener.rect.x - 5) <= player.rect.x <= (portal_opener.rect.x + 5) and
                     (portal_opener.rect.y - 25) <= player.rect.y <= (portal_opener.rect.y + 15))
         
+      
         # Only proceed if either player collides with the portal opener.
         if not (player_collides(p1, portal_opener) or player_collides(p2, portal_opener)):
-            print(self.x1)
-            print(self.rect.x)
+            # if the portal is not in the initial position, it will add bring it closer to the initial position
             if self.rect.x < self.x1:
-                self.rect.x -= 1.25
-            elif self.rect.x > self.x1:
                 self.rect.x += 1.25
+            elif self.rect.x > self.x1:
+                self.rect.x -= 1.25
             if self.rect.y < self.y1:
-                self.rect.y -= 1.25
-            elif self.rect.y > self.y1:
                 self.rect.y += 1.25
+            elif self.rect.y > self.y1:
+                print(self.rect.y)
+                self.rect.y -= 1.25
+                print(self.rect.y)
+        # end if    
+            return
 
         # For the "down" direction, move the portal downward until it reaches the target y (self.y2)
         if direction == "down":
@@ -187,6 +192,8 @@ class Portal(pygame.sprite.Sprite):
         elif direction == "left":
             if self.rect.x > self.x3:
                 self.rect.x -= 1.25  # Move left
+            # end if
+        
 class Portal_opener(pygame.sprite.Sprite):
     def __init__(self,x,y,color):
         super().__init__()

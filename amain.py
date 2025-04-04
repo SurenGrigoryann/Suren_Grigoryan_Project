@@ -717,10 +717,8 @@ class Portal_opener(pygame.sprite.Sprite):
 
 
 def collisions_portal_opener(player, portal_opener):
-    
-    if ((portal_opener.rect.x - 5) <= player.rect.x <= (portal_opener.rect.x + 5) and
-        (portal_opener.rect.y - 25) <= player.rect.y <= (portal_opener.rect.y + 25)):
-        print('collision detected between potal opener and a player')
+    return ((portal_opener.rect.x - 5) <= player.rect.x <= (portal_opener.rect.x + 5) and
+        (portal_opener.rect.y - 25) <= player.rect.y <= (portal_opener.rect.y + 25))
 # end procedure
 
 
@@ -751,39 +749,50 @@ class Portal(pygame.sprite.Sprite):
         self.x3 = x - 300
         self.y2 = y + 110
         self.y3 = y - 110
+    # end constructor
     def open_portal(self, portal_opener, p1, p2, direction):
         
         # if there is no collision it will not return anything, and none of the portals will move
         if not (collisions_portal_opener(p1, portal_opener) or collisions_portal_opener(p2, portal_opener)):
+            # if the portal is not in its initial position, while there is no collision 
+            # between the player and the portal move it back to the initial positon
             if self.rect.x > self.x1:
-                self.rect.x += 1.25
-            elif self.rect.x < self.x1:
                 self.rect.x -= 1.25
+            elif self.rect.x < self.x1:
+                self.rect.x += 1.25
             if self.rect.y > self.y1:
-                self.rect.y += 1.25
+                self.rect.y -= 1.25
             elif self.rect.y < self.y1:
-                self.rect.y - 1.25
+                self.rect.y += 1.25
+            # end if
+            return
+        # end if
 
         # if there is collision, it will check the direction and depending on that
         # it will change the coordiantes of the portals
         if direction == "down":
             if self.rect.y < self.y2:
-                # checks wether
-                self.rect.y += 1.25  # Move downward
+                # checks whether it is at its maximum distance.
+                self.rect.y += 1.25  # move downward if it is not
             # Once self.rect.y reaches self.y2, no further movement occurs.
 
-        # For the "up" direction, move upward until it reaches the target y (self.y3)
         elif direction == "up":
+            # checks whether it is at its maximum distance.
             if self.rect.y > self.y3:
-                self.rect.y -= 1.25  # Move upward
+                self.rect.y -= 1.25  # move upward if it is not
+            # Once self.rect.y reaches self.y3, no further movement occurs.
 
-        # For the "left" direction, move left until it reaches the target x (self.x3)
+        # same works for x coordinares
         elif direction == "left":
+            # checks whether it is at its maximum distance.
             if self.rect.x > self.x3:
-                self.rect.x -= 1.25  # Move left
+                self.rect.x -= 1.25  # move left if it is not
+            # Once self.rect.x reaches self.x3, no further movement occurs.
         elif direction == "right":
-            if self.rect.x < self.x2:
+            # checks whether it is at its maximum distance.
+            if self.rect.x < self.x2: # move right if it is not
                 self.rect.x += 1.25
+            # Once self.rect.x reaches self.x2, no further movement occurs.  
     # end constructor
 # end class
 
@@ -1245,16 +1254,26 @@ def ingame():
     else:
         p_opener_cyan = []
     # end if
-    # checking for the collisions
-    collisions_portal_opener(player1, p_opener_brown)
-    collisions_portal_opener(player2, p_opener_brown)
-    collisions_portal_opener(player1, p_opener_orange)
-    collisions_portal_opener(player2, p_opener_orange)
-    collisions_portal_opener(player1, p_opener_purple)
-    collisions_portal_opener(player2, p_opener_purple)
-    collisions_portal_opener(player1, p_opener_brown)
-    collisions_portal_opener(player2, p_opener_cyan)
-    collisions_portal_opener(player1, p_opener_cyan)
+    # opening the portals
+    # opening purple portals (move down)
+    for portal in portal_list['purple']:
+        portal.open_portal(p_opener_purple, player1, player2, "down")
+    # next portal
+
+    # opening brown portals (move up)
+    for portal in portal_list['brown']:
+        portal.open_portal(p_opener_brown, player1, player2, "up")
+    # next portal
+
+    # opening orange portals (move left)
+    for portal in portal_list['orange']:
+        portal.open_portal(p_opener_orange, player1, player2, "left")
+    # next portal
+
+    # Opening cyan portals (move right) 
+    for portal in portal_list['cyan']:
+        portal.open_portal(p_opener_cyan, player1, player2, "right")  
+    # next portal
 
     # setting up the pause button
     pause_img = pygame.transform.scale(images['pause_button'], (50, 50))
