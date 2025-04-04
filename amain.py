@@ -24,6 +24,7 @@ YELLOW = (255,255,0)
 PURPLE = (160,32,240)
 BROWN = (139,69,19)
 ORANGE = (255, 99, 7)
+CYAN = (0,255,255)
 
 # setting up the clock
 clock = pygame.time.Clock()
@@ -51,7 +52,17 @@ images = {
     'restart_the_level_button': pygame.image.load('pictures/restart_the_level.png'),
     'losing_screen' : pygame.image.load('pictures/lost.png'),
     'pause_button': pygame.image.load('pictures/pause_button.png'),
-    'back_button': pygame.image.load('pictures/back_button.png')
+    'back_button': pygame.image.load('pictures/back_button.png'),
+    'lift_fan': pygame.image.load('pictures/lift_fan.png'),
+    'purple_portal': pygame.image.load('pictures/purple_portal.png'),
+    'purple_portal_opener': pygame.image.load('pictures/purple_portal_opener.png'),
+    'orange_portal': pygame.image.load('pictures/orange_portal.png'),
+    'orange_portal_opener': pygame.image.load('pictures/orange_portal_opener.png'),
+    'cyan_portal': pygame.image.load('pictures/cyan_portal.png'),
+    'cyan_portal_opener': pygame.image.load('pictures/cyan_portal_opener.png'),
+    'brown_portal': pygame.image.load('pictures/brown_portal.png'),
+    'brown_portal_opener': pygame.image.load('pictures/brown_portal_opener.png')
+    
 
 }
 
@@ -89,9 +100,23 @@ all_spell_list = pygame.sprite.Group()
 #creating a door dictionary
 door_list = {'red': [], 'blue': []}
 
+# creating a fan list
+lift_fan_list = pygame.sprite.Group()
+
+
+# creating a sprite group to hold all portal sprites 
+portal_list_spr = pygame.sprite.Group()
+# creating a dictionary to organize portals by color
+portal_list = {'purple': [], 'cyan': [], 'orange': [], 'brown': []}
+# creating a sprite group to hold all portal opener sprites
+portal_opener_list_spr = pygame.sprite.Group()
+# creating a dictionary to organize portal openers by color
+portal_opener_list = {'purple': [], 'cyan': [], 'orange': [], 'brown': []}
+
 def delete_map():
     global all_sprite_list, wall_list, red_lake_list, blue_lake_list, black_lake_list
-    global all_lakes_list, all_gun_list, bullet_list, all_enemy_list, door_list
+    global all_lakes_list, all_gun_list, bullet_list, all_enemy_list, door_list, lift_fan_list
+    global portal_list_spr, portal_list, portal_opener_list, portal_opener_list_spr
     # clearing all the sprites
     all_sprite_list.empty()
     wall_list.empty()
@@ -107,6 +132,17 @@ def delete_map():
     all_spell_list.empty()
     door_list['red'].clear()
     door_list['blue'].clear()
+    lift_fan_list.empty()
+    portal_list_spr.empty()
+    portal_opener_list_spr.empty()
+    portal_list['brown'].clear()
+    portal_list['orange'].clear()
+    portal_list['purple'].clear()
+    portal_list['cyan'].clear()
+    portal_opener_list['brown'].clear()
+    portal_opener_list['orange'].clear()
+    portal_opener_list['purple'].clear()
+    portal_opener_list['cyan'].clear()
 # end procedure
 
 
@@ -192,6 +228,9 @@ class Player(pygame.sprite.Sprite):
         # walls collisions
         self.walls = None
 
+        # portal collisions
+        self.portals = None
+
         # guns
         self.guns = False
         # time for the gun
@@ -230,6 +269,25 @@ class Player(pygame.sprite.Sprite):
             else:
                 # do the same for left
                 self.rect.left = block.rect.right
+                # checking for collisions of the portals and players
+
+        if self.portals is not None:
+            portal_hit_list = pygame.sprite.spritecollide(self, self.portals, False)
+        else:
+            portal_hit_list = []
+        # end if
+        for portal in portal_hit_list:
+ 
+            # Handle horizontal collisions
+            # If moving right, place the player's right side next to the portal's left side
+            if self.change_x > 0:
+                self.rect.right = portal.rect.left
+            # same for the opposite    
+            elif self.change_x < 0:
+                self.rect.left = portal.rect.right
+            # end if
+        # next portal
+
 
 
             # end if
@@ -246,6 +304,27 @@ class Player(pygame.sprite.Sprite):
                 self.rect.top = block.rect.bottom
 
             self.change_y = 0
+
+        # checking for collisions of the portals and players
+        if self.portals is not None:
+            portal_hit_list = pygame.sprite.spritecollide(self, self.portals, False)
+        else:
+            portal_hit_list = []
+        # end if
+        
+        for portal in portal_hit_list:
+ 
+            # If we are moving up, set our up side to the bottom side of
+            # the portal and the same if we are moving down
+            if self.change_y > 0:
+                self.rect.bottom = portal.rect.top
+            elif self.change_y < 0:
+                self.rect.top = portal.rect.bottom
+
+            self.change_y = 0
+            # end if
+        # next portal
+        
         # Check if the player's color has been changed from the original
         # and that the color timer has been started
         if self.color != self.original_color and self.color_timer is not None:
@@ -308,11 +387,21 @@ class Player(pygame.sprite.Sprite):
         # Check for collision with walls while slightly lower
         walls_hit_list = pygame.sprite.spritecollide(self, self.walls, False)
 
+        # Check for collision with portals while slightly lower
+        if self.portals is not None:
+             portals_hit_list = pygame.sprite.spritecollide(self, self.portals, False)
+        else:
+            portals_hit_list = []
+        # end if
+
+        # make a single platform list
+        platform_hit_list = walls_hit_list + portals_hit_list
+
         # Move the player back to their original position
         self.rect.y -= 2
 
-        # If the player is on the ground or touching a platform, allow jumping
-        if len(walls_hit_list) > 0:
+        # If the player is touching a platform, allow jumping
+        if len(platform_hit_list) > 0:
             # Apply an upward accelaration to simulate a jump
             self.change_y = -6.5
         # end if
@@ -571,13 +660,141 @@ class Door(pygame.sprite.Sprite):
     # end function
 # end class
 
+class LiftFan(pygame.sprite.Sprite):
+    # Creating a fan class that gradually lifts players upward.
+    # constructor
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.transform.scale(images['lift_fan'], (30, 30))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+        # parameters for the lift procedure
+        self.lift_margin = 100        
+        self.upward_acceleration = 2  
+        self.max_upward_speed = -10   
+    # end constructor
+    def high(self, player):
+        # If the player is standing on the fan
+        if self.rect.colliderect(player.rect):
+            target_y = self.rect.top - self.lift_margin  # the maximum height
+
+            # If player is not on the maximum height, it pushes the player higher until maximum is reached
+            if player.rect.top > target_y:
+                player.change_y -= self.upward_acceleration  # Push the player further each time
+
+                # Don't go too fast
+                if player.change_y < self.max_upward_speed:
+                    player.change_y = self.max_upward_speed
+                # end if
+            # end if
+        # end if
+    # end procedure
+# end class
+
+class Portal_opener(pygame.sprite.Sprite):
+    # creating a portal opener class
+    # constructor
+    def __init__(self,x,y,color):
+        super().__init__()
+        self.color = color
+        if self.color == PURPLE:
+            self.image = pygame.transform.scale(images['purple_portal_opener'], (20, 10))
+        elif self.color == ORANGE:
+            self.image = pygame.transform.scale(images['orange_portal_opener'], (20, 10))
+        elif self.color == CYAN:
+            self.image = pygame.transform.scale(images['cyan_portal_opener'], (20, 10))
+        elif self.color == BROWN:
+            self.image = pygame.transform.scale(images['brown_portal_opener'], (20, 10))
+
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    # end constructor
+# end class
 
 
+def collisions_portal_opener(player, portal_opener):
+    
+    if ((portal_opener.rect.x - 5) <= player.rect.x <= (portal_opener.rect.x + 5) and
+        (portal_opener.rect.y - 25) <= player.rect.y <= (portal_opener.rect.y + 25)):
+        print('collision detected between potal opener and a player')
+# end procedure
+
+
+class Portal(pygame.sprite.Sprite):
+    # creating portal class
+    # constructor
+    def __init__(self,x,y,color):
+        super().__init__()
+        self.color = color
+        if self.color == PURPLE:
+            self.image = pygame.transform.scale(images['purple_portal'], (20, 10))
+        elif self.color == ORANGE:
+            self.image = pygame.transform.scale(images['orange_portal'], (20, 10))
+        elif self.color == CYAN:
+            self.image = pygame.transform.scale(images['cyan_portal'], (20, 10))
+        elif self.color == BROWN:
+            self.image = pygame.transform.scale(images['brown_portal'], (20, 10))
+
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+
+        # Store position values for future use
+        self.x1 = x
+        self.y1 = y 
+        self.x2 = x + 110
+        self.x3 = x - 300
+        self.y2 = y + 110
+        self.y3 = y - 110
+    def open_portal(self, portal_opener, p1, p2, direction):
+        
+        # if there is no collision it will not return anything, and none of the portals will move
+        if not (collisions_portal_opener(p1, portal_opener) or collisions_portal_opener(p2, portal_opener)):
+            if self.rect.x > self.x1:
+                self.rect.x += 1.25
+            elif self.rect.x < self.x1:
+                self.rect.x -= 1.25
+            if self.rect.y > self.y1:
+                self.rect.y += 1.25
+            elif self.rect.y < self.y1:
+                self.rect.y - 1.25
+
+        # if there is collision, it will check the direction and depending on that
+        # it will change the coordiantes of the portals
+        if direction == "down":
+            if self.rect.y < self.y2:
+                # checks wether
+                self.rect.y += 1.25  # Move downward
+            # Once self.rect.y reaches self.y2, no further movement occurs.
+
+        # For the "up" direction, move upward until it reaches the target y (self.y3)
+        elif direction == "up":
+            if self.rect.y > self.y3:
+                self.rect.y -= 1.25  # Move upward
+
+        # For the "left" direction, move left until it reaches the target x (self.x3)
+        elif direction == "left":
+            if self.rect.x > self.x3:
+                self.rect.x -= 1.25  # Move left
+        elif direction == "right":
+            if self.rect.x < self.x2:
+                self.rect.x += 1.25
+    # end constructor
+# end class
 
 
 def create_players(x,y,color):
+    global all_sprite_list
+    global wall_list
+    global portal_list_spr
     player = Player(x,y,color)
     player.walls = wall_list
+    player.portals = portal_list_spr
     all_sprite_list.add(player)
     return player
 # end procedure
@@ -693,6 +910,59 @@ def create_map(map):
                 red_door = Door(x,y,LIGHT_RED)
                 door_list['red'].append(red_door)
                 all_sprite_list.add(red_door)
+            elif j == 4:
+                # creating the fan
+                fan = LiftFan(x,y)
+                lift_fan_list.add(fan)
+                all_sprite_list.add(fan)
+            elif j == 'p':
+                # creating purple portal
+                purple_portal = Portal(x,y,PURPLE)
+                portal_list_spr.add(purple_portal)
+                portal_list['purple'].append(purple_portal) 
+                all_sprite_list.add(purple_portal)
+            elif j == 'P':
+                # creating purple portal opener
+                purple_portal_opener = Portal_opener(x,y,PURPLE)
+                portal_opener_list_spr.add(purple_portal_opener)
+                portal_opener_list['purple'].append(purple_portal_opener) 
+                all_sprite_list.add(purple_portal_opener)                    
+            elif j == 'b':
+                # creating brown portal
+                brown_portal = Portal(x,y, BROWN)
+                portal_list_spr.add(brown_portal)
+                portal_list['brown'].append(brown_portal) 
+                all_sprite_list.add(brown_portal)
+            elif j == 'B':
+                # creating brown portal opener
+                brown_portal_opener = Portal_opener(x,y,BROWN)
+                portal_opener_list_spr.add(brown_portal_opener)
+                portal_opener_list['brown'].append(brown_portal_opener) 
+                all_sprite_list.add(brown_portal_opener)    
+            elif j == 'o':
+                # creating orange portal
+                orange_portal = Portal(x,y,ORANGE)
+                portal_list_spr.add(orange_portal)
+                portal_list['orange'].append(orange_portal) 
+                all_sprite_list.add(orange_portal)
+            elif j == 'O':
+                # creating orange portal opener
+                orange_portal_opener = Portal_opener(x,y,ORANGE)
+                portal_opener_list_spr.add(orange_portal_opener)
+                portal_opener_list['orange'].append(orange_portal_opener) 
+                all_sprite_list.add(orange_portal_opener)   
+            elif j == 'c':
+                # creating cyan portal
+                cyan_portal = Portal(x,y,CYAN)
+                portal_list_spr.add(cyan_portal)
+                portal_list['cyan'].append(cyan_portal) 
+                all_sprite_list.add(cyan_portal)
+            elif j == 'C':
+                # creating cyan portal opener
+                cyan_portal_opener = Portal_opener(x,y,CYAN)
+                portal_opener_list_spr.add(cyan_portal_opener)
+                portal_opener_list['cyan'].append(cyan_portal_opener) 
+                all_sprite_list.add(cyan_portal_opener) 
             # end if
             x += 10
         # next j
@@ -944,6 +1214,48 @@ def ingame():
         enemy.attack(player2)
     # next enemy
 
+    for fan in lift_fan_list:
+        fan.high(player1)
+        fan.high(player2)
+    # next fan
+
+
+    # Get purple portal opener if it exists
+    if portal_opener_list['purple']:
+        p_opener_purple = portal_opener_list['purple'][0]
+    else:
+        p_opener_purple = []
+    # end if
+
+    # Get brown portal opener if it exists
+    if portal_opener_list['brown']:
+        p_opener_brown = portal_opener_list['brown'][0]
+    else:
+        p_opener_brown = []
+    # end if
+    # Get orange portal opener if it exists
+    if portal_opener_list['orange']:
+        p_opener_orange = portal_opener_list['orange'][0]
+    else:
+        p_opener_orange = []
+    # end if
+    # Get cyan portal opener if it exists
+    if portal_opener_list['cyan']:
+        p_opener_cyan = portal_opener_list['cyan'][0]
+    else:
+        p_opener_cyan = []
+    # end if
+    # checking for the collisions
+    collisions_portal_opener(player1, p_opener_brown)
+    collisions_portal_opener(player2, p_opener_brown)
+    collisions_portal_opener(player1, p_opener_orange)
+    collisions_portal_opener(player2, p_opener_orange)
+    collisions_portal_opener(player1, p_opener_purple)
+    collisions_portal_opener(player2, p_opener_purple)
+    collisions_portal_opener(player1, p_opener_brown)
+    collisions_portal_opener(player2, p_opener_cyan)
+    collisions_portal_opener(player1, p_opener_cyan)
+
     # setting up the pause button
     pause_img = pygame.transform.scale(images['pause_button'], (50, 50))
     pause_rect = pause_img.get_rect(topleft=(30, 20))  # sets the top-left corner
@@ -1040,7 +1352,11 @@ def lost_map():
 
 
 def pause():
+    global start_time
     screen.fill(DARK_GRAY)
+    # Record the time when pause starts
+    pause_start = pygame.time.get_ticks()
+
     while True:
         # Create a font object for the title with size 64
         title_font = pygame.font.Font('freesansbold.ttf', 64)
@@ -1082,6 +1398,23 @@ def pause():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()  # Get the current mouse position
                 if back_rect.collidepoint(pos):
+                    # When leaving pause, calculate how long we were paused
+                    pause_end = pygame.time.get_ticks()
+                    paused_duration = pause_end - pause_start
+
+                    # Adjust the global start_time so the level timer doesn't include pause time
+                    start_time += paused_duration
+
+                    # Also adjust the timers for gun power-ups and color change effects
+                    # (This stops their countdown during pause)
+                    if player1.guns and player1.timer is not None:
+                        player1.timer += paused_duration
+                    if player2.guns and player2.timer is not None:
+                        player2.timer += paused_duration
+                    if player1.color_timer is not None:
+                        player1.color_timer += paused_duration
+                    if player2.color_timer is not None:
+                        player2.color_timer += paused_duration
                     return 'back'
             # end if
         # next event

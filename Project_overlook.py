@@ -51,7 +51,8 @@ images = {
     'restart_the_level_button': pygame.image.load('pictures/restart_the_level.png'),
     'losing_screen' : pygame.image.load('pictures/lost.png'),
     'pause_button': pygame.image.load('pictures/pause_button.png'),
-    'back_button': pygame.image.load('pictures/back_button.png')
+    'back_button': pygame.image.load('pictures/back_button.png'),
+    'lift_fan': pygame.image.load('pictures/lift_fan.png')
 
 }
 
@@ -89,9 +90,12 @@ all_spell_list = pygame.sprite.Group()
 #creating a door dictionary
 door_list = {'red': [], 'blue': []}
 
+# creating a fan list
+lift_fan_list = pygame.sprite.Group()
+
 def delete_map():
     global all_sprite_list, wall_list, red_lake_list, blue_lake_list, black_lake_list
-    global all_lakes_list, all_gun_list, bullet_list, all_enemy_list, door_list
+    global all_lakes_list, all_gun_list, bullet_list, all_enemy_list, door_list, lift_fan_list
     # clearing all the sprites
     all_sprite_list.empty()
     wall_list.empty()
@@ -107,6 +111,7 @@ def delete_map():
     all_spell_list.empty()
     door_list['red'].clear()
     door_list['blue'].clear()
+    lift_fan_list.empty()
 # end procedure
 
 
@@ -301,6 +306,11 @@ class Player(pygame.sprite.Sprite):
         self.change_x = 0
     # end procedure
     def jump(self):
+        if pygame.sprite.spritecollide(self, lift_fan_list, False):
+                return
+
+
+
         # Temporarily move the player down by 2 pixels
         # This helps check if the player is standing on a block
         self.rect.y += 2
@@ -571,6 +581,37 @@ class Door(pygame.sprite.Sprite):
     # end function
 # end class
 
+class LiftFan(pygame.sprite.Sprite):
+    # Creating a fan class that gradually lifts players upward.
+    def __init__(self, x, y):
+        super().__init__()
+        # Use the lift fan image from images dict, scaled to a desired size.
+        self.image = pygame.transform.scale(images['lift_fan'], (30, 30))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        
+        # parameters for the lift procedure
+        self.lift_margin = 50         
+        self.upward_acceleration = 1  
+        self.max_upward_speed = - 20      
+
+    def high(self, player):
+        # If player is standing on the fan
+        if self.rect.colliderect(player.rect):
+            target_y = self.rect.top - self.lift_margin  # the maximum height
+
+            # If player is not on the maximum height, it pushes the player higher until maximum is reached
+            if player.rect.top > target_y:
+                player.change_y -= self.upward_acceleration  # Push the player further each time
+
+                # Don’t go too fast
+                if player.change_y < self.max_upward_speed:
+                    player.change_y = self.max_upward_speed
+
+
+
+
 
 
 
@@ -693,6 +734,11 @@ def create_map(map):
                 red_door = Door(x,y,LIGHT_RED)
                 door_list['red'].append(red_door)
                 all_sprite_list.add(red_door)
+            elif j == 4:
+                # creating the fan
+                fan = LiftFan(x,y)
+                lift_fan_list.add(fan)
+                all_sprite_list.add(fan)
             # end if
             x += 10
         # next j
@@ -942,6 +988,9 @@ def ingame():
     for enemy in all_enemy_list:
         enemy.attack(player1)
         enemy.attack(player2)
+    for fan in lift_fan_list:
+        fan.high(player1)
+        fan.high(player2)
     # next enemy
 
     # setting up the pause button
@@ -1041,40 +1090,42 @@ def lost_map():
 
 def pause():
     global start_time
+    screen.fill(DARK_GRAY)
     # Record the time when pause starts
     pause_start = pygame.time.get_ticks()
-    
-    screen.fill(DARK_GRAY)
+
     while True:
         # Create a font object for the title with size 64
         title_font = pygame.font.Font('freesansbold.ttf', 64)
         title_text = title_font.render('Level paused!', True, BLACK)
         # Get the rectangle for the text
         title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
-        # Draw the text onto the screen
+        # Draw  the text onto the screen
         screen.blit(title_text, title_rect)
 
         # get the menu image and transform in size
         menu_img = pygame.transform.scale(images['menu_button'], (300, 300))
         # Get the rectangle for the menu button
         menu_rect = menu_img.get_rect(center=(SCREEN_WIDTH // 2 - 160, 600))
-        # Draw the image onto the screen
+        # draw the image onto the screen
         screen.blit(menu_img, menu_rect)
 
-        # get the restart level image and transform in size
+
+        # get the next level image and transform in size
         restart_the_level_img = pygame.transform.scale(images['restart_the_level_button'], (300, 300))
-        # Get the rectangle for the restart level button
+        # get the rectangle for the next level button
         restart_the_level_rect = restart_the_level_img.get_rect(center=(SCREEN_WIDTH // 2 + 160, 600))
-        # Draw the image onto the screen
+        # draw the image onto the screen
         screen.blit(restart_the_level_img, restart_the_level_rect)
 
-        # Get the back button image and transform in size
+        # fet the back button and transform in size
         back_img = pygame.transform.scale(images['back_button'], (150, 150))
-        # Get the rectangle for the back button
-        back_rect = back_img.get_rect(center=(100, 100))
-        # Draw the back button onto the screen
+        # get the rectangle for the back button
+        back_rect = back_img.get_rect(center=(100,100))
+        # draw the image onto the screen
         screen.blit(back_img, back_rect)
 
+        # flipping the screen
         pygame.display.flip()
 
         for event in pygame.event.get():
@@ -1101,10 +1152,11 @@ def pause():
                         player1.color_timer += paused_duration
                     if player2.color_timer is not None:
                         player2.color_timer += paused_duration
-
                     return 'back'
-
-
+            # end if
+        # next event
+    # end while
+# end procedure
 
 
         

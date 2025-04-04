@@ -29,6 +29,7 @@ YELLOW = (255,255,0)
 PURPLE = (160,32,240)
 BROWN = (139,69,19)
 ORANGE = (255, 99, 7)
+CYAN = (0,255,255)
 
 # The dimensions of the screen held as constans
 SCREEN_WIDTH = 1280
@@ -151,36 +152,41 @@ class Portal(pygame.sprite.Sprite):
         self.y3 = y - 110
         self.color = color
     
-    def open_portal(self,portal_opener,p1,p2, direction):
-        if direction == "down":
-            if ((self.y2 != self.rect.y) and 
-            (((p1.rect.x <= portal_opener.rect.x + 15 and p1.rect.x >= portal_opener.rect.x - 15) and (p1.rect.y <= portal_opener.rect.y + 15 and p1.rect.y >= portal_opener.rect.y - 25))
-            or
-            ((p2.rect.x <= portal_opener.rect.x + 15 and p2.rect.x >= portal_opener.rect.x - 15) and (p2.rect.y <= portal_opener.rect.y + 15 and p2.rect.y >= portal_opener.rect.y - 25)))):
-                self.rect.y += 1.25
-
-            elif (self.y1 != self.rect.y):
-                self.rect.y -= 1.25
-
-        elif direction == "up":
-            if ((self.y3 != self.rect.y) and 
-            (((p1.rect.x <= portal_opener.rect.x + 15 and p1.rect.x >= portal_opener.rect.x - 15) and (p1.rect.y <= portal_opener.rect.y + 15 and p1.rect.y >= portal_opener.rect.y - 25))
-            or
-            ((p2.rect.x <= portal_opener.rect.x + 15 and p2.rect.x >= portal_opener.rect.x - 15) and (p2.rect.y <= portal_opener.rect.y + 15 and p2.rect.y >= portal_opener.rect.y - 25)))):
-                self.rect.y -= 1.25
-            elif (self.y1 != self.rect.y):
-                self.rect.y += 1.25
-
-        elif direction == "left":
-            if ((self.x3 != self.rect.x) and 
-            (((p1.rect.x <= portal_opener.rect.x + 15 and p1.rect.x >= portal_opener.rect.x - 15) and (p1.rect.y <= portal_opener.rect.y + 15 and p1.rect.y >= portal_opener.rect.y - 25))
-            or
-            ((p2.rect.x <= portal_opener.rect.x + 15 and p2.rect.x >= portal_opener.rect.x - 15) and (p2.rect.y <= portal_opener.rect.y + 15 and p2.rect.y >= portal_opener.rect.y - 25)))):
+    def open_portal(self, portal_opener, p1, p2, direction):
+        # Helper function to check if a player is colliding with the portal opener.
+        # Tolerances are set based on your original values.
+        def player_collides(player, portal_opener):
+            return ((portal_opener.rect.x - 5) <= player.rect.x <= (portal_opener.rect.x + 5) and
+                    (portal_opener.rect.y - 25) <= player.rect.y <= (portal_opener.rect.y + 15))
+        
+        # Only proceed if either player collides with the portal opener.
+        if not (player_collides(p1, portal_opener) or player_collides(p2, portal_opener)):
+            print(self.x1)
+            print(self.rect.x)
+            if self.rect.x < self.x1:
                 self.rect.x -= 1.25
-                
-            elif (self.x1 != self.rect.x):
+            elif self.rect.x > self.x1:
                 self.rect.x += 1.25
-                
+            if self.rect.y < self.y1:
+                self.rect.y -= 1.25
+            elif self.rect.y > self.y1:
+                self.rect.y += 1.25
+
+        # For the "down" direction, move the portal downward until it reaches the target y (self.y2)
+        if direction == "down":
+            if self.rect.y < self.y2:
+                self.rect.y += 1.25  # Move downward
+            # Once self.rect.y reaches self.y2, no further movement occurs.
+
+        # For the "up" direction, move upward until it reaches the target y (self.y3)
+        elif direction == "up":
+            if self.rect.y > self.y3:
+                self.rect.y -= 1.25  # Move upward
+
+        # For the "left" direction, move left until it reaches the target x (self.x3)
+        elif direction == "left":
+            if self.rect.x > self.x3:
+                self.rect.x -= 1.25  # Move left
 class Portal_opener(pygame.sprite.Sprite):
     def __init__(self,x,y,color):
         super().__init__()
@@ -384,6 +390,20 @@ class Player(pygame.sprite.Sprite):
 
             # end if
         # next block
+        if self.portals is not None:
+            portal_hit_list = pygame.sprite.spritecollide(self, self.portals, False)
+        else:
+            portal_hit_list = []
+        for portal in portal_hit_list:
+ 
+            # If we are moving up, set our up side to the bottom side of
+            # the wall and the same if we are moving down
+            if self.change_x > 0:
+                self.rect.right = portal.rect.left
+            elif self.change_y < 0:
+                self.rect.left = portal.rect.right
+
+
 
  
         # moving up or down
@@ -577,7 +597,7 @@ class Lakes(pygame.sprite.Sprite):
         if self.color == LIGHT_RED:
             self.img = pygame.image.load('pictures/red_lake.png').convert_alpha()
         elif self.color == LIGHT_BLUE:
-            self.img = pygame.image.load('pictures/blue_lake.png').convert_alpha()
+            self.img = pygame.image.load('pictures/blue_magical_lake_transparent.png').convert_alpha()
         elif self.color == LIGHT_GREEN:
             self.img = pygame.image.load('pictures/green_lake.png').convert_alpha()
         self.image = pygame.transform.scale(self.img, (10, 10))
@@ -658,9 +678,9 @@ def create_lists():
     all_drink_list = pygame.sprite.Group()
     bullet_list = pygame.sprite.Group()
     portal_list_spr = pygame.sprite.Group()
-    portal_list = {'purple': [], 'yellow ': [], 'orange': [], 'black': [], 'brown': []}
+    portal_list = {'purple': [], 'cyan': [], 'orange': [], 'black': [], 'brown': []}
     portal_opener_list_spr = pygame.sprite.Group()
-    portal_opener_list = {'purple': [], 'yellow ': [], 'orange': [], 'black': [], 'brown': []}
+    portal_opener_list = {'purple': [], 'cyan': [], 'orange': [], 'black': [], 'brown': []}
     #door_list_spr = pygame.sprite.Group()
     door_list = {'red': [], 'blue': []}
 
@@ -669,7 +689,7 @@ create_lists()
 def create_players(x,y,color):
     player = Player(x, y, color)
     player.walls = wall_list
-    player.enemies = all_enemy_list
+    #player.enemies = all_enemy_list
     player.portals = portal_list_spr
     all_sprite_list.add(player)
 
@@ -775,7 +795,17 @@ def create_map(map):
                     orange_portal_opener = Portal_opener(x,y,ORANGE)
                     portal_opener_list_spr.add(orange_portal_opener)
                     portal_opener_list['orange'].append(orange_portal_opener) 
-                    all_sprite_list.add(orange_portal_opener)    
+                    all_sprite_list.add(orange_portal_opener)   
+                elif j == 'c':
+                    cyan_portal = Portal(x,y,CYAN)
+                    portal_list_spr.add(cyan_portal)
+                    portal_list['cyan'].append(cyan_portal) 
+                    all_sprite_list.add(cyan_portal)
+                elif j == 'C':
+                    cyan_portal_opener = Portal_opener(x,y,CYAN)
+                    portal_opener_list_spr.add(cyan_portal_opener)
+                    portal_opener_list['cyan'].append(cyan_portal_opener) 
+                    all_sprite_list.add(cyan_portal_opener)                
                 elif j == 'F':
                     fast_enemy = Enemy(x,y, 'Fast')
                     all_enemy_list.add(fast_enemy)
@@ -829,12 +859,12 @@ def delete_map():
     portal_list['brown'].clear()
     portal_list['orange'].clear()
     portal_list['purple'].clear()
-    portal_list['yellow '].clear()
+    portal_list['cyan'].clear()
     portal_opener_list['black'].clear()
     portal_opener_list['brown'].clear()
     portal_opener_list['orange'].clear()
     portal_opener_list['purple'].clear()
-    portal_opener_list['yellow '].clear()
+    portal_opener_list['cyan'].clear()
     #door_list_spr.empty()   
     door_list['red'].clear()
     door_list['blue'].clear()
@@ -966,7 +996,7 @@ def live_map():
         if previous_map.peek() != 'level_one':
             delete_map()
             create_lists()
-            map = maps.level_one_test
+            map = maps.level_three
             player1 = create_players(25,575,RED)
             player2 = create_players(20,400,BLUE)
             player1.walls = wall_list
@@ -1124,10 +1154,6 @@ def live_map():
         p_opener_orange = portal_opener_list['orange'][0]
     else:
         p_opener_orange = []
-
-    
-    
-    #p.open_portal(p_opener,player1)
     
     for i in portal_list['purple']:
 
