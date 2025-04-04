@@ -61,7 +61,9 @@ images = {
     'cyan_portal': pygame.image.load('pictures/cyan_portal.png'),
     'cyan_portal_opener': pygame.image.load('pictures/cyan_portal_opener.png'),
     'brown_portal': pygame.image.load('pictures/brown_portal.png'),
-    'brown_portal_opener': pygame.image.load('pictures/brown_portal_opener.png')
+    'brown_portal_opener': pygame.image.load('pictures/brown_portal_opener.png'),
+    'red_coin': pygame.image.load('pictures/red_coin.png'),
+    'blue_coin': pygame.image.load('pictures/blue_coin.png')
     
 
 }
@@ -112,6 +114,13 @@ portal_list = {'purple': [], 'cyan': [], 'orange': [], 'brown': []}
 portal_opener_list_spr = pygame.sprite.Group()
 # creating a dictionary to organize portal openers by color
 portal_opener_list = {'purple': [], 'cyan': [], 'orange': [], 'brown': []}
+
+# creating group og red coins
+red_coin_list = pygame.sprite.Group()
+# creating group of blue coins
+blue_coin_list = pygame.sprite.Group()
+# creating group of all the coins
+coins_list = pygame.sprite.Group()
 
 def delete_map():
     global all_sprite_list, wall_list, red_lake_list, blue_lake_list, black_lake_list
@@ -797,6 +806,25 @@ class Portal(pygame.sprite.Sprite):
 # end class
 
 
+
+class Coin(pygame.sprite.Sprite):
+    # creating the coin class
+    # constructor
+    def __init__(self,x,y,color):
+        super().__init__()
+        self.color = color
+        if self.color == RED:
+            self.image = pygame.transform.scale(images['red_coin'], (15,15))
+        elif self.color == BLUE:
+            self.image = pygame.transform.scale(images['blue_coin'], (15,15))
+        # end if
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+    # end constructor
+# end class
+
+
 def create_players(x,y,color):
     global all_sprite_list
     global wall_list
@@ -840,6 +868,8 @@ def check_die(player, lake_dict, enemies):
 
 
 start_time = pygame.time.get_ticks()
+# set the score as 0
+score = 0
 
 
 
@@ -972,6 +1002,16 @@ def create_map(map):
                 portal_opener_list_spr.add(cyan_portal_opener)
                 portal_opener_list['cyan'].append(cyan_portal_opener) 
                 all_sprite_list.add(cyan_portal_opener) 
+            elif j == 8:
+                # creating red coin
+                red_coin = Coin(x,y,RED)
+                red_coin_list.add(red_coin)
+                all_sprite_list.add(red_coin)
+            elif j == 9:
+                # creating blue coin
+                blue_coin = Coin(x,y,BLUE)
+                blue_coin_list.add(blue_coin)
+                all_sprite_list.add(blue_coin)
             # end if
             x += 10
         # next j
@@ -1275,10 +1315,46 @@ def ingame():
         portal.open_portal(p_opener_cyan, player1, player2, "right")  
     # next portal
 
+    # check if player1 is red and collect red coins
+    if player1.color == RED:
+        red_coin_hits = pygame.sprite.spritecollide(player1, red_coin_list, True)
+
+    # if not, check if player2 is red and collect red coins
+    elif player2.color == RED:
+        red_coin_hits = pygame.sprite.spritecollide(player2, red_coin_list, True)
+    # end if
+
+    # check if player1 is blue and collect blue coins
+    if player1.color == BLUE:
+        blue_coin_hits = pygame.sprite.spritecollide(player1, blue_coin_list, True)
+
+    # if not, check if player2 is blue and collect blue coins
+    elif player2.color == BLUE:
+        blue_coin_hits = pygame.sprite.spritecollide(player2, blue_coin_list, True):
+    # end if
+
+    # Loop through collected red coins
+    for coin in red_coin_hits:
+        score += 1
+        print('red coin collected')
+    # next coin
+
+    # Loop through collected blue coins
+    for coin in blue_coin_hits:
+        print('blue coin collected')
+    # next coin
+
     # setting up the pause button
     pause_img = pygame.transform.scale(images['pause_button'], (50, 50))
     pause_rect = pause_img.get_rect(topleft=(30, 20))  # sets the top-left corner
     screen.blit(pause_img, pause_rect)
+
+
+    score_font = pygame.font.Font('freesansbold.ttf', 30)
+    score_text = score_font.render("Score: " + str(score), True, WHITE)
+    # Position score text a bit to the right of the timer.
+    score_rect = score_text.get_rect(midleft=(timer_rect.right + 20, timer_rect.centery))
+    screen.blit(score_text, score_rect)
 
 
     # drawing all the objects on the screen
