@@ -345,6 +345,9 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
                 return quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
                     
         # Route to the correct scene based on current_scene.
 

@@ -48,7 +48,7 @@ images = {
     'background': pygame.transform.scale(pygame.image.load("pictures/background1.jpg").convert(), (SCREEN_WIDTH, SCREEN_HEIGHT-80)),
     'red_lake': pygame.image.load('pictures/red_lake.png').convert_alpha(),
     'blue_lake': pygame.image.load('pictures/blue_lake.png').convert_alpha(),
-    'green_lake': pygame.image.load('pictures/green_lake.png').convert_alpha(),
+    'green_lake': pygame.image.load('pictures/black_lake.png').convert_alpha(),
     'red_coin': pygame.image.load('pictures/red_coin.png').convert_alpha(),
     'blue_coin': pygame.image.load('pictures/blue_coin.png').convert_alpha(),
     'no_gun': pygame.image.load('pictures/no_gun.png').convert_alpha(),
@@ -1557,7 +1557,7 @@ def ingame():
 
 
 def question_button():
-    question_img = pygame.image.load('pictures/question_grey.png')
+    question_img = pygame.image.load('pictures/question_button.png')
     question_img = pygame.transform.scale(question_img, (150, 150))
     question_rect = question_img.get_rect(center=(1200,100))
     screen.blit(question_img, question_rect)

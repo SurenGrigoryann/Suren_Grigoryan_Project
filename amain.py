@@ -30,7 +30,7 @@ CYAN = (0,255,255)
 clock = pygame.time.Clock()
 
 
-# The dimensions of the screen held as constans
+# The dimensions of the screen held as constants
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 
@@ -47,12 +47,7 @@ images = {
     'blue_player': pygame.image.load('pictures/blue_player.png'),
     'red_door': pygame.image.load('pictures/red_door.png'),
     'blue_door': pygame.image.load('pictures/blue_door.png'),
-    'menu_button': pygame.image.load('pictures/menu_button.png'),
-    'next_level_button': pygame.image.load('pictures/next_level.png'),
-    'restart_the_level_button': pygame.image.load('pictures/restart_the_level.png'),
     'losing_screen' : pygame.image.load('pictures/lost.png'),
-    'pause_button': pygame.image.load('pictures/pause_button.png'),
-    'back_button': pygame.image.load('pictures/back_button.png'),
     'lift_fan': pygame.image.load('pictures/lift_fan.png'),
     'purple_portal': pygame.image.load('pictures/purple_portal.png'),
     'purple_portal_opener': pygame.image.load('pictures/purple_portal_opener.png'),
@@ -63,12 +58,25 @@ images = {
     'brown_portal': pygame.image.load('pictures/brown_portal.png'),
     'brown_portal_opener': pygame.image.load('pictures/brown_portal_opener.png'),
     'red_coin': pygame.image.load('pictures/red_coin.png'),
-    'blue_coin': pygame.image.load('pictures/blue_coin.png')
-    
-
+    'blue_coin': pygame.image.load('pictures/blue_coin.png'),
 }
 
 
+buttons = {
+    'menu_button': pygame.image.load('pictures/menu_button.png'),
+    'next_level_button': pygame.image.load('pictures/next_level.png'),
+    'restart_the_level_button': pygame.image.load('pictures/restart_the_level.png'),
+    'pause_button': pygame.image.load('pictures/pause_button.png'),
+    'back_button': pygame.image.load('pictures/back_button.png'),
+    'question_button': pygame.image.load('pictures/question_button.png'),
+    'levels_button': pygame.image.load('pictures/levels_button.png'),
+    'start_button': pygame.image.load('pictures/start_button.png'),
+    'tutorial_button': pygame.image.load('pictures/tutorial_button.png'),
+    'settings_button': pygame.image.load('pictures/settings_button.png'),
+    'story_button': pygame.image.load('pictures/story_button.png'),
+    'quit_button': pygame.image.load('pictures/quit.png'),
+    'restart_the_game_button':pygame.image.load('pictures/restart_the_game.png')
+}
 
 
 
@@ -1029,13 +1037,44 @@ def create_map(map):
 create_map(amaps.level_one)
 
 
-current_map = 'level_one'
+current_map = 'starting'
 previous_map = Stack()
 
 
 def live_map():
     global current_map
-    if current_map == 'level_one':
+    global previous_map
+    global all_sprite_list
+    global player1,player2
+
+    if current_map == 'starting':
+        previous_map.push(current_map)
+        current_map = starting_map()
+    elif current_map == 'losing':
+        delete_map()
+        lost_map()
+    elif current_map == 'winning':
+        delete_map()
+        winning()
+    elif current_map == 'pause':
+        current_map = pause()
+    elif current_map == 'back':
+        current_map = previous_map.pop()
+    elif current_map == 'controls':
+        pause_start = pygame.time.get_ticks()
+        result = adetails.main()
+        stop_the_timer(pause_start)
+        if result == 'back':
+            current_map = previous_map.pop()
+    elif current_map == 'settings':
+        result = settings_map()
+        if result == 'back':
+            current_map = previous_map.pop()
+        else:
+            previous_map.push(current_map)
+            current_map = result
+        # end if
+    elif current_map == 'level_one':
 
         # check if the the door_list is not empty and check if the lists under 'red' and 'blue' are not empty as well
         if door_list['red'] and len(door_list['red']) >= 1 and door_list['blue'] and len(door_list['blue']) >= 1:
@@ -1062,21 +1101,101 @@ def live_map():
             current_map = 'losing'
         # end if
         ingame()
+    
+    
 
-    elif current_map == 'losing':
-        delete_map()
-        lost_map()
-    elif current_map == 'winning':
-        delete_map()
-        winning()
-    elif current_map == 'pause':
-        current_map = pause()
-    elif current_map == 'back':
-        current_map = previous_map.pop()
-
+        # end if
+        # end if
     # end if
 # end procedure
 
+def starting_map():
+    global current_map
+    # filling the screen with a color
+    screen.fill(DARK_GRAY)
+    # strarting the starting loop
+    while True:
+        
+        # Use a large font for the heading
+        title_font = pygame.font.Font('freesansbold.ttf', 64)
+        
+        # Display "TWIN TO WIN" text at the top
+        title_text = title_font.render('TWIN TO WIN', True, BLACK)
+        # Position the title at the top-center
+        title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
+        # blitting the text on the screen
+        screen.blit(title_text, title_rect)
+
+
+
+        # scaling the levels button image to fit the button
+        levels_img = pygame.transform.scale(buttons['levels_button'], (300, 300))
+        # getting the rect of the image
+        levels_rect = levels_img.get_rect(center=(SCREEN_WIDTH // 4, 250))
+        # blitting the image on the screen
+        screen.blit(levels_img, levels_rect)
+
+        # scaling the start button image to fit the button
+        start_img = pygame.transform.scale(buttons['start_button'], (300, 300))
+        # getting the rect of the image
+        start_rect = start_img.get_rect(center=(SCREEN_WIDTH //2, 400))
+        # blitting the image on the screen
+        screen.blit(start_img, start_rect)
+
+        # scaling the tutorial button image to fit the button
+        tutorial_img = pygame.transform.scale(buttons['tutorial_button'], (300, 300))
+        # getting the rect of the image
+        tutorial_rect = tutorial_img.get_rect(center=(SCREEN_WIDTH //4, 550))
+        # blitting the image on the screen
+        screen.blit(tutorial_img, tutorial_rect)
+
+
+        # scaling the settings button image to fit the button
+        settings_img = pygame.transform.scale(buttons['settings_button'], (300, 300))
+        # getting the rect of the image
+        settings_rect = settings_img.get_rect(center=(SCREEN_WIDTH - SCREEN_WIDTH //5 - 100, 550))
+        # blitting the image on the screen
+        screen.blit(settings_img, settings_rect)
+
+
+        # scaling the story button image to fit the button
+        story_img = pygame.transform.scale(buttons['story_button'], (300, 300))
+        # getting the rect of the image
+        story_rect = story_img.get_rect(center=(SCREEN_WIDTH - SCREEN_WIDTH //5 - 100, 250))
+        # blitting the image on the screen
+        screen.blit(story_img, story_rect)
+
+        # creating the question mark button
+        question_rect = question_button()
+
+        # flipping the screen to show the changes
+        pygame.display.flip()
+
+        # checking for events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()  
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()  # Get the current mouse position
+                # returning the name of the button that was clicked therefore changing the current map to the corresponding one
+                if levels_rect.collidepoint(pos):
+                    return 'levels'
+                elif start_rect.collidepoint(pos):
+                    return 'start'
+                elif tutorial_rect.collidepoint(pos):
+                    return 'tutorial'
+                elif settings_rect.collidepoint(pos):
+                    return 'settings'
+                elif story_rect.collidepoint(pos):
+                    return 'story'
+                elif question_rect.collidepoint(pos):
+                    return 'controls'
+                # end if
+            # end if
+        # next event
+    # end while
+# end function
 
 
 
@@ -1347,9 +1466,13 @@ def ingame():
     # next coin
 
     # setting up the pause button
-    pause_img = pygame.transform.scale(images['pause_button'], (50, 50))
+    pause_img = pygame.transform.scale(buttons['pause_button'], (50, 50))
     pause_rect = pause_img.get_rect(topleft=(30, 20))  # sets the top-left corner
     screen.blit(pause_img, pause_rect)
+
+    #question button
+    question_button()
+    #screen.blit(q_button)
 
     # creating a font object for the score
     score_font = pygame.font.Font('freesansbold.ttf', 30)
@@ -1379,14 +1502,14 @@ def winning():
 
 
         # get the menu image and transform in size
-        menu_img = pygame.transform.scale(images['menu_button'], (300, 300))
+        menu_img = pygame.transform.scale(buttons['menu_button'], (300, 300))
         # Get the rectangle for the menu button
         menu_rect = menu_img.get_rect(center=(SCREEN_WIDTH // 2 - 160, 600))
         # draw the image onto the screen
         screen.blit(menu_img, menu_rect)
 
         # get the next level image and transform in size
-        next_level_img = pygame.transform.scale(images['next_level_button'], (300, 300))
+        next_level_img = pygame.transform.scale(buttons['next_level_button'], (300, 300))
         # get the rectangle for the next level button
         next_level_rect = next_level_img.get_rect(center=(SCREEN_WIDTH // 2 + 160, 600))
         # draw the image onto the screen
@@ -1422,7 +1545,7 @@ def lost_map():
         screen.blit(lost_img, lost_rect)
 
         # get the menu image and transform in size
-        menu_img = pygame.transform.scale(images['menu_button'], (300, 300))
+        menu_img = pygame.transform.scale(buttons['menu_button'], (300, 300))
         # Get the rectangle for the menu button
         menu_rect = menu_img.get_rect(center=(SCREEN_WIDTH // 2 - 160, 600))
         # draw the image onto the screen
@@ -1430,7 +1553,7 @@ def lost_map():
 
 
         # get the next level image and transform in size
-        restart_the_level_img = pygame.transform.scale(images['restart_the_level_button'], (300, 300))
+        restart_the_level_img = pygame.transform.scale(buttons['restart_the_level_button'], (300, 300))
         # get the rectangle for the next level button
         restart_the_level_rect = restart_the_level_img.get_rect(center=(SCREEN_WIDTH // 2 + 160, 600))
         # draw the image onto the screen
@@ -1449,6 +1572,77 @@ def lost_map():
 # end procedure
 
 
+def settings_map():
+    global current_map
+    # filling the screen with a color
+    screen.fill(DARK_GRAY)
+    # starting the settings loop
+    while True:
+        # Use a large font for the heading
+        title_font = pygame.font.Font('freesansbold.ttf', 64)
+
+        # display 'settings' text at the top
+        title_text = title_font.render('Settings', True, BLACK)
+        # Position the title at the top-center
+        title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
+        # blitting the text on the screen
+        screen.blit(title_text, title_rect)
+
+
+        # scaling the restart the level button image to fit the button
+        restart_img = pygame.transform.scale(buttons['restart_the_game_button'], (300, 300))
+        # getting the rect of the image
+        restart_rect = restart_img.get_rect(center=(SCREEN_WIDTH // 2 - 300, 400))
+        # blitting the image on the screen
+        screen.blit(restart_img, restart_rect)
+
+        # scaling the menu button image to fit the button
+        menu_img = pygame.transform.scale(buttons['menu_button'], (300, 300))
+        # getting the rect of the image
+        menu_rect = menu_img.get_rect(center=(SCREEN_WIDTH // 2, 400))
+        # blitting the image on the screen
+        screen.blit(menu_img, menu_rect)
+
+        # scaling the quit button image to fit the button
+        quit_img = pygame.transform.scale(buttons['quit_button'], (300, 300))
+        # getting the rect of the image
+        quit_rect = quit_img.get_rect(center=(SCREEN_WIDTH // 2 + 300, 400))
+        # blitting the image on the screen
+        screen.blit(quit_img, quit_rect)
+
+        # creating the question button
+        question_rect = question_button()
+        # creating the back button
+        back_rect = back_button()
+
+        # flipping the screen to show the changes
+        pygame.display.flip()
+
+        # checking for events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit() 
+             # or return some value to handle closing
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()  # Get the current mouse position
+                # returning the name of the button that was clicked therefore changing the current map to the corresponding one
+                if restart_rect.collidepoint(pos):
+                    return 'levels'
+                elif menu_rect.collidepoint(pos):
+                    return 'starting'
+                elif quit_rect.collidepoint(pos):
+                    return 'tutorial'
+                elif question_rect.collidepoint(pos):
+                    return 'controls'
+                elif back_rect.collidepoint(pos):
+                    return 'back'
+                # end if
+            # end if
+        # next event
+    # end while
+# end procedure 
+
 def pause():
     global start_time
     screen.fill(DARK_GRAY)
@@ -1465,7 +1659,7 @@ def pause():
         screen.blit(title_text, title_rect)
 
         # get the menu image and transform in size
-        menu_img = pygame.transform.scale(images['menu_button'], (300, 300))
+        menu_img = pygame.transform.scale(buttons['menu_button'], (300, 300))
         # Get the rectangle for the menu button
         menu_rect = menu_img.get_rect(center=(SCREEN_WIDTH // 2 - 160, 600))
         # draw the image onto the screen
@@ -1473,14 +1667,14 @@ def pause():
 
 
         # get the next level image and transform in size
-        restart_the_level_img = pygame.transform.scale(images['restart_the_level_button'], (300, 300))
+        restart_the_level_img = pygame.transform.scale(buttons['restart_the_level_button'], (300, 300))
         # get the rectangle for the next level button
         restart_the_level_rect = restart_the_level_img.get_rect(center=(SCREEN_WIDTH // 2 + 160, 600))
         # draw the image onto the screen
         screen.blit(restart_the_level_img, restart_the_level_rect)
 
         # fet the back button and transform in size
-        back_img = pygame.transform.scale(images['back_button'], (150, 150))
+        back_img = pygame.transform.scale(buttons['back_button'], (150, 150))
         # get the rectangle for the back button
         back_rect = back_img.get_rect(center=(100,100))
         # draw the image onto the screen
@@ -1497,30 +1691,60 @@ def pause():
                 pos = pygame.mouse.get_pos()  # Get the current mouse position
                 if back_rect.collidepoint(pos):
                     # When leaving pause, calculate how long we were paused
-                    pause_end = pygame.time.get_ticks()
-                    paused_duration = pause_end - pause_start
-
-                    # Adjust the global start_time so the level timer doesn't include pause time
-                    start_time += paused_duration
-
-                    # Also adjust the timers for gun power-ups and color change effects
-                    # (This stops their countdown during pause)
-                    if player1.guns and player1.timer is not None:
-                        player1.timer += paused_duration
-                    if player2.guns and player2.timer is not None:
-                        player2.timer += paused_duration
-                    if player1.color_timer is not None:
-                        player1.color_timer += paused_duration
-                    if player2.color_timer is not None:
-                        player2.color_timer += paused_duration
-                    return 'back'
+                    stop_the_timer(pause_start)
+                    return 'back'  # Go back to the previous map
             # end if
         # next event
     # end while
 # end procedure
 
 
-        
+def stop_the_timer(start):
+    global start_time
+    global player1
+    global player2
+
+    pause_end = pygame.time.get_ticks()
+    paused_duration = pause_end - start
+
+    # Adjust the global start_time so the level timer doesn't include pause time
+    start_time += paused_duration
+
+    # Also adjust the timers for gun power-ups and color change effects
+    # (This stops their countdown during pause)
+    if player1.guns and player1.timer is not None:
+        player1.timer += paused_duration
+    if player2.guns and player2.timer is not None:
+        player2.timer += paused_duration
+    if player1.color_timer is not None:
+        player1.color_timer += paused_duration
+    if player2.color_timer is not None:
+        player2.color_timer += paused_duration
+    # end if
+    
+# end procedure
+
+
+
+
+
+def question_button():
+    # creating a question button
+    question_img = pygame.transform.scale(buttons['question_button'], (120, 120))
+    question_rect = question_img.get_rect(center=(1200,40))
+    screen.blit(question_img, question_rect)
+    return question_rect
+# end function
+
+def back_button():
+    # creating a back button
+    back_img = pygame.transform.scale(buttons['back_button'], (150, 150))
+    back_rect = back_img.get_rect(center=(100,100))
+    screen.blit(back_img, back_rect)
+    return back_rect
+# end function
+
+
 
 
 done = False
@@ -1586,6 +1810,9 @@ while not done:
                 if current_map == 'level_one':
                     previous_map.push(current_map)
                     current_map = 'pause'  # Change the state to pause
+            elif (x > 1200 and x < 1320) and (y > 20 and y < 140):
+                previous_map.push(current_map)
+                current_map = 'controls'
                 # end if
             # end if
         # end if
