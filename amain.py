@@ -6,6 +6,7 @@ import adetails
 import amenu
 import aslides
 import sys
+import os
 
 
 # colors
@@ -75,7 +76,10 @@ buttons = {
     'settings_button': pygame.image.load('pictures/settings_button.png'),
     'story_button': pygame.image.load('pictures/story_button.png'),
     'quit_button': pygame.image.load('pictures/quit.png'),
-    'restart_the_game_button':pygame.image.load('pictures/restart_the_game.png')
+    'restart_the_game_button':pygame.image.load('pictures/restart_the_game.png'),
+    'no_button':pygame.image.load('pictures/no_button.png'),
+    'yes_button': pygame.image.load('pictures/yes_button.png')
+
 }
 
 
@@ -1048,6 +1052,7 @@ def live_map():
     global player1,player2
 
     if current_map == 'starting':
+
         previous_map.push(current_map)
         current_map = starting_map()
     elif current_map == 'losing':
@@ -1101,6 +1106,18 @@ def live_map():
             current_map = 'losing'
         # end if
         ingame()
+    elif current_map == 'restart_the_game':
+        # Wait for 2000 milliseconds (2 seconds)
+        restart_game()
+    elif current_map == 'quit':
+        result = quit_map()
+        # if the player pressed NO, then go back
+        if result == 'back':
+            current_map = previous_map.pop()
+        # if the players want to quit the game, quit the game
+        else:
+            quit()
+        # end if
     
     
 
@@ -1571,6 +1588,60 @@ def lost_map():
     # end while
 # end procedure
 
+def quit_map():
+    global current_map
+    # filling the screen with a color
+    screen.fill(DARK_GRAY)
+    # starting the settings loop
+    while True:
+        # Use a large font for the heading
+        title_font = pygame.font.Font('freesansbold.ttf', 64)
+        # display the question at the top
+        title_text = title_font.render('Are you sure you want to quit the game?', True, BLACK)
+        # Position the title at the top-center
+        title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
+        # blitting the text on the screen
+        screen.blit(title_text, title_rect)
+        
+        # scaling the yes button image to fit the button
+        yes_img = pygame.transform.scale(buttons['yes_button'], (300, 300))
+        # getting the rect of the image
+        yes_rect = yes_img.get_rect(center=(SCREEN_WIDTH // 2 - 300, 400))
+        # blitting the image on the screen
+        screen.blit(yes_img, yes_rect)
+               
+        # scaling the no button image to fit the button
+        no_img = pygame.transform.scale(buttons['no_button'], (300, 300))
+        # getting the rect of the image
+        no_rect = no_img.get_rect(center=(SCREEN_WIDTH // 2 + 300, 400))
+        # blitting the image on the screen
+        screen.blit(no_img, no_rect)
+
+        # flipping the screen to show the changes
+        pygame.display.flip()
+
+        # checking for events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit() 
+             # or return some value to handle closing
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()  # Get the current mouse position
+                # returning the name of the button that was clicked therefore changing the current map to the corresponding one
+                if yes_rect.collidepoint(pos):
+                    return 'quit_the_game'
+                elif no_rect.collidepoint(pos):
+                    return 'back'
+                
+                # end if
+            # end if
+        # next event
+    # end while
+# end procedure 
+
+
+
 
 def settings_map():
     global current_map
@@ -1607,7 +1678,7 @@ def settings_map():
         quit_img = pygame.transform.scale(buttons['quit_button'], (300, 300))
         # getting the rect of the image
         quit_rect = quit_img.get_rect(center=(SCREEN_WIDTH // 2 + 300, 400))
-        # blitting the image on the screen
+        # blitting the image on the screendef
         screen.blit(quit_img, quit_rect)
 
         # creating the question button
@@ -1628,11 +1699,11 @@ def settings_map():
                 pos = pygame.mouse.get_pos()  # Get the current mouse position
                 # returning the name of the button that was clicked therefore changing the current map to the corresponding one
                 if restart_rect.collidepoint(pos):
-                    return 'levels'
+                    return 'restart_the_game'
                 elif menu_rect.collidepoint(pos):
-                    return 'starting'
+                    return 'levels'
                 elif quit_rect.collidepoint(pos):
-                    return 'tutorial'
+                    return 'quit'
                 elif question_rect.collidepoint(pos):
                     return 'controls'
                 elif back_rect.collidepoint(pos):
@@ -1723,6 +1794,17 @@ def stop_the_timer(start):
     # end if
     
 # end procedure
+
+def restart_game():
+    # Clean up and restart the program by executing a new instance of the Python interpreter.
+    print("Restarting game...")
+    # quitting the pygame
+    pygame.quit()
+    # relaunch the same script using the system's Python executable
+    python = sys.executable
+    os.execl(python, python, *sys.argv) # replace the current process with a new one
+# end procedure
+
 
 
 

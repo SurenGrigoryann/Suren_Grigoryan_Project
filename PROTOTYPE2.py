@@ -449,8 +449,8 @@ def create_players(x,y,color):
 
 # end procedure
 
-player1 = create_players(25,500,RED)
-player2 = create_players(20,400,BLUE)     
+player1 = create_players(25,400,RED)
+player2 = create_players(20,500,BLUE)     
 
 
 
