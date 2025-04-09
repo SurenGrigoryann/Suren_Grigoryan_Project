@@ -7,7 +7,8 @@ import amenu
 import aslides
 import sys
 import os
-
+import menu
+import aslides
 
 # colors
 
@@ -84,55 +85,63 @@ buttons = {
 
 
 
+def create_lists():
+    global all_sprite_list, wall_list, red_lake_list, blue_lake_list
+    global black_lake_list, all_lakes_list, all_gun_list, bullet_list
+    global all_enemy_list, all_spell_list, door_list, lift_fan_list
+    global portal_list, portal_list_spr, portal_opener_list, portal_opener_list_spr
+    global red_coin_list, blue_coin_list, coins_list
+    # defining a list that will contain all the objects
+    all_sprite_list = pygame.sprite.Group()
 
-# defining a list that will contain all the objects
-all_sprite_list = pygame.sprite.Group()
+    # setting all the other lists
+    wall_list = pygame.sprite.Group()
 
-# setting all the other lists
-wall_list = pygame.sprite.Group()
+    # setting the lake groups
+    red_lake_list = pygame.sprite.Group()
+    blue_lake_list = pygame.sprite.Group()
+    black_lake_list = pygame.sprite.Group()
 
-# setting the lake groups
-red_lake_list = pygame.sprite.Group()
-blue_lake_list = pygame.sprite.Group()
-black_lake_list = pygame.sprite.Group()
+    # setting the dictionary for all lakes
+    all_lakes_list = {RED: [], BLUE: [], BLACK: []}
 
-# setting the dictionary for all lakes
-all_lakes_list = {RED: [], BLUE: [], BLACK: []}
+    # setting up the gun list
+    all_gun_list = pygame.sprite.Group()
 
-# setting up the gun list
-all_gun_list = pygame.sprite.Group()
+    # settinp up the bullet list
+    bullet_list = pygame.sprite.Group()
 
-# settinp up the bullet list
-bullet_list = pygame.sprite.Group()
+    # setting up the enemy list
+    all_enemy_list = pygame.sprite.Group()
 
-# setting up the enemy list
-all_enemy_list = pygame.sprite.Group()
+    # setting up the spell list
+    all_spell_list = pygame.sprite.Group()
 
-# setting up the spell list
-all_spell_list = pygame.sprite.Group()
+    #creating a door dictionary
+    door_list = {'red': [], 'blue': []}
 
-#creating a door dictionary
-door_list = {'red': [], 'blue': []}
-
-# creating a fan list
-lift_fan_list = pygame.sprite.Group()
+    # creating a fan list
+    lift_fan_list = pygame.sprite.Group()
 
 
-# creating a sprite group to hold all portal sprites 
-portal_list_spr = pygame.sprite.Group()
-# creating a dictionary to organize portals by color
-portal_list = {'purple': [], 'cyan': [], 'orange': [], 'brown': []}
-# creating a sprite group to hold all portal opener sprites
-portal_opener_list_spr = pygame.sprite.Group()
-# creating a dictionary to organize portal openers by color
-portal_opener_list = {'purple': [], 'cyan': [], 'orange': [], 'brown': []}
 
-# creating group og red coins
-red_coin_list = pygame.sprite.Group()
-# creating group of blue coins
-blue_coin_list = pygame.sprite.Group()
-# creating group of all the coins
-coins_list = pygame.sprite.Group()
+    # creating a sprite group to hold all portal sprites 
+    portal_list_spr = pygame.sprite.Group()
+    # creating a dictionary to organize portals by color
+    portal_list = {'purple': [], 'cyan': [], 'orange': [], 'brown': []}
+    # creating a sprite group to hold all portal opener sprites
+    portal_opener_list_spr = pygame.sprite.Group()
+    # creating a dictionary to organize portal openers by color
+    portal_opener_list = {'purple': [], 'cyan': [], 'orange': [], 'brown': []}
+
+    # creating group og red coins
+    red_coin_list = pygame.sprite.Group()
+    # creating group of blue coins
+    blue_coin_list = pygame.sprite.Group()
+    # creating group of all the coins
+    coins_list = pygame.sprite.Group()
+
+create_lists()
 
 def delete_map():
     global all_sprite_list, wall_list, red_lake_list, blue_lake_list, black_lake_list
@@ -848,8 +857,8 @@ def create_players(x,y,color):
     return player
 # end procedure
 
-player1 = create_players(25,300,RED)
-player2 = create_players(20,600,BLUE)     
+player1 = create_players(25,575,RED)
+player2 = create_players(20,400,BLUE)   
 
 def check_die(player, lake_dict, enemies):
     # Check collisions with lakes of a different color
@@ -1052,17 +1061,60 @@ def live_map():
     global player1,player2
 
     if current_map == 'starting':
-
         previous_map.push(current_map)
         current_map = starting_map()
+
     elif current_map == 'losing':
         delete_map()
-        lost_map()
+        result = lost_map()
+        current_map = result
+
+
     elif current_map == 'winning':
+        result = previous_map.peek()
+        if result == 'level_one':
+            amenu.level_one.set_condition('passed')
+            amenu.level_two.set_condition('unlocked')
+        elif result == 'level_two':
+            amenu.level_two.set_condition('passed')
+            amenu.level_three.set_condition('unlocked')
+        elif result == 'level_three':
+            amenu.level_three.set_condition('passed')
+            amenu.level_four.set_condition('unlocked')
+        elif result == 'level_four':
+            amenu.level_four.set_condition('passed')
+            amenu.level_five.set_condition('unlocked')
+        elif result == 'level_five':
+            amenu.level_five.set_condition('passed')
+        # end if
+
         delete_map()
-        winning()
+        result = winning()
+        if result == 'back':
+            current_map = previous_map.pop()
+        else:
+            previous_map.push(current_map)
+            current_map = result        
+
+    elif current_map == 'levels':
+        result = amenu.main()
+        if result == 'back':
+            current_map = previous_map.pop()
+        else:
+            previous_map.push(current_map)
+            current_map = result
+    elif current_map == 'story':
+        aslides.main()
+        current_map = previous_map.pop()
     elif current_map == 'pause':
-        current_map = pause()
+        result = pause()
+        if result == 'back':
+            current_map = previous_map.pop()
+        elif result == 'restart_the_level':
+            current_map = result
+        else:
+            previous_map.push(current_map)
+            current_map = result   
     elif current_map == 'back':
         current_map = previous_map.pop()
     elif current_map == 'controls':
@@ -1080,7 +1132,17 @@ def live_map():
             current_map = result
         # end if
     elif current_map == 'level_one':
-
+        if previous_map.peek() != 'level_one':
+            delete_map()
+            create_lists()
+            player1 = create_players(25,575,RED)
+            player2 = create_players(20,400,BLUE)  
+            player1.walls = wall_list
+            player2.walls = wall_list
+            all_sprite_list.add(player1)
+            all_sprite_list.add(player2)
+            create_map(amaps.level_one)
+            previous_map.push(current_map)
         # check if the the door_list is not empty and check if the lists under 'red' and 'blue' are not empty as well
         if door_list['red'] and len(door_list['red']) >= 1 and door_list['blue'] and len(door_list['blue']) >= 1:
             # check if both players are next to their own doors
@@ -1107,8 +1169,10 @@ def live_map():
         # end if
         ingame()
     elif current_map == 'restart_the_game':
-        # Wait for 2000 milliseconds (2 seconds)
         restart_game()
+    elif current_map == 'restart_the_level':
+        result = restart_the_level()
+        current_map = result
     elif current_map == 'quit':
         result = quit_map()
         # if the player pressed NO, then go back
@@ -1118,6 +1182,100 @@ def live_map():
         else:
             quit()
         # end if
+    elif current_map == 'level_two':
+        if previous_map.peek() != 'level_two':
+            restart_the_level()
+            delete_map()
+            create_lists()
+            
+            player1 = create_players(610,80,RED)
+            player2 = create_players(645,80,BLUE)   
+            player1.walls = wall_list
+            player2.walls = wall_list
+            all_sprite_list.add(player1)
+            all_sprite_list.add(player2)
+            create_map(amaps.level_two)
+            previous_map.push(current_map)
+        # check if the the door_list is not empty and check if the lists under 'red' and 'blue' are not empty as well
+        if door_list['red'] and len(door_list['red']) >= 1 and door_list['blue'] and len(door_list['blue']) >= 1:
+            # check if both players are next to their own doors
+            if ((door_list['red'][0].update_door(player1) and player1.color == RED) and 
+                (door_list['blue'][0].update_door(player2) and player2.color == BLUE)
+                or
+                ((door_list['red'][0].update_door(player2) and player2.color == RED) and 
+                (door_list['blue'][0].update_door(player1) and player1.color == BLUE))                                                                   
+                                                                                        
+                ):    
+                previous_map.push(current_map)
+                current_map = 'winning'
+            # end if
+        # end if
+
+        # Check if players have collided with lakes or enemies and reduce life if necessary
+        check_die(player1, all_lakes_list, all_enemy_list)
+        check_die(player2, all_lakes_list, all_enemy_list)
+
+        # If either player has no remaining life, switch to the losing screen
+        if player1.life <= 0 or player2.life <= 0:
+            previous_map.push(current_map)
+            current_map = 'losing'
+        # end if
+        ingame()
+    elif current_map == 'level_three':
+        if previous_map.peek() != 'level_three':
+            restart_the_level()
+            delete_map()
+            create_lists()
+            player1 = create_players(25,575,RED)
+            player2 = create_players(1235,575,BLUE)   
+            player1.walls = wall_list
+            player2.walls = wall_list
+            all_sprite_list.add(player1)
+            all_sprite_list.add(player2)
+            create_map(amaps.level_three)
+            previous_map.push(current_map)
+        # check if the the door_list is not empty and check if the lists under 'red' and 'blue' are not empty as well
+        if door_list['red'] and len(door_list['red']) >= 1 and door_list['blue'] and len(door_list['blue']) >= 1:
+            # check if both players are next to their own doors
+            if ((door_list['red'][0].update_door(player1) and player1.color == RED) and 
+                (door_list['blue'][0].update_door(player2) and player2.color == BLUE)
+                or
+                ((door_list['red'][0].update_door(player2) and player2.color == RED) and 
+                (door_list['blue'][0].update_door(player1) and player1.color == BLUE))                                                                   
+                                                                                        
+                ):    
+                previous_map.push(current_map)
+                current_map = 'winning'
+            # end if
+        # end if
+
+        # Check if players have collided with lakes or enemies and reduce life if necessary
+        check_die(player1, all_lakes_list, all_enemy_list)
+        check_die(player2, all_lakes_list, all_enemy_list)
+
+        # If either player has no remaining life, switch to the losing screen
+        if player1.life <= 0 or player2.life <= 0:
+            previous_map.push(current_map)
+            current_map = 'losing'
+        # end if
+        ingame()
+    
+    elif current_map == 'restart_the_game':
+        restart_game()
+    elif current_map == 'restart_the_level':
+        result = restart_the_level()
+        current_map = result
+    elif current_map == 'quit':
+        result = quit_map()
+        # if the player pressed NO, then go back
+        if result == 'back':
+            current_map = previous_map.pop()
+        # if the players want to quit the game, quit the game
+        else:
+            quit()
+        # end if
+    elif current_map == 'start':
+        current_map = 'level_one'
     
     
 
@@ -1225,7 +1383,7 @@ def ingame():
     global all_enemy_list
     global all_gun_list
     global score
-
+    
     # Check if player 1 does not currently have a gun
     if not player1.guns:
         # Check for collision with any gun object, and remove the gun if picked up
@@ -1444,7 +1602,7 @@ def ingame():
 
     # opening orange portals (move left)
     for portal in portal_list['orange']:
-        portal.open_portal(p_opener_orange, player1, player2, "left")
+        portal.open_portal(p_opener_orange, player2, player1, "left")
     # next portal
 
     # Opening cyan portals (move right) 
@@ -1506,6 +1664,7 @@ def ingame():
 
 
 def winning():
+    global player1, player2
     # overdrawing everything that was there before
     screen.fill(DARK_GRAY)
     while True:
@@ -1539,6 +1698,18 @@ def winning():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit() 
+             # or return some value to handle closing
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()  # Get the current mouse position
+                if menu_rect.collidepoint(pos):
+                    return 'starting'
+                elif next_level_rect.collidepoint(pos):
+                    player1 = create_players(25,275,RED)
+                    player2 = create_players(60,800,BLUE)   
+                    return 'levels'
+                # end if
+            # end if
+        # next event
 # end procedure
 
 
@@ -1583,6 +1754,13 @@ def lost_map():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit() 
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if restart_the_level_rect.collidepoint(event.pos):
+                    return 'restart_the_level'
+                elif menu_rect.collidepoint(event.pos):
+                    return 'levels'
+                # end if
             # end if
         # next event
     # end while
@@ -1764,6 +1942,10 @@ def pause():
                     # When leaving pause, calculate how long we were paused
                     stop_the_timer(pause_start)
                     return 'back'  # Go back to the previous map
+                elif restart_the_level_rect.collidepoint(pos):
+                    return 'restart_the_level'
+                elif menu_rect.collidepoint(pos):
+                    return 'starting'
             # end if
         # next event
     # end while
@@ -1805,7 +1987,26 @@ def restart_game():
     os.execl(python, python, *sys.argv) # replace the current process with a new one
 # end procedure
 
+def restart_the_level():
+    global score, start_time, player1, player2, previous_map
+    # Clear out the current level sprites and lists
+    delete_map()
+    
+    # Reset the score
+    score = 0
 
+    # Reset the timer
+    start_time = pygame.time.get_ticks()
+    
+    # Rebuild the level map (assuming level one)
+
+    create_map(amaps.level_one)
+    
+    player1 = create_players(25,575,RED)
+    player2 = create_players(20,400,BLUE)   
+    # Set the current map back to level one so the game resumes there
+    return previous_map.pop()
+# end procedure
 
 
 
@@ -1889,7 +2090,8 @@ while not done:
             # Check if the mouse click is within the specified rectangular area (button zone)
             if (x > 30 and x < 80) and (y > 20 and y < 70):
                 # If the current map is 'level_one', switch to the 'pause' screen
-                if current_map == 'level_one':
+                if (current_map == 'level_one' or current_map == 'level_two' or current_map == 'level_three'
+                    or current_map == 'four' or current_map == 'level_five'):
                     previous_map.push(current_map)
                     current_map = 'pause'  # Change the state to pause
             elif (x > 1200 and x < 1320) and (y > 20 and y < 140):

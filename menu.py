@@ -81,7 +81,7 @@ start_y = 50  # Starting y position for all icons
 spacing = 150  # Horizontal space between each level icon
 
 
-def change_level(level, passed_not_passed):
+def main(level, passed_not_passed):
     if passed_not_passed == "passed":
         levels_data[level] = "passed"
         levels_data[level + 1] = "unlocked"

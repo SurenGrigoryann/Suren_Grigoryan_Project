@@ -1,5 +1,5 @@
 import pygame
-import  maps
+
 
 
 pygame.init()
@@ -79,7 +79,7 @@ level_five = Level(SCREEN_WIDTH // 4.5 + 600, SCREEN_HEIGHT // 2 - 100, "Level 5
 levels_objs.add(level_five)
 
 
-font = pygame.font.SysFont(None, 30)
+#font = pygame.font.SysFont(None, 30)
 start_x = 50  # Starting x position
 start_y = 50  # Starting y position for all icons
 spacing = 150  # Horizontal space between each level icon
@@ -89,9 +89,12 @@ spacing = 150  # Horizontal space between each level icon
 
 def main():
     running = True
+    # main loop
     while running:
+        # filling the screen with color
         screen.fill(DARK_GRAY)
         events = pygame.event.get()
+        # checking the events
         for event in events:
             if event.type == pygame.QUIT:
                 running = False
@@ -105,8 +108,8 @@ def main():
                     return 'controls'
 
                 for level in levels_objs:
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                        pos = pygame.mouse.get_pos()
+                    #if event.type == pygame.MOUSEBUTTONDOWN:
+                     #   pos = pygame.mouse.get_pos()
                         x,y = pos[0],pos[1]          
                         if x >= level.rect.x and x <= level.rect.x + 100 and y >= level.rect.y and y <= level.rect.y + 100:
                             if level.condition == "unlocked" or level.condition == 'passed':
@@ -115,16 +118,16 @@ def main():
                                 elif level.number == 2:
                                     return 'level_two'
                                 elif level.number == 3:
-                                    maps.level_three()
+                                    return 'level_three'
                                 elif level.number == 4:
-                                    maps.level_four()
+                                    return 'level_four'
                                 elif level.number == 5:
-                                    maps.level_five()  
+                                    return 'level_five'
         # Draw all level icons.
         back_button_img = pygame.image.load("pictures/Back_button.png")
         back_button_img = pygame.transform.scale(back_button_img, (100, 100))
         screen.blit(back_button_img, (10, 10))
-        question_img = pygame.image.load('pictures/question_grey.png')
+        question_img = pygame.image.load('pictures/question_button.png')
         question_img = pygame.transform.scale(question_img, (150, 150))
         question_rect = question_img.get_rect(center=(1200,100))
         screen.blit(question_img, question_rect)
@@ -134,7 +137,7 @@ def main():
             level.draw(screen)
         pygame.display.flip()    
 
-    return
+    #return
 
 if __name__ == '__main__':
     main()

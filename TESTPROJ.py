@@ -10,7 +10,7 @@ import time
 import sys
 import menu
 from menu import run_menu
-
+import slides
 
 
 
@@ -984,6 +984,9 @@ def live_map():
         else:
             previous_map.push(current_map)
             current_map = result
+    elif current_map == 'story':
+        slides.main()
+        current_map = previous_map.pop()
 
     elif current_map =='controls':
         result = details.main()
@@ -1111,7 +1114,6 @@ def live_map():
 
     elif current_map == 'winning':
         delete_map()
-        screen.fill(WHITE)
         result = winning()
         
         if result == 'back':
