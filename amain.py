@@ -776,7 +776,7 @@ class Portal(pygame.sprite.Sprite):
         self.x1 = x
         self.y1 = y 
         self.x2 = x + 110
-        self.x3 = x - 300
+        self.x3 = x - 290
         self.y2 = y + 110
         self.y3 = y - 110
     # end constructor
@@ -1135,13 +1135,15 @@ def live_map():
         if previous_map.peek() != 'level_one':
             delete_map()
             create_lists()
-            player1 = create_players(25,575,RED)
-            player2 = create_players(20,400,BLUE)  
+            #player1 = create_players(25,575,RED)
+            #player2 = create_players(20,400,BLUE)  
+            player1 = create_players(25,575, RED)
+            player2 = create_players(1235,575, BLUE)
             player1.walls = wall_list
             player2.walls = wall_list
             all_sprite_list.add(player1)
             all_sprite_list.add(player2)
-            create_map(amaps.level_one)
+            create_map(amaps.level_four)
             previous_map.push(current_map)
         # check if the the door_list is not empty and check if the lists under 'red' and 'blue' are not empty as well
         if door_list['red'] and len(door_list['red']) >= 1 and door_list['blue'] and len(door_list['blue']) >= 1:
@@ -1715,6 +1717,7 @@ def winning():
 
 def lost_map():
     screen.fill(DARK_GRAY)
+    
     while True:
         # Create a font object for the title with size 64
         title_font = pygame.font.Font('freesansbold.ttf', 64)
