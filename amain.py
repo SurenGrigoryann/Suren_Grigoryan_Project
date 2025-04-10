@@ -67,7 +67,8 @@ images = {
     'green_lake': pygame.image.load('pictures/green_lake.png'),
     'background1': pygame.image.load('pictures/background1.jpg'),
     'background2': pygame.image.load('pictures/background2.jpg'),
-    'background3': pygame.image.load('pictures/background3.jpg')
+    'background3': pygame.image.load('pictures/background3.jpg'),
+    'final_screen': pygame.image.load('pictures/final_screen.png')
 
 }
 
@@ -1149,187 +1150,15 @@ def live_map():
             current_map = result
         # end if
     elif current_map == 'level_one':
+        screen.fill(DARK_GRAY)
         background = pygame.transform.scale(images['background2'], (SCREEN_WIDTH, SCREEN_HEIGHT))
-        screen.blit(background, (0, 0))
+        screen.blit(background, (0, 80))
         if previous_map.peek() != 'level_one':
             restart_the_level()
             delete_map()
             create_lists()
-            player1 = create_players(25,575,RED)
-            player2 = create_players(20,400,BLUE)  
-            player1.walls = wall_list
-            player2.walls = wall_list
-            all_sprite_list.add(player1)
-            all_sprite_list.add(player2)
-            create_map(amaps.level_one)
-            previous_map.push(current_map)
-        # check if the the door_list is not empty and check if the lists under 'red' and 'blue' are not empty as well
-        if door_list['red'] and len(door_list['red']) >= 1 and door_list['blue'] and len(door_list['blue']) >= 1:
-            # check if both players are next to their own doors
-            if ((door_list['red'][0].update_door(player1) and player1.color == RED) and 
-                (door_list['blue'][0].update_door(player2) and player2.color == BLUE)
-                or
-                ((door_list['red'][0].update_door(player2) and player2.color == RED) and 
-                (door_list['blue'][0].update_door(player1) and player1.color == BLUE))                                                                   
-                                                                                        
-                ):    
-                previous_map.push(current_map)
-                current_map = 'winning'
-            # end if
-        # end if
-
-        # Check if players have collided with lakes or enemies and reduce life if necessary
-        check_die(player1, all_lakes_list, all_enemy_list)
-        check_die(player2, all_lakes_list, all_enemy_list)
-
-        # If either player has no remaining life, switch to the losing screen
-        if player1.life <= 0 or player2.life <= 0:
-            previous_map.push(current_map)
-            current_map = 'losing'
-        # end if
-        ingame()
-    elif current_map == 'restart_the_game':
-        restart_game()
-    elif current_map == 'restart_the_level':
-        result = restart_the_level()
-        current_map = result
-    elif current_map == 'quit':
-        result = quit_map()
-        # if the player pressed NO, then go back
-        if result == 'back':
-            current_map = previous_map.pop()
-        # if the players want to quit the game, quit the game
-        else:
-            quit()
-        # end if
-    elif current_map == 'level_two':
-        background = pygame.transform.scale(images['background2'], (SCREEN_WIDTH, SCREEN_HEIGHT))
-        screen.blit(background, (0, 0))
-        if previous_map.peek() != 'level_two':
-            restart_the_level()
-            delete_map()
-            create_lists()
-            
-            player1 = create_players(610,80,RED)
-            player2 = create_players(645,80,BLUE)   
-            player1.walls = wall_list
-            player2.walls = wall_list
-            all_sprite_list.add(player1)
-            all_sprite_list.add(player2)
-            create_map(amaps.level_two)
-            previous_map.push(current_map)
-        # check if the the door_list is not empty and check if the lists under 'red' and 'blue' are not empty as well
-        if door_list['red'] and len(door_list['red']) >= 1 and door_list['blue'] and len(door_list['blue']) >= 1:
-            # check if both players are next to their own doors
-            if ((door_list['red'][0].update_door(player1) and player1.color == RED) and 
-                (door_list['blue'][0].update_door(player2) and player2.color == BLUE)
-                or
-                ((door_list['red'][0].update_door(player2) and player2.color == RED) and 
-                (door_list['blue'][0].update_door(player1) and player1.color == BLUE))                                                                   
-                                                                                        
-                ):    
-                previous_map.push(current_map)
-                current_map = 'winning'
-            # end if
-        # end if
-
-        # Check if players have collided with lakes or enemies and reduce life if necessary
-        check_die(player1, all_lakes_list, all_enemy_list)
-        check_die(player2, all_lakes_list, all_enemy_list)
-
-        # If either player has no remaining life, switch to the losing screen
-        if player1.life <= 0 or player2.life <= 0:
-            previous_map.push(current_map)
-            current_map = 'losing'
-        # end if
-        ingame()
-    elif current_map == 'level_three':
-        background = pygame.transform.scale(images['background2'], (SCREEN_WIDTH, SCREEN_HEIGHT))
-
-        screen.blit(background, (0, 0))
-        if previous_map.peek() != 'level_three':
-            restart_the_level()
-            delete_map()
-            create_lists()
-            player1 = create_players(25,575,RED)
-            player2 = create_players(1235,575,BLUE)   
-            player1.walls = wall_list
-            player2.walls = wall_list
-            all_sprite_list.add(player1)
-            all_sprite_list.add(player2)
-            create_map(amaps.level_three)
-            previous_map.push(current_map)
-        # check if the the door_list is not empty and check if the lists under 'red' and 'blue' are not empty as well
-        if door_list['red'] and len(door_list['red']) >= 1 and door_list['blue'] and len(door_list['blue']) >= 1:
-            # check if both players are next to their own doors
-            if ((door_list['red'][0].update_door(player1) and player1.color == RED) and 
-                (door_list['blue'][0].update_door(player2) and player2.color == BLUE)
-                or
-                ((door_list['red'][0].update_door(player2) and player2.color == RED) and 
-                (door_list['blue'][0].update_door(player1) and player1.color == BLUE))                                                                   
-                                                                                        
-                ):    
-                previous_map.push(current_map)
-                current_map = 'winning'
-            # end if
-        # end if
-
-        # Check if players have collided with lakes or enemies and reduce life if necessary
-        check_die(player1, all_lakes_list, all_enemy_list)
-        check_die(player2, all_lakes_list, all_enemy_list)
-
-        # If either player has no remaining life, switch to the losing screen
-        if player1.life <= 0 or player2.life <= 0:
-            previous_map.push(current_map)
-            current_map = 'losing'
-        # end if
-        ingame()
-    elif current_map == 'level_four':
-        background = pygame.transform.scale(images['background3'], (SCREEN_WIDTH, SCREEN_HEIGHT))
-        screen.blit(background, (0, 0))
-        if previous_map.peek() != 'level_four':
-            delete_map()
-            create_lists() 
-            player1 = create_players(25,575, RED)
-            player2 = create_players(1235,575, BLUE)
-            player1.walls = wall_list
-            player2.walls = wall_list
-            all_sprite_list.add(player1)
-            all_sprite_list.add(player2)
-            create_map(amaps.level_four)
-            previous_map.push(current_map)
-        # check if the the door_list is not empty and check if the lists under 'red' and 'blue' are not empty as well
-        if door_list['red'] and len(door_list['red']) >= 1 and door_list['blue'] and len(door_list['blue']) >= 1:
-            # check if both players are next to their own doors
-            if ((door_list['red'][0].update_door(player1) and player1.color == RED) and 
-                (door_list['blue'][0].update_door(player2) and player2.color == BLUE)
-                or
-                ((door_list['red'][0].update_door(player2) and player2.color == RED) and 
-                (door_list['blue'][0].update_door(player1) and player1.color == BLUE))                                                                   
-                                                                                        
-                ):    
-                previous_map.push(current_map)
-                current_map = 'winning'
-            # end if
-        # end if
-
-        # Check if players have collided with lakes or enemies and reduce life if necessary
-        check_die(player1, all_lakes_list, all_enemy_list)
-        check_die(player2, all_lakes_list, all_enemy_list)
-
-        # If either player has no remaining life, switch to the losing screen
-        if player1.life <= 0 or player2.life <= 0:
-            previous_map.push(current_map)
-            current_map = 'losing'
-        # end if
-        ingame()
-    elif current_map == 'level_five':
-        background = pygame.transform.scale(images['background3'], (SCREEN_WIDTH, SCREEN_HEIGHT)) 
-        screen.blit(background, (0, 0))
-        if previous_map.peek() != 'level_five':
-            restart_the_level()
-            delete_map()
-            create_lists()
+            #player1 = create_players(25,575,RED)
+            #player2 = create_players(20,400,BLUE)  
             player1 = create_players(25,575,RED)
             player2 = create_players(1210,100,BLUE)  
             player1.walls = wall_list
@@ -1377,6 +1206,184 @@ def live_map():
         else:
             quit()
         # end if
+    elif current_map == 'level_two':
+        screen.fill(DARK_GRAY)
+        background = pygame.transform.scale(images['background2'], (SCREEN_WIDTH, SCREEN_HEIGHT))
+        screen.blit(background, (0, 80))
+        if previous_map.peek() != 'level_two':
+            restart_the_level()
+            delete_map()
+            create_lists()
+            
+            player1 = create_players(610,80,RED)
+            player2 = create_players(645,80,BLUE)   
+            player1.walls = wall_list
+            player2.walls = wall_list
+            all_sprite_list.add(player1)
+            all_sprite_list.add(player2)
+            create_map(amaps.level_two)
+            previous_map.push(current_map)
+        # check if the the door_list is not empty and check if the lists under 'red' and 'blue' are not empty as well
+        if door_list['red'] and len(door_list['red']) >= 1 and door_list['blue'] and len(door_list['blue']) >= 1:
+            # check if both players are next to their own doors
+            if ((door_list['red'][0].update_door(player1) and player1.color == RED) and 
+                (door_list['blue'][0].update_door(player2) and player2.color == BLUE)
+                or
+                ((door_list['red'][0].update_door(player2) and player2.color == RED) and 
+                (door_list['blue'][0].update_door(player1) and player1.color == BLUE))                                                                   
+                                                                                        
+                ):    
+                previous_map.push(current_map)
+                current_map = 'winning'
+            # end if
+        # end if
+
+        # Check if players have collided with lakes or enemies and reduce life if necessary
+        check_die(player1, all_lakes_list, all_enemy_list)
+        check_die(player2, all_lakes_list, all_enemy_list)
+
+        # If either player has no remaining life, switch to the losing screen
+        if player1.life <= 0 or player2.life <= 0:
+            previous_map.push(current_map)
+            current_map = 'losing'
+        # end if
+        ingame()
+    elif current_map == 'level_three':
+        screen.fill(DARK_GRAY)
+        background = pygame.transform.scale(images['background2'], (SCREEN_WIDTH, SCREEN_HEIGHT))
+        screen.blit(background, (0, 80))
+        if previous_map.peek() != 'level_three':
+            restart_the_level()
+            delete_map()
+            create_lists()
+            player1 = create_players(25,575,RED)
+            player2 = create_players(1235,575,BLUE)   
+            player1.walls = wall_list
+            player2.walls = wall_list
+            all_sprite_list.add(player1)
+            all_sprite_list.add(player2)
+            create_map(amaps.level_three)
+            previous_map.push(current_map)
+        # check if the the door_list is not empty and check if the lists under 'red' and 'blue' are not empty as well
+        if door_list['red'] and len(door_list['red']) >= 1 and door_list['blue'] and len(door_list['blue']) >= 1:
+            # check if both players are next to their own doors
+            if ((door_list['red'][0].update_door(player1) and player1.color == RED) and 
+                (door_list['blue'][0].update_door(player2) and player2.color == BLUE)
+                or
+                ((door_list['red'][0].update_door(player2) and player2.color == RED) and 
+                (door_list['blue'][0].update_door(player1) and player1.color == BLUE))                                                                   
+                                                                                        
+                ):    
+                previous_map.push(current_map)
+                current_map = 'winning'
+            # end if
+        # end if
+
+        # Check if players have collided with lakes or enemies and reduce life if necessary
+        check_die(player1, all_lakes_list, all_enemy_list)
+        check_die(player2, all_lakes_list, all_enemy_list)
+
+        # If either player has no remaining life, switch to the losing screen
+        if player1.life <= 0 or player2.life <= 0:
+            previous_map.push(current_map)
+            current_map = 'losing'
+        # end if
+        ingame()
+    elif current_map == 'level_four':
+        screen.fill(DARK_GRAY)
+        background = pygame.transform.scale(images['background3'], (SCREEN_WIDTH, SCREEN_HEIGHT))
+        screen.blit(background, (0, 80))
+        if previous_map.peek() != 'level_four':
+            delete_map()
+            create_lists() 
+            player1 = create_players(25,575, RED)
+            player2 = create_players(1235,575, BLUE)
+            player1.walls = wall_list
+            player2.walls = wall_list
+            all_sprite_list.add(player1)
+            all_sprite_list.add(player2)
+            create_map(amaps.level_four)
+            previous_map.push(current_map)
+        # check if the the door_list is not empty and check if the lists under 'red' and 'blue' are not empty as well
+        if door_list['red'] and len(door_list['red']) >= 1 and door_list['blue'] and len(door_list['blue']) >= 1:
+            # check if both players are next to their own doors
+            if ((door_list['red'][0].update_door(player1) and player1.color == RED) and 
+                (door_list['blue'][0].update_door(player2) and player2.color == BLUE)
+                or
+                ((door_list['red'][0].update_door(player2) and player2.color == RED) and 
+                (door_list['blue'][0].update_door(player1) and player1.color == BLUE))                                                                   
+                                                                                        
+                ):    
+                previous_map.push(current_map)
+                current_map = 'winning'
+            # end if
+        # end if
+
+        # Check if players have collided with lakes or enemies and reduce life if necessary
+        check_die(player1, all_lakes_list, all_enemy_list)
+        check_die(player2, all_lakes_list, all_enemy_list)
+
+        # If either player has no remaining life, switch to the losing screen
+        if player1.life <= 0 or player2.life <= 0:
+            previous_map.push(current_map)
+            current_map = 'losing'
+        # end if
+        ingame()
+    elif current_map == 'level_five':
+        screen.fill(DARK_GRAY)
+        background = pygame.transform.scale(images['background3'], (SCREEN_WIDTH, SCREEN_HEIGHT)) 
+        screen.blit(background, (0, 80))
+        if previous_map.peek() != 'level_five':
+            restart_the_level()
+            delete_map()
+            create_lists()
+            player1 = create_players(25,575,RED)
+            player2 = create_players(1210,100,BLUE)  
+            player1.walls = wall_list
+            player2.walls = wall_list
+            all_sprite_list.add(player1)
+            all_sprite_list.add(player2)
+            create_map(amaps.level_five)
+            previous_map.push(current_map)
+        # check if the the door_list is not empty and check if the lists under 'red' and 'blue' are not empty as well
+        if door_list['red'] and len(door_list['red']) >= 1 and door_list['blue'] and len(door_list['blue']) >= 1:
+            # check if both players are next to their own doors
+            if ((door_list['red'][0].update_door(player1) and player1.color == RED) and 
+                (door_list['blue'][0].update_door(player2) and player2.color == BLUE)
+                or
+                ((door_list['red'][0].update_door(player2) and player2.color == RED) and 
+                (door_list['blue'][0].update_door(player1) and player1.color == BLUE))                                                                   
+                                                                                        
+                ):    
+                previous_map.push(current_map)
+                current_map = 'final_screen'
+            # end if
+        # end if
+
+        # Check if players have collided with lakes or enemies and reduce life if necessary
+        check_die(player1, all_lakes_list, all_enemy_list)
+        check_die(player2, all_lakes_list, all_enemy_list)
+
+        # If either player has no remaining life, switch to the losing screen
+        if player1.life <= 0 or player2.life <= 0:
+            previous_map.push(current_map)
+            current_map = 'losing'
+        # end if
+        ingame()
+    elif current_map == 'restart_the_game':
+        restart_game()
+    elif current_map == 'restart_the_level':
+        result = restart_the_level()
+        current_map = result
+    elif current_map == 'quit':
+        result = quit_map()
+        # if the player pressed NO, then go back
+        if result == 'back':
+            current_map = previous_map.pop()
+        # if the players want to quit the game, quit the game
+        else:
+            quit()
+        # end if
     elif current_map == 'start':
         # checking the highest unlocked level and based on that start the level
         if amenu.level_five.condition == 'unlocked':
@@ -1392,7 +1399,9 @@ def live_map():
             current_map = 'level_one'
         # end if
     # end if
-    
+    elif current_map == 'final_screen':
+        result = final_screen()
+        current_map = result
     
 
         # end if
@@ -1760,8 +1769,8 @@ def ingame():
     # next coin
 
     # setting up the pause button
-    pause_img = pygame.transform.scale(buttons['pause_button'], (50, 50))
-    pause_rect = pause_img.get_rect(topleft=(30, 20))  # sets the top-left corner
+    pause_img = pygame.transform.scale(buttons['pause_button'], (100, 100))
+    pause_rect = pause_img.get_rect(topleft=(0, -10))  # sets the top-left corner
     screen.blit(pause_img, pause_rect)
 
     #question button
@@ -1837,10 +1846,7 @@ def winning():
 
 def lost_map():
     
-    background = pygame.transform.scale(images['background1'], (SCREEN_WIDTH, SCREEN_HEIGHT))
- 
-    screen.blit(background, (0, 0))
-    # screen.fill(DARK_GRAY)
+    screen.fill(DARK_GRAY)
     
     while True:
         # Create a font object for the title with size 64
@@ -2187,6 +2193,56 @@ def back_button():
 # end function
 
 
+def final_screen():
+    final_screen = pygame.transform.scale(images['final_screen'], (SCREEN_WIDTH, SCREEN_HEIGHT)) 
+    screen.blit(final_screen, (0, 0))
+
+    font = pygame.font.SysFont('DejaVu Sans', 64)   
+
+    # creating the first text
+    text1 = font.render('The crown is safe now!', True, WHITE)  
+    text1_rect = text1.get_rect(center=(SCREEN_WIDTH//2, 600)) 
+    # creating the shadow of the first text 
+    shadow1 = font.render('The crown is safe now!', True, BLACK)  
+    shadow1_rect = shadow1.get_rect(center=(SCREEN_WIDTH//2+2, 600+2))  
+    # blitting the shadow first and the text second
+    screen.blit(shadow1, shadow1_rect)
+    screen.blit(text1, text1_rect)
+
+    # creating the seoncd text
+    text2 = font.render('Thank you for playing!', True, WHITE)
+    text2_rect = text2.get_rect(center = (SCREEN_WIDTH//2, 650))
+    # creating the shadow for the second text
+    shadow2 = font.render('Thank you for playing!', True, BLACK)  
+    # blitting the shadow first and the text second
+    shadow2_rect = shadow2.get_rect(center=((SCREEN_WIDTH//2)+2, 650+2))  
+    screen.blit(shadow2, shadow2_rect) 
+    screen.blit(text2, text2_rect)
+    
+
+    while True:
+        # fet the back button and transform in size
+        back_img = pygame.transform.scale(buttons['back_button'], (150, 150))
+        # get the rectangle for the back button
+        back_rect = back_img.get_rect(center=(100,100))
+        # draw the image onto the screen
+        screen.blit(back_img, back_rect)
+
+        # flipping the screen
+        pygame.display.flip()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit() 
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()  # Get the current mouse position
+                if back_rect.collidepoint(pos):
+                    return 'starting'
+                # end if
+            # end if
+        # next event
+    # end while
+# end function
 
 
 done = False
