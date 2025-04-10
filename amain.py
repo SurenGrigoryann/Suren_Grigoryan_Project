@@ -147,6 +147,7 @@ def delete_map():
     global all_sprite_list, wall_list, red_lake_list, blue_lake_list, black_lake_list
     global all_lakes_list, all_gun_list, bullet_list, all_enemy_list, door_list, lift_fan_list
     global portal_list_spr, portal_list, portal_opener_list, portal_opener_list_spr
+    global coins_list, red_coin_list, blue_coin_list
     # clearing all the sprites
     all_sprite_list.empty()
     wall_list.empty()
@@ -173,6 +174,9 @@ def delete_map():
     portal_opener_list['orange'].clear()
     portal_opener_list['purple'].clear()
     portal_opener_list['cyan'].clear()
+    coins_list.empty()
+    red_coin_list.empty()
+    blue_coin_list.empty()
 # end procedure
 
 
@@ -317,7 +321,6 @@ class Player(pygame.sprite.Sprite):
                 self.rect.left = portal.rect.right
             # end if
         # next portal
-
 
 
             # end if
@@ -858,7 +861,7 @@ def create_players(x,y,color):
 # end procedure
 
 player1 = create_players(25,575,RED)
-player2 = create_players(20,400,BLUE)   
+player2 = create_players(20,700,BLUE)   
 
 def check_die(player, lake_dict, enemies):
     # Check collisions with lakes of a different color
@@ -1133,17 +1136,16 @@ def live_map():
         # end if
     elif current_map == 'level_one':
         if previous_map.peek() != 'level_one':
+            restart_the_level()
             delete_map()
             create_lists()
-            #player1 = create_players(25,575,RED)
-            #player2 = create_players(20,400,BLUE)  
-            player1 = create_players(25,575, RED)
-            player2 = create_players(1235,575, BLUE)
+            player1 = create_players(25,575,RED)
+            player2 = create_players(20,400,BLUE)  
             player1.walls = wall_list
             player2.walls = wall_list
             all_sprite_list.add(player1)
             all_sprite_list.add(player2)
-            create_map(amaps.level_four)
+            create_map(amaps.level_one)
             previous_map.push(current_map)
         # check if the the door_list is not empty and check if the lists under 'red' and 'blue' are not empty as well
         if door_list['red'] and len(door_list['red']) >= 1 and door_list['blue'] and len(door_list['blue']) >= 1:
@@ -1261,7 +1263,81 @@ def live_map():
             current_map = 'losing'
         # end if
         ingame()
-    
+    elif current_map == 'level_four':
+        if previous_map.peek() != 'level_four':
+            delete_map()
+            create_lists() 
+            player1 = create_players(25,575, RED)
+            player2 = create_players(1235,575, BLUE)
+            player1.walls = wall_list
+            player2.walls = wall_list
+            all_sprite_list.add(player1)
+            all_sprite_list.add(player2)
+            create_map(amaps.level_four)
+            previous_map.push(current_map)
+        # check if the the door_list is not empty and check if the lists under 'red' and 'blue' are not empty as well
+        if door_list['red'] and len(door_list['red']) >= 1 and door_list['blue'] and len(door_list['blue']) >= 1:
+            # check if both players are next to their own doors
+            if ((door_list['red'][0].update_door(player1) and player1.color == RED) and 
+                (door_list['blue'][0].update_door(player2) and player2.color == BLUE)
+                or
+                ((door_list['red'][0].update_door(player2) and player2.color == RED) and 
+                (door_list['blue'][0].update_door(player1) and player1.color == BLUE))                                                                   
+                                                                                        
+                ):    
+                previous_map.push(current_map)
+                current_map = 'winning'
+            # end if
+        # end if
+
+        # Check if players have collided with lakes or enemies and reduce life if necessary
+        check_die(player1, all_lakes_list, all_enemy_list)
+        check_die(player2, all_lakes_list, all_enemy_list)
+
+        # If either player has no remaining life, switch to the losing screen
+        if player1.life <= 0 or player2.life <= 0:
+            previous_map.push(current_map)
+            current_map = 'losing'
+        # end if
+        ingame()
+    elif current_map == 'level_five':
+        if previous_map.peek() != 'level_five':
+            restart_the_level()
+            delete_map()
+            create_lists()
+            player1 = create_players(25,575,RED)
+            player2 = create_players(1210,100,BLUE)  
+            player1.walls = wall_list
+            player2.walls = wall_list
+            all_sprite_list.add(player1)
+            all_sprite_list.add(player2)
+            create_map(amaps.level_five)
+            previous_map.push(current_map)
+        # check if the the door_list is not empty and check if the lists under 'red' and 'blue' are not empty as well
+        if door_list['red'] and len(door_list['red']) >= 1 and door_list['blue'] and len(door_list['blue']) >= 1:
+            # check if both players are next to their own doors
+            if ((door_list['red'][0].update_door(player1) and player1.color == RED) and 
+                (door_list['blue'][0].update_door(player2) and player2.color == BLUE)
+                or
+                ((door_list['red'][0].update_door(player2) and player2.color == RED) and 
+                (door_list['blue'][0].update_door(player1) and player1.color == BLUE))                                                                   
+                                                                                        
+                ):    
+                previous_map.push(current_map)
+                current_map = 'winning'
+            # end if
+        # end if
+
+        # Check if players have collided with lakes or enemies and reduce life if necessary
+        check_die(player1, all_lakes_list, all_enemy_list)
+        check_die(player2, all_lakes_list, all_enemy_list)
+
+        # If either player has no remaining life, switch to the losing screen
+        if player1.life <= 0 or player2.life <= 0:
+            previous_map.push(current_map)
+            current_map = 'losing'
+        # end if
+        ingame()
     elif current_map == 'restart_the_game':
         restart_game()
     elif current_map == 'restart_the_level':
@@ -1277,7 +1353,20 @@ def live_map():
             quit()
         # end if
     elif current_map == 'start':
-        current_map = 'level_one'
+        # checking the highest unlocked level and based on that start the level
+        if amenu.level_five.condition == 'unlocked':
+            current_map = 'level_five'
+        elif amenu.level_four.condition == 'unlocked':
+            current_map == 'level_four'
+        elif amenu.level_three.condition == 'unlocked':
+            current_map = 'level_three'
+        elif amenu.level_two.condition == 'unlocked':
+            current_map = 'level_two'
+        # if all the levels are passed it will start from the level one
+        else:
+            current_map = 'level_one'
+        # end if
+    # end if
     
     
 
@@ -2001,13 +2090,34 @@ def restart_the_level():
     # Reset the timer
     start_time = pygame.time.get_ticks()
     
-    # Rebuild the level map (assuming level one)
-
-    create_map(amaps.level_one)
+    # getting rid of the pause screen from the stack
+    if previous_map.peek() == 'pause':
+        previous_map.pop()
+    # end if
+    # checking which level was the level that the screen was paused from
+    if previous_map.peek() == 'level_one':
+        create_map(amaps.level_one)
+        player1 = create_players(25,575,RED)
+        player2 = create_players(20,400,BLUE)
+    elif previous_map.peek() == 'level_two':
+        create_map(amaps.level_two)
+        player1 = create_players(610,80,RED)
+        player2 = create_players(645,80,BLUE)   
+    elif previous_map.peek() == 'level_three':
+        create_map(amaps.level_two)
+        player1 = create_players(25,575,RED)
+        player2 = create_players(1235,575,BLUE)   
+    elif previous_map.peek() == 'level_four':
+        create_map(amaps.level_four)
+        player1 = create_players(25,575,RED)
+        player2 = create_players(1235,575,BLUE)   
+    elif previous_map.peek() == 'level_five':
+        create_map(amaps.level_five)
+        player1 = create_players(25,575,RED)
+        player2 = create_players(1210,100,BLUE)  
+    # end if
     
-    player1 = create_players(25,575,RED)
-    player2 = create_players(20,400,BLUE)   
-    # Set the current map back to level one so the game resumes there
+    # setting the current map back to level one so the game resumes there
     return previous_map.pop()
 # end procedure
 
