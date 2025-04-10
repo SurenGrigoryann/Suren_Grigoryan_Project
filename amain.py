@@ -61,6 +61,10 @@ images = {
     'brown_portal_opener': pygame.image.load('pictures/brown_portal_opener.png'),
     'red_coin': pygame.image.load('pictures/red_coin.png'),
     'blue_coin': pygame.image.load('pictures/blue_coin.png'),
+    'block': pygame.image.load('pictures/block.png'),
+    'red_lake': pygame.image.load('pictures/red_lake.png'),
+    'blue_lake': pygame.image.load('pictures/blue_lake.png'),
+    'black_lake': pygame.image.load('pictures/black_lake.png')
 }
 
 
@@ -509,9 +513,9 @@ class Block(pygame.sprite.Sprite):
 
         super().__init__()
  
-        # Making a dark green block with 10 heigth and 10 width from which we will build our walls
-        self.image = pygame.Surface([10,10])
-        self.image.fill(DARK_GREEN)
+        # loading the block image
+
+        self.image = pygame.transform.scale(images['block'], (10, 10))
  
         # set positions
         self.rect = self.image.get_rect()
