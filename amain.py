@@ -531,8 +531,14 @@ class Lakes(pygame.sprite.Sprite):
     def __init__(self,x,y,COLOR):
 
         super().__init__()
-        self.image = pygame.Surface([10,10])
-        self.image.fill(COLOR)
+        self.color = COLOR
+        if self.color == LIGHT_RED:
+            self.image = pygame.transform.scale(images['red_lake'], (10,10))
+        elif self.color == LIGHT_BLUE:
+            self.image = pygame.transform.scale(images['blue_lake'], (10,10))
+        elif self.color == BLACK:
+            self.image = pygame.transform.scale(images['black_lake'], (10,10))
+        # end if
         self.rect = self.image.get_rect()
         self.rect.y = y
         self.rect.x = x
@@ -2224,7 +2230,11 @@ while not done:
 
     # filling the screen with a color
     
-    screen.fill(GREEN)
+    background = pygame.image.load("pictures/background1.jpg")
+    background = pygame.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+    # Inside your game loop or drawing function
+    screen.blit(background, (0, 0))
 
     # calling the main map
     live_map()
