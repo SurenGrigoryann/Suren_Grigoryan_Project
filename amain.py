@@ -64,7 +64,11 @@ images = {
     'block': pygame.image.load('pictures/block.png'),
     'red_lake': pygame.image.load('pictures/red_lake.png'),
     'blue_lake': pygame.image.load('pictures/blue_lake.png'),
-    'black_lake': pygame.image.load('pictures/black_lake.png')
+    'green_lake': pygame.image.load('pictures/green_lake.png'),
+    'background1': pygame.image.load('pictures/background1.jpg'),
+    'background2': pygame.image.load('pictures/background2.jpg'),
+    'background3': pygame.image.load('pictures/background3.jpg')
+
 }
 
 
@@ -91,7 +95,7 @@ buttons = {
 
 def create_lists():
     global all_sprite_list, wall_list, red_lake_list, blue_lake_list
-    global black_lake_list, all_lakes_list, all_gun_list, bullet_list
+    global green_lake_list, all_lakes_list, all_gun_list, bullet_list
     global all_enemy_list, all_spell_list, door_list, lift_fan_list
     global portal_list, portal_list_spr, portal_opener_list, portal_opener_list_spr
     global red_coin_list, blue_coin_list, coins_list
@@ -104,10 +108,10 @@ def create_lists():
     # setting the lake groups
     red_lake_list = pygame.sprite.Group()
     blue_lake_list = pygame.sprite.Group()
-    black_lake_list = pygame.sprite.Group()
+    green_lake_list = pygame.sprite.Group()
 
     # setting the dictionary for all lakes
-    all_lakes_list = {RED: [], BLUE: [], BLACK: []}
+    all_lakes_list = {RED: [], BLUE: [], GREEN: []}
 
     # setting up the gun list
     all_gun_list = pygame.sprite.Group()
@@ -148,7 +152,7 @@ def create_lists():
 create_lists()
 
 def delete_map():
-    global all_sprite_list, wall_list, red_lake_list, blue_lake_list, black_lake_list
+    global all_sprite_list, wall_list, red_lake_list, blue_lake_list, green_lake_list
     global all_lakes_list, all_gun_list, bullet_list, all_enemy_list, door_list, lift_fan_list
     global portal_list_spr, portal_list, portal_opener_list, portal_opener_list_spr
     global coins_list, red_coin_list, blue_coin_list
@@ -157,10 +161,10 @@ def delete_map():
     wall_list.empty()
     red_lake_list.empty()
     blue_lake_list.empty()
-    black_lake_list.empty()
+    green_lake_list.empty()
     all_lakes_list[RED].clear()
     all_lakes_list[BLUE].clear()
-    all_lakes_list[BLACK].clear()
+    all_lakes_list[GREEN].clear()
     all_gun_list.empty()
     bullet_list.empty()
     all_enemy_list.empty()
@@ -536,8 +540,8 @@ class Lakes(pygame.sprite.Sprite):
             self.image = pygame.transform.scale(images['red_lake'], (10,10))
         elif self.color == LIGHT_BLUE:
             self.image = pygame.transform.scale(images['blue_lake'], (10,10))
-        elif self.color == BLACK:
-            self.image = pygame.transform.scale(images['black_lake'], (10,10))
+        elif self.color == GREEN:
+            self.image = pygame.transform.scale(images['green_lake'], (10,10))
         # end if
         self.rect = self.image.get_rect()
         self.rect.y = y
@@ -947,11 +951,11 @@ def create_map(map):
                 all_lakes_list[RED].append(red_lake)
 
             elif j == 7:
-                # creating black lakes
-                black_lake = Lakes(x, y,BLACK)
-                black_lake_list.add(black_lake)    
-                all_sprite_list.add(black_lake)
-                all_lakes_list[BLACK].append(black_lake)
+                # creating green lakes
+                green_lake = Lakes(x, y,GREEN)
+                green_lake_list.add(green_lake)    
+                all_sprite_list.add(green_lake)
+                all_lakes_list[GREEN].append(green_lake)
             elif j == 'G':
                 # creating gun objects
                 gun = Gun(x,y)
@@ -1145,6 +1149,8 @@ def live_map():
             current_map = result
         # end if
     elif current_map == 'level_one':
+        background = pygame.transform.scale(images['background2'], (SCREEN_WIDTH, SCREEN_HEIGHT))
+        screen.blit(background, (0, 0))
         if previous_map.peek() != 'level_one':
             restart_the_level()
             delete_map()
@@ -1197,6 +1203,8 @@ def live_map():
             quit()
         # end if
     elif current_map == 'level_two':
+        background = pygame.transform.scale(images['background2'], (SCREEN_WIDTH, SCREEN_HEIGHT))
+        screen.blit(background, (0, 0))
         if previous_map.peek() != 'level_two':
             restart_the_level()
             delete_map()
@@ -1236,6 +1244,9 @@ def live_map():
         # end if
         ingame()
     elif current_map == 'level_three':
+        background = pygame.transform.scale(images['background2'], (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+        screen.blit(background, (0, 0))
         if previous_map.peek() != 'level_three':
             restart_the_level()
             delete_map()
@@ -1274,6 +1285,8 @@ def live_map():
         # end if
         ingame()
     elif current_map == 'level_four':
+        background = pygame.transform.scale(images['background3'], (SCREEN_WIDTH, SCREEN_HEIGHT))
+        screen.blit(background, (0, 0))
         if previous_map.peek() != 'level_four':
             delete_map()
             create_lists() 
@@ -1311,6 +1324,8 @@ def live_map():
         # end if
         ingame()
     elif current_map == 'level_five':
+        background = pygame.transform.scale(images['background3'], (SCREEN_WIDTH, SCREEN_HEIGHT)) 
+        screen.blit(background, (0, 0))
         if previous_map.peek() != 'level_five':
             restart_the_level()
             delete_map()
@@ -1388,7 +1403,10 @@ def live_map():
 def starting_map():
     global current_map
     # filling the screen with a color
-    screen.fill(DARK_GRAY)
+    background = pygame.transform.scale(images['background1'], (SCREEN_WIDTH, SCREEN_HEIGHT))
+ 
+    screen.blit(background, (0, 0))
+    #screen.fill(DARK_GRAY)
     # strarting the starting loop
     while True:
         
@@ -1396,7 +1414,7 @@ def starting_map():
         title_font = pygame.font.Font('freesansbold.ttf', 64)
         
         # Display "TWIN TO WIN" text at the top
-        title_text = title_font.render('TWIN TO WIN', True, BLACK)
+        title_text = title_font.render('TWIN TO WIN', True, WHITE)
         # Position the title at the top-center
         title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
         # blitting the text on the screen
@@ -1572,7 +1590,7 @@ def ingame():
             player1.timer = None
         # end if
     else:
-        # if player 1 doesn't have a gun, display black gun
+        # if player 1 doesn't have a gun, display green gun
         no_gun = pygame.transform.scale(images['no_gun'], (50, 50))
         screen.blit(no_gun, (200, 20))
     #end if
@@ -1596,7 +1614,7 @@ def ingame():
             player2.timer = None
         # end if
     else:
-        # if player 1 doesn't have a gun, display black gun
+        # if player 1 doesn't have a gun, display green gun
         no_gun = pygame.transform.scale(images['no_gun'], (50, 50))
         screen.blit(no_gun, (1080, 20))
     # end if
@@ -1767,11 +1785,14 @@ def ingame():
 def winning():
     global player1, player2
     # overdrawing everything that was there before
-    screen.fill(DARK_GRAY)
+    background = pygame.transform.scale(images['background1'], (SCREEN_WIDTH, SCREEN_HEIGHT))
+ 
+    screen.blit(background, (0, 0))
+    # screen.fill(DARK_GRAY)
     while True:
         # Create a font object for the title with size 64
         title_font = pygame.font.Font('freesansbold.ttf', 64)
-        title_text = title_font.render('Level Passed!', True, BLACK)
+        title_text = title_font.render('Level Passed!', True, WHITE)
         # Get the rectangle for the text
         title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
         # Draw  the text onto the screen
@@ -1815,12 +1836,16 @@ def winning():
 
 
 def lost_map():
-    screen.fill(DARK_GRAY)
+    
+    background = pygame.transform.scale(images['background1'], (SCREEN_WIDTH, SCREEN_HEIGHT))
+ 
+    screen.blit(background, (0, 0))
+    # screen.fill(DARK_GRAY)
     
     while True:
         # Create a font object for the title with size 64
         title_font = pygame.font.Font('freesansbold.ttf', 64)
-        title_text = title_font.render('You lost!', True, BLACK)
+        title_text = title_font.render('You lost!', True, WHITE)
         # Get the rectangle for the text
         title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
         # Draw  the text onto the screen
@@ -1871,13 +1896,16 @@ def lost_map():
 def quit_map():
     global current_map
     # filling the screen with a color
-    screen.fill(DARK_GRAY)
+    background = pygame.transform.scale(images['background1'], (SCREEN_WIDTH, SCREEN_HEIGHT))
+ 
+    screen.blit(background, (0, 0))
+    #screen.fill(DARK_GRAY)
     # starting the settings loop
     while True:
         # Use a large font for the heading
         title_font = pygame.font.Font('freesansbold.ttf', 64)
         # display the question at the top
-        title_text = title_font.render('Are you sure you want to quit the game?', True, BLACK)
+        title_text = title_font.render('Are you sure you want to quit the game?', True, WHITE)
         # Position the title at the top-center
         title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
         # blitting the text on the screen
@@ -1926,14 +1954,18 @@ def quit_map():
 def settings_map():
     global current_map
     # filling the screen with a color
-    screen.fill(DARK_GRAY)
+    background = pygame.transform.scale(images['background1'], (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+        # 
+    screen.blit(background, (0, 0))
+    #screen.fill(DARK_GRAY)
     # starting the settings loop
     while True:
         # Use a large font for the heading
         title_font = pygame.font.Font('freesansbold.ttf', 64)
 
         # display 'settings' text at the top
-        title_text = title_font.render('Settings', True, BLACK)
+        title_text = title_font.render('Settings', True, WHITE)
         # Position the title at the top-center
         title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
         # blitting the text on the screen
@@ -1996,14 +2028,18 @@ def settings_map():
 
 def pause():
     global start_time
-    screen.fill(DARK_GRAY)
+    background = pygame.transform.scale(images['background1'], (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+        # 
+    screen.blit(background, (0, 0))
+    #screen.fill(DARK_GRAY)
     # Record the time when pause starts
     pause_start = pygame.time.get_ticks()
 
     while True:
         # Create a font object for the title with size 64
         title_font = pygame.font.Font('freesansbold.ttf', 64)
-        title_text = title_font.render('Level paused!', True, BLACK)
+        title_text = title_font.render('Level paused!', True, WHITE)
         # Get the rectangle for the text
         title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
         # Draw  the text onto the screen
@@ -2157,6 +2193,7 @@ done = False
 
 # the main loop for the game
 while not done:
+
     # setting up the quit button
     # this will allow us to exit the game
     # when we press the x button
@@ -2230,11 +2267,8 @@ while not done:
 
     # filling the screen with a color
     
-    background = pygame.image.load("pictures/background1.jpg")
-    background = pygame.transform.scale(background, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
-    # Inside your game loop or drawing function
-    screen.blit(background, (0, 0))
+
 
     # calling the main map
     live_map()
