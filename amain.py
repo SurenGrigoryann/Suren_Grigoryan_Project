@@ -68,7 +68,8 @@ images = {
     'background1': pygame.image.load('pictures/background1.jpg'),
     'background2': pygame.image.load('pictures/background2.jpg'),
     'background3': pygame.image.load('pictures/background3.jpg'),
-    'final_screen': pygame.image.load('pictures/final_screen.png')
+    'final_screen': pygame.image.load('pictures/final_screen.png'),
+    'tutorial_screen': pygame.image.load('pictures/tutorial_screen.png')
 
 }
 
@@ -628,8 +629,7 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.y = y
         self.rect.x = x
-        self.x = x
-        self.y = y
+
     # end constructor
     def attack(self, player):
         # checking whether the player's y coordinate is within the enemy's 'attack zone'
@@ -1157,10 +1157,8 @@ def live_map():
             restart_the_level()
             delete_map()
             create_lists()
-            #player1 = create_players(25,575,RED)
-            #player2 = create_players(20,400,BLUE)  
             player1 = create_players(25,575,RED)
-            player2 = create_players(1210,100,BLUE)  
+            player2 = create_players(20,400,BLUE)  
             player1.walls = wall_list
             player2.walls = wall_list
             all_sprite_list.add(player1)
@@ -1402,7 +1400,9 @@ def live_map():
     elif current_map == 'final_screen':
         result = final_screen()
         current_map = result
-    
+    elif current_map == 'tutorial':
+        result = tutorial_screen()
+        current_map = result
 
         # end if
         # end if
@@ -2156,7 +2156,7 @@ def restart_the_level():
         player1 = create_players(610,80,RED)
         player2 = create_players(645,80,BLUE)   
     elif previous_map.peek() == 'level_three':
-        create_map(amaps.level_two)
+        create_map(amaps.level_three)
         player1 = create_players(25,575,RED)
         player2 = create_players(1235,575,BLUE)   
     elif previous_map.peek() == 'level_four':
@@ -2243,6 +2243,48 @@ def final_screen():
         # next event
     # end while
 # end function
+
+def tutorial_screen():
+    screen.fill(BLACK)
+    tutorial_screen = pygame.transform.scale(images['tutorial_screen'], (SCREEN_WIDTH, SCREEN_HEIGHT - 80))
+    screen.blit(tutorial_screen, (0,80))
+
+    font = pygame.font.SysFont('DejaVu Sans', 64)   
+
+    # creating the first text
+    text = font.render('Tutorial', True, WHITE)  
+    text_rect = text.get_rect(center=(SCREEN_WIDTH//2, 30)) 
+    # creating the shadow of the first text 
+    shadow = font.render('Tutorial', True, BLACK)  
+    shadow_rect = shadow.get_rect(center=(SCREEN_WIDTH//2+2, 30+2))  
+    # blitting the shadow first and the text second
+    screen.blit(shadow, shadow_rect)
+    screen.blit(text, text_rect)
+
+    while True:
+        # fet the back button and transform in size
+        back_img = pygame.transform.scale(buttons['back_button'], (100, 100))
+        # get the rectangle for the back button
+        back_rect = back_img.get_rect(center=(40, 40))
+        # draw the image onto the screen
+        screen.blit(back_img, back_rect)
+
+        # flipping the screen
+        pygame.display.flip()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit() 
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()  # Get the current mouse position
+                if back_rect.collidepoint(pos):
+                    return 'starting'
+                # end if
+            # end if
+        # next event
+    # end while
+# end function
+
 
 
 done = False
