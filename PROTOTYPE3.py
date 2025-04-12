@@ -51,7 +51,7 @@ images = {
     'next_level_button': pygame.image.load('pictures/next_level.png'),
     'restart_the_level_button': pygame.image.load('pictures/restart_the_level.png'),
     'losing_screen' : pygame.image.load('pictures/lost.png'),
-    'pause_button': pygame.image.load('pictures/pause_button.png'),
+    'pause_button': pygame.image.load('pictures/fake_pause.jpg'),
     'back_button': pygame.image.load('pictures/back_button.png'),
     'lift_fan': pygame.image.load('pictures/lift_fan.png'),
     'purple_portal': pygame.image.load('pictures/purple_portal.png'),
@@ -1026,7 +1026,7 @@ def create_map(map):
 
 
 # creating the map for level one
-create_map(amaps.level_one)
+create_map(amaps.level_one_x)
 
 
 current_map = 'level_one'

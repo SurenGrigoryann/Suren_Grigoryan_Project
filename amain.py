@@ -629,7 +629,8 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.y = y
         self.rect.x = x
-
+        self.x = x
+        self.y = y
     # end constructor
     def attack(self, player):
         # checking whether the player's y coordinate is within the enemy's 'attack zone'
@@ -1157,13 +1158,15 @@ def live_map():
             restart_the_level()
             delete_map()
             create_lists()
+            #player1 = create_players(25,575,RED)
+            #player2 = create_players(20,400,BLUE)  
             player1 = create_players(25,575,RED)
-            player2 = create_players(20,400,BLUE)  
+            player2 = create_players(1210,100,BLUE)  
             player1.walls = wall_list
             player2.walls = wall_list
             all_sprite_list.add(player1)
             all_sprite_list.add(player2)
-            create_map(amaps.level_five)
+            create_map(amaps.level_one)
             previous_map.push(current_map)
         # check if the the door_list is not empty and check if the lists under 'red' and 'blue' are not empty as well
         if door_list['red'] and len(door_list['red']) >= 1 and door_list['blue'] and len(door_list['blue']) >= 1:
