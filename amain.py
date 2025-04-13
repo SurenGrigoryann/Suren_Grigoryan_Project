@@ -1103,8 +1103,6 @@ def live_map():
         elif result == 'level_four':
             amenu.level_four.set_condition('passed')
             amenu.level_five.set_condition('unlocked')
-        elif result == 'level_five':
-            amenu.level_five.set_condition('passed')
         # end if
 
         delete_map()
@@ -1158,10 +1156,8 @@ def live_map():
             restart_the_level()
             delete_map()
             create_lists()
-            #player1 = create_players(25,575,RED)
-            #player2 = create_players(20,400,BLUE)  
             player1 = create_players(25,575,RED)
-            player2 = create_players(1210,100,BLUE)  
+            player2 = create_players(20,400,BLUE)  
             player1.walls = wall_list
             player2.walls = wall_list
             all_sprite_list.add(player1)
@@ -1193,20 +1189,6 @@ def live_map():
             current_map = 'losing'
         # end if
         ingame()
-    elif current_map == 'restart_the_game':
-        restart_game()
-    elif current_map == 'restart_the_level':
-        result = restart_the_level()
-        current_map = result
-    elif current_map == 'quit':
-        result = quit_map()
-        # if the player pressed NO, then go back
-        if result == 'back':
-            current_map = previous_map.pop()
-        # if the players want to quit the game, quit the game
-        else:
-            quit()
-        # end if
     elif current_map == 'level_two':
         screen.fill(DARK_GRAY)
         background = pygame.transform.scale(images['background2'], (SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -1295,6 +1277,7 @@ def live_map():
         background = pygame.transform.scale(images['background3'], (SCREEN_WIDTH, SCREEN_HEIGHT))
         screen.blit(background, (0, 80))
         if previous_map.peek() != 'level_four':
+            restart_the_level()
             delete_map()
             create_lists() 
             player1 = create_players(25,575, RED)
@@ -1357,6 +1340,7 @@ def live_map():
                                                                                         
                 ):    
                 previous_map.push(current_map)
+                amenu.level_five.set_condition('passed') 
                 current_map = 'final_screen'
             # end if
         # end if
@@ -1523,7 +1507,7 @@ def ingame():
             player1.guns = True  # Grant the player the ability to shootp
             player1.timer = pygame.time.get_ticks()
             # starting the timer
-            print('player 1 took the gun')
+
         # end if
     # end if
 
@@ -1535,7 +1519,7 @@ def ingame():
             player2.guns = True  # Grant the player the ability to shoot
             player2.timer = pygame.time.get_ticks()
             # starting the timer
-            print('player 2 took the gun')
+
         # end if
     # end if
 
@@ -1673,7 +1657,6 @@ def ingame():
             for enemy in enemy_hits:
                 if enemy.life > 1: 
                     enemy.life -= 1
-                    print(enemy.life)
                 else:
                     # killing enemy when it has 0 health
                     enemy.kill()
@@ -1762,13 +1745,11 @@ def ingame():
     # Loop through collected red coins
     for coin in red_coin_hits:
         score += 1
-        print(score)
     # next coin
 
     # Loop through collected blue 3s
     for coin in blue_coin_hits:
         score += 1
-        print(score)
     # next coin
 
     # setting up the pause button
@@ -1895,7 +1876,7 @@ def lost_map():
                 if restart_the_level_rect.collidepoint(event.pos):
                     return 'restart_the_level'
                 elif menu_rect.collidepoint(event.pos):
-                    return 'levels'
+                    return 'starting'
                 # end if
             # end if
         # next event

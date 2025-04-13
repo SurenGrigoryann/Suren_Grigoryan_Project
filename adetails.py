@@ -310,22 +310,22 @@ def lakes_info_scene(events):
     # loading the images for the lakes
     red_lake_image = pygame.image.load("pictures/red_lake.png")
     blue_lake_image = pygame.image.load("pictures/blue_lake.png")
-    black_lake_image = pygame.image.load("pictures/black_lake.png")
+    green_lake_image = pygame.image.load("pictures/green_lake.png")
 
     # reducing the size of the images
     red_lake_image = pygame.transform.scale(red_lake_image, (100, 100))
     blue_lake_image = pygame.transform.scale(blue_lake_image, (100, 100))
-    black_lake_image = pygame.transform.scale(black_lake_image, (100, 100))
+    green_lake_image = pygame.transform.scale(green_lake_image, (100, 100))
 
     # getting the rect of the images
     red_lake_rect = red_lake_image.get_rect(center=(SCREEN_WIDTH - 1080, SCREEN_HEIGHT // 3))
     blue_lake_rect = blue_lake_image.get_rect(center=(SCREEN_WIDTH - ((1080 + 200) // 2), SCREEN_HEIGHT // 3))
-    black_lake_rect = black_lake_image.get_rect(center=(SCREEN_WIDTH - 200 , SCREEN_HEIGHT // 3))
+    green_lake_rect = green_lake_image.get_rect(center=(SCREEN_WIDTH - 200 , SCREEN_HEIGHT // 3))
 
     # blitting the images on the screen
     screen.blit(red_lake_image, red_lake_rect)
     screen.blit(blue_lake_image, blue_lake_rect)
-    screen.blit(black_lake_image, black_lake_rect)
+    screen.blit(green_lake_image, green_lake_rect)
 
     # all the texts for the red lake are stored in a list of tuples
     texts1 = [
@@ -359,9 +359,9 @@ def lakes_info_scene(events):
         screen.blit(text_surface, text_rect)
     # next message, pos
 
-    # all the texts for the black lake are stored in a list of tuples
+    # all the texts for the green lake are stored in a list of tuples
     texts3 = [
-        ('The black spell lake.', (SCREEN_WIDTH - 200 , SCREEN_HEIGHT // 3 - 80)),
+        ('The Green spell lake.', (SCREEN_WIDTH - 200 , SCREEN_HEIGHT // 3 - 80)),
         ('Neither twin dares to cross it.', (SCREEN_WIDTH - 200 , SCREEN_HEIGHT // 3 + 80)),
         ('It belongs to no one and shows', (SCREEN_WIDTH - 200, SCREEN_HEIGHT // 3 + 120)),
         ('no mercy! Lory and Mory will die', (SCREEN_WIDTH - 200, SCREEN_HEIGHT // 3 + 160)),
@@ -374,45 +374,6 @@ def lakes_info_scene(events):
         text_rect = text_surface.get_rect(center=pos)
         screen.blit(text_surface, text_rect)
     # next message, pos
-
-    # loop through and blit all the texts on the screen
-    for message, pos in texts1:
-        text_surface = info_font.render(message, True, WHITE)
-        text_rect = text_surface.get_rect(center=pos)
-        screen.blit(text_surface, text_rect)
-    # next message, pos
-
-    # all the texts for the blue lake are stored in a list of tuples
-    texts2 = [
-        ('Blue Lake', (SCREEN_WIDTH - ((1080+200)//2), SCREEN_HEIGHT // 3 - 80)),
-        ('This lake flows with the calm ', (SCREEN_WIDTH - ((1080+200)//2), SCREEN_HEIGHT // 3 + 80)),
-        ('and focused energy of Mory\'s blue', (SCREEN_WIDTH - ((1080+200)//2), SCREEN_HEIGHT // 3 + 120)),
-        ('magic. Lory does not belong here -', (SCREEN_WIDTH - ((1080+200)//2), SCREEN_HEIGHT // 3 + 160)),
-        ('it will instantly kill him!', (SCREEN_WIDTH - ((1080+200)//2), SCREEN_HEIGHT // 3 + 200))
-    ]
-    # loop through and blit all the texts on the screen
-    for message, pos in texts2:
-        text_surface = info_font.render(message, True, WHITE)
-        text_rect = text_surface.get_rect(center=pos)
-        screen.blit(text_surface, text_rect)
-    # next message,pos
-
-    texts3 = [
-        ('The black spell lake.', (SCREEN_WIDTH - 200 , SCREEN_HEIGHT // 3 - 80)),
-        ('Neither twin dares to cross it.', (SCREEN_WIDTH - 200 , SCREEN_HEIGHT // 3 + 80)),
-        ('It belongs to no one and shows', (SCREEN_WIDTH - 200, SCREEN_HEIGHT // 3 + 120)),
-        ('no mercy! Lory and Mory will die', (SCREEN_WIDTH - 200, SCREEN_HEIGHT // 3 + 160)),
-        ('instantly if they touch it!', (SCREEN_WIDTH - 200, SCREEN_HEIGHT // 3 + 200))
-
-    ]
-    
-    
-    # loop through and blit all the texts on the screen
-    for message, pos in texts3:
-        text_surface = info_font.render(message, True, WHITE)
-        text_rect = text_surface.get_rect(center=pos)
-        screen.blit(text_surface, text_rect)
-    # next message,pos
 
     draw_back_button(events)
     # loading the image for the back button
